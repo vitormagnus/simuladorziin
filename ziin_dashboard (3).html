@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZIIN · Simulador de Patrimônio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#2E2E2E; --green-dark:#1A1A1A; --green-pale:#F0F0F0;
+  --green-mid:rgba(46,46,46,.12); --gold:#C9A84C;
+  --primary:#1A1A1A; --secondary:#3D3D3D; --muted:#888888;
+  --border:rgba(46,46,46,.14); --border2:rgba(26,26,26,.09);
+  --bg:#F5F5F5; --surface:#FFFFFF;
+  --sh-sm:0 1px 6px rgba(0,0,0,.07); --sh:0 2px 16px rgba(0,0,0,.10);
+  --r:6px; --rl:10px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);min-height:100vh;font-size:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* HEADER */
+header{background:var(--green-dark);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.28)}
+.logo-img{height:32px;width:auto;max-width:160px;display:block;object-fit:contain}
+.hdr-right{display:flex;align-items:center;gap:18px}
+.badge{display:flex;align-items:center;gap:7px;padding:6px 14px;border:1px solid rgba(255,255,255,.18);border-radius:99px;font-size:10px;font-weight:600;letter-spacing:.14em;color:rgba(255,255,255,.75);text-transform:uppercase}
+.bdot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+.hdr-date{font-size:11px;color:rgba(255,255,255,.35)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* SHELL */
+.shell{max-width:1300px;margin:0 auto;padding:32px 48px 64px}
+
+/* ─── OBJECTIVE SCREEN ─── */
+#screen-objetivo{
+  min-height:calc(100vh - 64px);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 48px;
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.obj-intro{text-align:center;margin-bottom:44px}
+.obj-intro h2{font-family:'Playfair Display',serif;font-size:38px;font-weight:400;color:var(--green-dark);line-height:1.2}
+.obj-intro h2 em{font-style:italic;color:var(--gold)}
+.obj-intro p{margin-top:8px;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.obj-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;width:100%;max-width:900px}
+.obj-card{
+  background:var(--surface);border-radius:var(--rl);
+  border:2px solid var(--border2);
+  padding:28px 20px 24px;
+  cursor:pointer;text-align:center;
+  transition:border-color .2s,box-shadow .2s,transform .18s;
+  box-shadow:var(--sh-sm);
+}
+.obj-card:hover{border-color:var(--green);box-shadow:var(--sh);transform:translateY(-3px)}
+.obj-card.selected{border-color:var(--green);background:var(--green-pale);box-shadow:var(--sh)}
+.obj-icon{width:54px;height:54px;border-radius:50%;background:var(--green-pale);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;transition:background .2s}
+.obj-card:hover .obj-icon,.obj-card.selected .obj-icon{background:var(--green);color:white}
+.obj-card:hover .obj-icon svg,.obj-card.selected .obj-icon svg{stroke:white}
+.obj-icon svg{stroke:var(--green);transition:stroke .2s}
+.obj-name{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:4px}
+.obj-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.btn-continuar{
+  margin-top:36px;
+  padding:14px 40px;
+  background:var(--green-dark);
+  color:white;border:none;border-radius:var(--r);
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  cursor:pointer;opacity:.4;pointer-events:none;
+  transition:opacity .2s,transform .15s,background .2s;
+}
+.btn-continuar.active{opacity:1;pointer-events:all}
+.btn-continuar.active:hover{background:var(--green);transform:translateY(-1px)}
+
+/* ─── MAIN SCREEN ─── */
+#screen-main{display:none;animation:fadeIn .4s ease}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid var(--border2)}
+.hero-copy h1{font-family:'Playfair Display',serif;font-size:34px;font-weight:400;color:var(--green-dark);line-height:1.2}
+.hero-copy h1 em{font-style:italic;color:var(--gold)}
+.hero-meta{display:flex;align-items:center;gap:12px}
+.hero-obj-tag{display:flex;align-items:center;gap:7px;background:var(--green-pale);border:1px solid var(--border);border-radius:99px;padding:7px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+.live-pill{display:flex;align-items:center;gap:7px;background:var(--green-pale);border:1px solid var(--border);border-radius:99px;padding:7px 16px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);white-space:nowrap}
+.live-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.btn-back{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid var(--border2);border-radius:99px;padding:5px 12px;cursor:pointer;transition:color .2s,border-color .2s}
+.btn-back:hover{color:var(--green);border-color:var(--green)}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-sm);padding:24px;border:1px solid var(--border2)}
+.card+.card{margin-top:14px}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--green);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.sec-label::before{content:'';width:12px;height:2px;background:var(--green);border-radius:99px}
+
+/* INPUTS */
+.field{margin-bottom:15px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=number],select{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--r);font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--primary);background:var(--bg);outline:none;transition:border-color .18s,box-shadow .18s;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-mid)}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%232E2E2E' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+/* SLIDERS */
+.sf{margin-bottom:22px}
+.sf:last-child{margin-bottom:0}
+.sf-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.sf-hdr label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.sv{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--green-dark)}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--border2);border-radius:99px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--green);border:2.5px solid white;box-shadow:0 1px 8px rgba(46,46,46,.40);transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--green);border:2.5px solid white}
+
+/* TAXA BOX */
+.taxa-box{background:var(--green-dark);border-radius:var(--rl);padding:20px 24px;color:white;display:flex;justify-content:space-between;align-items:center;margin-top:14px;box-shadow:var(--sh)}
+.tl{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:4px}
+.tv{font-family:'Playfair Display',serif;font-size:30px;font-weight:600;color:var(--gold)}
+.tmv{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,.8)}
+
+/* CHART */
+.chart-card{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh);padding:28px 28px 20px;border:1px solid var(--border2)}
+.ct{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+.ct-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--green-dark)}
+.ct-title span{display:block;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.lb{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:var(--green-pale);padding:6px 12px;border-radius:99px;border:1px solid var(--border)}
+.ld{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.cw{position:relative;height:420px}
+
+/* KPIS */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.kpi{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-sm);padding:18px 20px;border:1px solid var(--border2);border-top:3px solid var(--green)}
+.kl{font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.kv{font-family:'Playfair Display',serif;font-size:25px;font-weight:600;color:var(--green-dark);line-height:1}
+.ks{margin-top:3px;font-size:10px;color:var(--muted)}
+
+/* ─── PLANO DE VOO DROPDOWN ─── */
+.pv-wrap{margin-top:20px}
+.pv-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  background:var(--green-dark);padding:20px 28px;
+  border-radius:var(--rl);cursor:pointer;
+  color:white;text-align:left;
+  transition:border-radius .3s;
+}
+.pv-wrap.open .pv-toggle{border-radius:var(--rl) var(--rl) 0 0}
+.pv-toggle-left{display:flex;flex-direction:column;gap:3px}
+.pv-toggle-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.pv-toggle-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:white}
+.pv-toggle-right{display:flex;align-items:center;gap:14px}
+.btn-print{display:flex;align-items:center;gap:8px;padding:9px 18px;background:transparent;color:white;border:1px solid rgba(255,255,255,.3);border-radius:var(--r);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s,border-color .2s}
+.btn-print:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.6)}
+.pv-chevron{width:20px;height:20px;flex-shrink:0;transition:transform .3s;color:rgba(255,255,255,.6)}
+.pv-wrap.open .pv-chevron{transform:rotate(180deg)}
+.pv-body{
+  background:var(--surface);
+  border:1px solid var(--border2);border-top:none;
+  border-radius:0 0 var(--rl) var(--rl);
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .4s cubic-bezier(.4,0,.2,1);
+}
+.pv-wrap.open .pv-body{max-height:2000px}
+.rb{padding:24px 28px}
+.rg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.ri{padding:12px 14px;background:var(--bg);border-radius:var(--r);border-left:2px solid var(--green)}
+.rk{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.rv{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--primary)}
+.rv.g{color:var(--green)}
+.tw{overflow:hidden;border-radius:var(--r);border:1px solid var(--border2)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--green);color:white;padding:9px 14px;text-align:left;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:hover{background:var(--green-pale)}
+tbody td{padding:8px 14px;border-bottom:1px solid var(--border2);font-weight:500;color:var(--secondary)}
+tbody td:last-child{font-weight:600;color:var(--green)}
+tbody tr.ms td{background:var(--green-pale) !important}
+tbody tr.ms td:first-child{border-left:3px solid var(--green);padding-left:11px;font-weight:700;color:var(--green-dark)}
+
+/* NARRATIVE */
+.narrative-wrap{margin-bottom:28px}
+.narrative-block{background:linear-gradient(135deg,var(--green-dark) 0%,#2E2E2E 100%);border-radius:var(--rl);padding:28px 32px;color:white;margin-bottom:16px}
+.narrative-eyebrow{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:10px}
+.narrative-headline{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;line-height:1.25;color:white;margin-bottom:14px}
+.narrative-headline em{font-style:italic;color:var(--gold)}
+.narrative-body{font-size:13px;line-height:1.75;color:rgba(255,255,255,.75);max-width:780px}
+.narrative-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ni{background:var(--surface);border-radius:var(--rl);padding:18px 20px;border-left:3px solid var(--green);box-shadow:var(--sh-sm)}
+.ni-icon{font-size:18px;margin-bottom:8px}
+.ni-title{font-size:11px;font-weight:700;color:var(--green-dark);margin-bottom:5px;letter-spacing:.02em}
+.ni-text{font-size:11px;color:var(--muted);line-height:1.55}
+.ni-text strong{color:var(--primary)}
+
+/* TOOLTIP (i) */
+.field-label-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.field-label-row label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0}
+.info-btn{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--muted);background:transparent;color:var(--muted);font-size:9px;font-weight:700;cursor:default;display:inline-flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;line-height:1}
+.info-btn:hover .tooltip-box{opacity:1;pointer-events:auto;transform:translateY(0)}
+.tooltip-box{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);background:#1A1A1A;color:white;font-size:11px;font-weight:400;line-height:1.5;letter-spacing:.01em;text-transform:none;width:240px;padding:10px 13px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.tooltip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1A1A1A}
+
+/* ECON BOX */
+.econ-row{display:flex;align-items:center;gap:10px;margin-top:2px}
+.econ-row input[type=range]{flex:1}
+.econ-val{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--green-dark);min-width:40px;text-align:right}
+.econ-result{display:flex;align-items:center;gap:0;margin-top:16px;background:var(--green-pale);border-radius:var(--r);overflow:hidden}
+.econ-result-item{flex:1;padding:10px 14px}
+.econ-divider{width:1px;height:36px;background:var(--border);flex-shrink:0}
+.econ-result-label{display:block;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.econ-result-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--green-dark)}
+.econ-result-badge{display:inline-block;font-size:13px;font-weight:700;color:var(--green);background:white;border:1px solid var(--border);border-radius:4px;padding:2px 8px}
+
+@media print{
+  body{background:white}
+  header{position:relative;box-shadow:none}
+  #screen-objetivo{display:none}
+  #screen-main{display:block !important}
+  .shell{padding:16px 24px}
+  .btn-print,.btn-back,.pv-chevron{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .pv-body{max-height:none !important;border:1px solid var(--border2);border-radius:0 0 var(--rl) var(--rl)}
+  .cw{height:280px}
+  input[type=range]{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img class="logo-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABNoAAAG3CAYAAABi2ThpAABjBUlEQVR4nO39b2hld5rgeX6fchKGK9LYcMUkRCOBwUUIqnCBlurNHmR6wBABAx4iYJdsMpalc8H1onfB1TAUZC1d1FJVkDRsGTp3hwyY7GkIM8lMbwT4RREBhi4saFPFCMpUgYIyGCTa4FwJbJzoQgZhnnnxO788RzekkCKke8/98/3A5d57dCX9QlKce85znj8gSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZKk5xV9fNPMBBiMbR4Bw+mvRpI0DRFx2PcaFlVmXgNWKO+tw+Z+pddFXb695vYoopfDFz2HzBwCG5S/x9Wel3NR3WPWEXDU3I+AUURs97IqvZDMvEL5mzxqNn3nWa/3vUuSIDPrMWbXqI+1PIfB2ONRROxP4xs/843lsjSBtSFwnXLgX08CqvoLGg++SZIWwygz94BHwG5EzPob81xo3l83gXebTYPOrWveTxSHlH/DHuVv6ZDyd2SAY8Zk5iblb3KNNuA778d3J10IroE2MnMD2ImInamuSs8lM68CW5QA8BrtxYivzvi8B83DQ8rv/IDjgdaJrFeS+tYcZ65R9pubzX33OHMqQatLUC+skJn7wC6wFxGPJvUNJ/7OkJlrwC3KL+aA41fcq9HYvSRpsXRPtPeAHeC+AbcX1xz8vAfcpvw84eRs8UVwjTZYWI8fdoD3p3VlUmfLzC3KRdVNmivHtMGJRXBawHAD+Bj4wGDb7Gky2N6iDbLVv81zZbRxcnJA9/k92gDcvu9rkhZFZr5HOe5ap02W6r63z/qFtCEnH4McAkcR8a8n9Y0nGmjLzHcob2pDSoDt6NmfIUlaUCuUkxBoy8h2gL+MiMf9LGl+NUG2H1My2e4CV3td0OTVzJN6QFdPag8pGSU/6WVV+o3MfBv4Icf/r1ezfiB+Ua9QTkIeUK6SexFhRjRBtp9N+NvU/VMtKd6n3T8dRMQnE/7+knSpmgzg25QLnYvsKyZ0kWxipaPNL6d71UiStLxOutAypGS+eBLy/K7TllMugyPKyez48cQASuDR8q3+ZOablAurqxxvB7IsF1lrdtSAEnDbBCxrng03pvA9DmiDyQPKiekaTWlpZt6i7Kt3KSXvn01hTZJ0EbXEftGtAtcy8+CyKyQmEmhrrrRfp42A1j4Gi35FU5J0spN6cQ6BtzJzIyJ+3sOa5lJTnnebNqtrWd5ba7Ct6v67tzCw0afblAATLEdgbVw3W3eV8rfp32PPmgDwzSl9u3qeU/dR48No1innRdczc5emXykl482sbkkzo3PxbJ2nM9QXTb3ov5KZdy8zG31SGW1vUxa8SvvLWZYTAUnSyer7QPdE/Brl/cJA2/nVZvMPKCd3q8CTXlc0eeMHPuOlpNcxsNGL5uJqDbLVcrlazVBviz5VvmZb1n/nRmZej4iHPa5JZT+5TukLOkndc5z6/tbdZ+1T/jbqBN5VSs+4A0rG2981r9mx5FhSn5py+9rPclmsUt7Hd7nEY8nfuqwvVHUmoNXygXqFZ95Hu0uSXtx4M+naRHUFGDaDc3Q+9WS+/gwXPYhxkm6wdkAJbPS1lmV3k/L76AbZ6m1ZggZrtKWjtZx7s7/lqNkf9PE3ODrhdo12P31E+/+lrvE2pd/mu5m5lZkmJ0jqyyrlAsWAxc9mg+ODti71eHoSGW1XaRdZfznj6dOSJEEbMNkCPuhzIXOknrwtk7NOPJctsDNLuj2wao+yGnBalrYh9W+vnpjUn4P6c6W5n8Y+4aTekd0y0jr17oCn998DShbFCuV9cAvYy8xHlIFBu2a5SZqy7gXdRb+Ye8CEYlWTCLR9lzJ96aXO1/91c5vY8AVJ0tx4pblVB5TsDwNt59fN6KonYcv6HvuENqij6VsDfgU8pgQNXqIc831F+X++6EM7ntAGT8aHQag/3X55Z/UNvOi+c/zzv8PxzM7aYPtx87H6/jcAXgb+keNBuSFtT7dRZt4H9iJikf8fSZoN9SLBed/D5vnY8wkTTAib1A9mvGygTmOyfFSSllf3BHTQ2TYCXu9lRfOrHgQtSxbX+L9zPJixDD+DWTagBNa65XIHtIGORddtldKdPql+1aDVpMufuvunWhraPVE9bf80Ar6hZLHViwWPOl9zg/J/aAt4lJkPgPtOWJY0Yd1YzqKb2L9xEoG2bynRwV9R3jxqVPQJi9+sWZJ0ulrK84Ty/lDVshqdzwbwN8BvU95z63vtIr/HfjP2vPu3VC165tSsqsGC+jupv6urzf3nU1/R9H0DvAn8r5T/lwcs9v/HeVAra744x2sv43d1Zey++3WvcLorHP8/0t23fdncahD3XwDvZOYOJeB2nn+bJD2PVygXzr7ifLGieX+vq+tfoRxTX5p5TvWTJC0OA22SJD1t/P1xHbjZ9HE7iIhPe1iTJOkZDLRJkmbBMkw2kiTpeY2XNtWS2E2AzPwEuOvQBEmaHQbaJEmzwJI/SZKetsrpAx1WKAG3tczcjoiH01uWJOk0BtokSbNgr+8FSJI0g+pwhfoY2nLSQ+B7lN6dG5m5AdyLiH0kSb0x0CZJmgVmtEmS9LQaVFuhDbit0AbdBpT30CNKdttWMzDhfctJJakfBtokSbPAHm2SJD2t9mjrZrZBG3gbcby0dL35nFFTTrozlVVKkn7DQJskaRZ41V2SpKd1y0a7F6UGzccOKH3chpT30h3a7LbrmXmfUk5q5rgkTYmBNknSNNSTgQHlhGBE6cs2AtbsJyNJ0om62WrjE0iPgNeAJ8CXzbYrza1u+z7wRpPd9uGE1ypJwkCbJGk6Bjx9glC3r5ywXZIkXVx9j93KTAy2SdLkGWiTJE1bLRMdNvcnBeAkSdLF1dLSVWC9M5n0s36XJUmLy0CbJGlaavlo9znYn02SpEmpvdlqH7frwDAz7wE7EfG4t5VJ0oL6rb4XIElaKgOeDqw5cVSSpMmoQxIOaINuG8At4N2+FiVJi8xAmyRpGk7KWhtQGjk7CEGSpMlYpw227dEOIhoCG5n5XmZe63F9krRwLB2VJE3DEScPPTgEdqe8FkmSFsVZ53O/bl7zSvP8cfP8O5QLXluUUtL7EbEzsVVK0hIx0CZJ6lMtZ5EkSZdvj/ZC12Ds/lvK+/AGsJqZDyLi/pTXJ0kLx0CbJGkaRpTylQGwQylZGQCjiPikz4VJkjTHnpzx8ddOeO03nW0rlIDba8DbmfkacNchCZL04uzRJkmahlHnNujeMrPPdUmStMxqv9SaXb4OvNXfciRp/pnRJkmaljoQYUBbxnLSkARJkjQ9I0rP1AGljHSYmQPggZltkvT8zGiTJPVlH9iLiL7XIUnSsupeBKu921YpQxJu97IiSZpzZrRJkqahHrwfde4PKf3aJElSPw4o79GrlPfmI0rwbQhsNZltdyPi695WKElzxow2SdK01CBbDbodUqahSZKkfoy3dej2VF0FbjU3SdI5mdEmSZqWOghh5awXSpKkqagXv0ZjzweUbLdVSmYbOI1Uks7FjDZJ0jSd1AtGkiT1Y7W5P6Bknq9QJo9Cec/ebV5zG3u2SdK5GGiTJE3DOm2QbUgpGb3jlXFJkno13tbhiBJ0q9s2gG1KT9V3M/NPp7s8SZo/BtokSdMwGns8oj24lyRJs+kAuEa5SLYPDDPz7X6XJEmzzUCbJGkaThqEMDrltZIkaTaMKFnpq5Rs9AHw48x8p9dVSdIMM9AmSZqGOggBytXxPctGJUmaK/UC2TpwPTNf7XEtkjSzDLRJkqalThw9pDRXliRJs22V8r59QCkfHVH6tQ2AP+5xXZI0swy0SZKmZaW538NAmyRJ82BACbKNaCeU7jTPr2fmzcx0irgkdRhokyRNy2/6s1k2KknSXKjlooOx24iS6XYbuNnP0iRpNhlokyRNQz0wh3JgLkmSZt8BJZNtlRJcWwHWKO/pO8AGsJmZ13pboSTNGANtkqRp+Ap4Cfg18F96XoskSTqfAWVy+EFz350iPgT+E/BPgP+ul9VJ0gwy0CZJmoYVYJ/Sm+1Rz2uRJEmXowbirmXmjzKz7/VIUu8MtEmSpmFAGYKwHRF9r0WSJF2OEe2ghHeBH/W7HEnqn4E2SdI0rFF6s+30vRBJknRpRp0blH5tr/a3HEnqn4E2SdI0rACjiBid+UpJkjQvaq+2I9qLaX+QmVf6W5Ik9ctAmyRpGvYo/dkkSdLiGFDKRqFkrg+ALeB2byuSpJ4ZaJMkTcM2lo1KkrRoVigTSUeUzLaV5vFGZv6gz4VJUl8MtEmSpmHHslFJkhbOEWWq+AjYoGS07TbPb/W4LknqzSQCbevN7YiSPixJWg7dZsjjz81mkyRpMa1Rstn2KNlta83tKDN/nJl9rk2Spm4SgbYDng6wDSbwfSRJs2VAu79foe3Z8shsNkmSltIQuN73IiRpmiYRaBtRstmgPeHyBEuSFtuIElyrvVmgvAccAg/6WpQkSerVKnA9M6/1vRBJmpZJ9mhbwUw2SVomJ+3z9yLi06mvRJIkzYp14IYlpJKWxSQCbYMTHh+d9EJJ0sIYD7IdUXq12JtNkqTlNaJkt28A7xlsk7QMJlU66hAESVouK5QenUeUMpERsG02myRJS+2oudVebfZrk7TwJhFo+4ySxTCexWYZqSQtrtqPbdQ8HgHbva5IkiTNgpXmfgRsZuZan4uRpEm79EBbRADsY1abJC2TGlyrgTYi4oteVyRJkvq2AtTA2h4ls+22JaSSFtl3JvR1/xPwGrBF2ZnWk6+qm91Wt7804TVJfav/Fw4pGZ91YMj4dN7x/yvnnd775HKWKb2Qz4DXKX+v/xm43+9yJEnSDHgC/Kp5/C3lePg14G3go74WJUmTNJGgVkT8KjP3KIG2FUqAYI/StweOBwzq4yPge5NakzQD9pv7bvAMyv+NEaVJbLfsTponB5S/YYDdiHAIgiRJqse93QvKq8C1zPzfIuLrvhYmSZMysaBWRPx1Zq7TBhRWadOGu7o73e9Naj3SFJwVHKtZbOPbXm5u3zb30GanPQG+aT7PjDXNsnogvY+92SRJ0snqReW3gJXM/EnTekiSFsZEs8ci4j9k5gFlR7oGPGo+dNpghL1Jrkfq2XpzP6Jk/9QDjVWezmJb4fhAkfHhItKsqZNGdyJi/6wXS5KkpVCPb8fboQyATeCHwAc9rEuSJmbiZZoR8VeZ+UvKjrRmtD2hLSPtBt2+nfR6pB7tUPpSjJeOHjXPazBtpXNvgE3zYkj5G7/X90IkSdLM6A5KWqUc29bj2yPgVmbuRMSjUz5fkubOVPqhNb16djLzGscbwI8HHF4+4dOlRbFLCThvUrLb6oHHEW2GmzSvRsB2RDhxWpIkVd2LyV0Hzf3rwI3MPPQYQtKimOrgAa9UaNll5i6lhHrY2TykzfCEk4PQ0qzbiYiHfS9CkiTNlNoepWa1jX9snzJAD+D96S1LkibHCZ/SFDWTlY6NMs/Mq5QDjCFtxqc0b5wyKkmSxq1S+nB3e7XV7QD/CNwABpl5zz6vkhaBgTapZxHxBfCL+jwzB8B12hLTbuPYrvHmsp9zPEhXP14z5g6QXtwhsNE8roNr1pvH22azSZKkExxwcqVGLSddBz6mHKv+eWb+scE2SfPOQJs0YyJiBNwH7mfmGiW4sU6bVg9tb7eu9bHn3Y8bZNNFDTk+LXeleb4DPOhxXZIkaX5126kMKNltd3paiyRdCgNt0gxrrujtZyaUzKF1yvTemulWs9ZGPD1MZLXZXoMjQ6QXt8LxTLYBJch2NyIe97YqSZI077rHtFuZeRQRH/S5IEm6CANt0hyICICHAJm5SSkt7ZaVwvGstcEpj6WLqAHbAaWU9IFBNkmSdAH7HB+YMKRMId1xkJ6kefVbfS9A0vOJiB3KVKa7wDbtQckqx/u5HTU3ByzoMhxwfELuxxHxaY/rkSRJ86+2Ohk0j+tx7a2mb7EkzR0DbdIciohRRGxHxB1Kf6zd5kMrlEy3WjZaS0ely1APeLcpgV5JkqSL6g5LqCWkm8CP+1mOJF2MgTZpzkXEfeAvKI1jd2ib1XfT8KXLsgvciYiv+16IJEmae92Lw7UKox67bmTm9b4WJkkvyh5t0gKIiEPgo8zcoxygbPS8JC2eeqV5NyK+6HUlkiRpUdS+rwe07SkOOx+/lZnbEeGFY0lzw4w2aYFExGfAnwD/E/BL4CplGunnzfNvgdea28vN818191pu3znj9jrwSUT8orcVSpKkRfMNcIVyzHoFeNLcd28/yszeFihJz8tAm7RgIoKI+CvgHqWUdEDpczFsXnLY3OqVQRvNCp4uMe4+HwD3gY+ntxxJkqTf9B/+ft8LkaTzMtAmLaiI+FtKw/pdykFKDbSNeDrQZrBNXQOe/nu5ExGP+luSJElaQvWY5EZmvtn3YiTpPAy0SQssIn5JCbb9DNhvNg85nt1mzwtB+zcx/nwXuGtvFEmS1IM6JGGD0q/tSs/rkaQzGWiTFlxE/DIi/iPwgBJYW6Wk4AMccbzhrJZXzWrsBtQOgAcRsd3DeiRJkqAcj0AJtt3ucyGSdB5OHZWWRET8VWaOKAGVteZ+pfnwCHipr7Vppgwofw87wEPLRSVJUo+OKMclR5SLxZuZuRsRn/S7LEk6nYE2aYlExF83wbYtylXBNSwdVbHP8XLR+xGx0+N6JEmSRrTHJweUC4I3MnM/Ir7ob1mSdDpLR6Ul0wxJqAGUdZ7uzaXltNfcD4FDg2ySJGlGrDS32lt4jXLRWJJmkoE2aQlFxF9TerYdUA5Y9jofXqGk5kOb7baK5l2dHlp78q3SHrQ+Ajabx3eA93tYnyRJ0rh6DDqgVGOsUo5pNjLzj3pblSQ9g6Wj0vJ6SAm0bFIOXH7dbD9qbnC8j5vm26DzeETbWHhIyWzco2Q63o+IKS9NkiTpREeUY9HxVicDgMwcOBld0qwxo01aUhHxK+A/UPpxdTPWRrQHM91hCZp/g86t/p5XmufbwAcerEqSpBlzNPa8ezzzZ5k5/RVJ0jOY0SYtsYggMx9Sspp+t/OhGmypWVAHaFHUwFqd4LULHETE/V5XJUmS9LTxC4D1InA9Rv0d4DqlUkOSZoIZbdKSi4jPgb+gDaat0paM1oOYwxM+VfNrQDP0ALgXET/teT2SJEnn0c1uG1COZW5lpsMRJM0MA22SiIhvKVcCu5lrRxwvI9ViOKIclO4ADyPi057XI0mSdJpaInqaPcoU0puWkEqaFQbaJAEQER9Sgi81sGaQbfHUcouPgTsR8VGfi5EkSbqgemyzDvywz4VIUmWgTVLXLiWrrQbZutNHNf/q7/FRRHzW60okSZLOtjL2fPxC8BDYb7bdyMzr01qYJJ3GQJuk34iIT4B/RxmU8vvN/Vc4OGUePKb8nr7X3F5pnj9ubv8N8HfAvzKTTZIkzYnTJo5WXwJXgJeb29uZ+f0prU2STuTJs6RjIuJRZtZ+FzWrbRV40uvCdJZrlN5r+83zYXOD8nv8A2AnIiwHliRJi2KVthqjDnvaAD7pc1GSlpsZbZJO8pBSRlpZOjr7Tiv33aUMPXgYEU6PlSRJi6Qe79Ty0RVg06w2SX0yo03SUyJiJzPXgFuUK4OHlLR8za6aybZKOegcUYZb3I2I/VM/S5IkaX7VTP3uReFV4K3MXLFdhqQ+mNEm6UQRcb95uE5Jyddsq+USA8qo+7vA+wbZJEnSAqvHqGuUY6Cj5rYGOBhBUi8MtEl6lh3KAYylo7NvrbnfAT6IiPv2Y5MkSUtgQCkZXaFtpTEA1p1CKqkPlo5KepY7zf0W8E2fC9GZHlGCbPfsxSZJkpZEvRg83qMWysXiW5k5iojt6S5L0jIzo03SqZqMqG1K+ahm213gjkE2SZK0ROox6mFzgzaz7RDYBK5n5vCEz5WkiTCjTdJZdprbG5TeXzUdf4Vy9fCkJrR6fiu04+mh/Dzrz3RE2yuv+/M/oARCdyLis6muVpIkqX97zX03kHZEOVZaAx5QKjMGwL+e7tIkLSsDbZKeKSLIzI+Bq6e8pE641MXUZr41wLYy9vHdZvtq83wPeOg0LUmSpFOt0mS6ZeaWJaSSpsFAm6Tz+AB4u3k83guju00X0w2wHZ3wsTpN6xHwICI+neLaJEmS5s0a5WIlwLuZOYiIh30uSNLis0ebpDNFBJTgzog2EGQW2+UaD7LVXiP157zRPH4I/KVBNkmSpHOpx68bgFNIJU2cgTZJ5/UxsN95XgNA4yWOejHjmWw1g221ue1SSkV/ERGPe1ifJEnSvBlxvO3Gemb+sMf1SFoCBtoknUtEfEI5QBkvaQSz2y7DEceHIazSTtLaA/44Ij7sY2GSJElz6pC2xUmdSnojM7d6Wo+kJWCgTdLz2D1lu4G2y7VCOSjcA+5Sgmxf97oiSZKk+dWd5D4AtjJzs8f1SFpgBtokPY9uz7CThiLo8hwA2xHxoUE2SZKkCxkAw+b+kFI18G6vK5K0sAy0SXoeXwFfUCYWvwx829xe7nNRM+I7Z9y+AB4DrzS3x5Sf51fN5z8GXm9uH0XEv4yIX0zzHyBJkrRgrgBPgG86tyv1lpl/1OPaJC2o7/S9AEnzIyJGmblLuQr4XdrstiHw694WNh82Oo9PGiSxRhk28SAi7k9tVZIkSctrLTOvRsQXfS9E0uIwo03S89pp7geUgFHtdbHsnpxxqxmAX3L8auprzec/BP7SIJskSdLUrAPXM7PvdUhaIGa0SXouEbGfmUeUqZj7OAjhvMYnitZA5R6wFxE/7WthkiRJS2oEbDX3tuyQdCnMaJP0ImqArTvBSc/WHSJRg2w7wB2DbJIkSb04oFwAvZ6Zb/a9GEmLwYw2SS9iF/gd2qDRIaVnm0632twfUX5+O5R+bF/3tiJJkqTlVi+ErgM3MvPTiOhzPZIWgBltkl7EDqXkcZUyCOGg3+XMjQNgm5LF9guDbJIkSb0aUo5pD4FN4Ef9LkfSIjDQJum5RcQhpXwU2kwtPdsBJZNtOyI+63sxkiRJYp0SZNujTIC/lZlv9LskSfPO0lFJzy0zh5SS0b1m07IE2+qUVShXQFdo+6191Twe0g45gDbr7y8iYnuqq5UkSdKz7AIblNYeDynHcu9m5h0vjEp6UQbaJL2IQ5ZzAELtSbfS2TaiHJwNKT+XXcrV0c3m+T3gYZMFKEmSpNlRj2frxdN62wAMtEl6IZaOSnpuTZPY2s+iHpAsunogtkr77z1qblU3CHdI6cf2gUE2SZKkmdYNsq0AW5n5dr9LkjSvzGiT9KL2OR5kWhY1g62b0Vcnrw6b2w5wPyJ2pr88SZIkvYDaDmSFcjx3PTP/MSL2n/1pknScGW2SXtTe2S9ZKN0stlFn2yqlVLSWjt4H3jfIJkmSNPNOqso4aO6HlH5tU1yOpEVgoE3Si/q2uV+GslEowbRub7ZV2jLSWhp6LyLuWCoqSZI0FwaUi6gHnNx/eAO4PtUVSZp7lo5KuogaeBoB3+1zIVM04nhfut3m9p8j4lFvq5IkSdLzWqHNYIOnLyCPgFuZSUQ8nN6yJM0zM9okvaiXmvuVZ75qcRxSDsS62WoHlH5s9wyySZIkza16IXVl7LYLXANu9bc0SfPGjDZJL+pbSu+KPRajfPR7lCBaHXZQx7wPm49vU8oHfqd5zUNKgM0GuZIkSfPpiOOVCuODvt4APgeuZOYfAX8ZEY+nuD5Jc8hAmyQV+5SDrLXmeQ267dKMeW+e7zS3bYNskiRJC22FNvg2BDaBT/pbjqR5YKBNkooDysCDcTWzbUAJsN13oqgkSdLSWQduZOZ+RHzR92IkzS4DbZJUrFIy1mqWWi0braUEdzCLTZIkaZkMaIclrFDaiNwEftrbiiTNPIchSFJRe7HVXh1rzbZdShbbBwbZJEmSllIdijUANjPznczseUmSZpUZbZLUGnZuUAYg3DHAJkmStJTqNNJB8/iAUgWx1Xz8w57WJWmGGWiTpKIeSAE8Aj6mZLKN+luSJEmSelQDayvN43pcuA6QmR95rChpnKWjktQaAXvAvaZU1AMnSZKk5VUvxHb79tbjwwHwY0tIJY0zo03Si/qvKAcaQ9oDjlnWzVirz2m2rQCvA3cj4v0pr0uSJEmzaUg7DAHKceNR5/HrwCZlMr0kAQbaJC2PdY6n/K/S9ts4Av4gIjxIkiRJ0nmNgK3M3IuIw74XI2k2WDoq6SJGPJ0pNqtGHF9vDbLtAB8YZJMkSdJzOgSuA+/2vRBJs8OMNkkvaqXvBTynmvY/pG1ouw38PCJ6W5QkSZLm1hHNFNLMvB4RD/tekKT+GWiT9KLWaLPC5iGjbbW5P6JksX0cEZ/0uB5JkiTNtxVgl3JcfDszD62SkGSgTdKLWqcNtM2DIWWi6DZl6MHjntcjSZKk+TagrZrYAG7iYARp6dmjTdKL6o45nwcPKb3Yfm6QTZIkSZegTq8/oFzQ3cjMH/a7JEl9M9Am6bll5oB2aifMR1bbTyLio74XIUmSpIUybO53m/vbmbnV12Ik9c/SUUkv4grwa8o+5LvAPqU3xUWctT/qZs/V6aHd9bzS2Vaniu5SMtm2HXggSZI0c/o+H31ywc//lpLN9jLwWvP8c+CNzHxiP2BpOfW9Y5M0n9Zpr94x9nhauoG3J5Tx6oPO9h3gYURsT3thkiRJWkq16mOjeW6gTVpCBtokvYhNSrCtZpatUqZ5XsRZVxS/7XyPbuYanccDSsBtB3gQEfsXXJMkSZIm56IZZbOoXoAeZOZqRPyk19VImjoDbZJexAblIGKXEvQacPFA21nqRKf6/cYHMdT1PIyIhxNeiyRJkgTlmLReBO5eDF4FVjPzakR80cvKJPXCQJuk55KZr9IeUHRv01KDbCvN84Pm+39KyWJ7NMW1SJIkaXl1B4PV4+EjynHqUbPtdmb+LCK+nv7yJPXBQJuk5/V/oC3RnFY2GxwvT11pvu8BJYttPyI+nMIaJEmSpGq8ncl4Zts+peXKHwCWkEpLwkCbpHPLzCuUg4V61a72oKgBt2k5ogTZ6sAD0/ElSZI0bd2LwEc8fTxcKzGuZeabEfHpNBcnqR8G2iQ9jw3gWvP4kJJlNgD2pvC9a/p9vR0A2wbZJEmS1JPuxeaVEz4+bF6zAtzIzN2IeDytxUnqh4E2Sc9jgxJcm0Rftpdpy1GHtNlyh81t0Gz7FvhPEfFXl/z9JUmSdLlWm/sRT7caGdGej3YHXXWPM8cnzI8b7xvc/Vq11cmw8/pDjg/Yepl2cEH369fX1OBZveBbv/54UO20NiqrzddaBbaabZaQSgvOQJukc8lMOH6gApdbLloDbPWAab+z7VrzfBu4FxG/vMTvK0mSpMmoQ6u6aqBqFfjHEz42HhiDtpphfBjXTvPx0wJh13l6Wv1q8z1WgSfN99jrfK+6hpXme3bXW9dSv995j4VrWelaZr4dER+d8/MkzSEDbZLO623abLZuD4p6oHMZQbeTrkbWoNsDSj+2by/h+0iSJGk66vFc1Z3OeYMSzKoVDDXgdQAQER9c8HvvdJ80F47XKD2H14FvKMe3dVs3Q+6Ai6uZbvXrrQM3M3MvIj67hK8vaQYZaJN0Xtc5ffjBZZSRDoFHtAchdejCPUqA7fNL+B6SJEmanpOyzLrZZzuUY79HzePdiLjs9iS/ERFQLuDud7dn5puUoN812sEG0Gax1UFc0B4Dr3J6yWg16ryu/rs2gOuZ+VmzHkkLxkCbpDM1V//Wm6fdA4rx7LaLqD00avnoLqVU9D94ECJJkjSXap/deqx4RJu5NoqIn/e1sK5mGuinAJl5hRJ026C9uFxvJw08OEv93L3mVi8o/wiYiX+/pMtloE3SedzkeNp/92Cp+/wiDilXEdcpVzT/wiw2SZKkubZFWza509w+nuXJm83aPgQ+zMw3aANjm7RTRGu563j/4mepwxn2KFluNzLzw4g4fPanSZo3BtokPVNmXqNc1TttWlSd1HRW6vxZhpQ0/oc48ECSJGkR7NEOtPpo3qoUmj5qn2Xmx8BbtBeFx4c2nGZACcqt0GbDHVKOm9eBdzPzXkQ8uuy1S+qPgTZJZ6lX8f6meV7T5ruBtQEXD7RtAH8eEX91wa8jSZKk2fAHs5y9dl7Nv+GjzPyIMiDsJuUYee+MT11pXjOiHOsOaQc/rFIy/vYoPeokLQgDbZJO1aTL/zPgc46Xh46XjB4A36MzJYrjPSyOeHokOp3XXYmI//ryVi5JkqRzOOt8sJY7HtBWMdTyyW+ALzrbanXCA+D+JIca9KXJyPuIEnTbAn4AvE77c9ql/GzWKZNMd4FXmk//jHIM/BLtcfGXwO9l5j80feIkLQADbZKeZYty9a0eKDxL7S9RDxy6gbluPwuar7nefM33I2L7UlYrSZKky1SHGWzQHtvVwNuvgH9OG2Dab+63561E9EVExHZm/j3wTynHzJu0Penqz2R97NO6x8dfNfdDSr+2vYj4eqKLljQVBtoknSgz36YcLNQg2Vm+pL3S2R2cUD0BXm4+9i2lFPWhQTZJkqTePDnHx19ubt9Sju+ejD3fpWSw7UxwnTOpCYw9zMx/oJST3qAcO/+K8vP5duxTXqO9+DxqXrtCCdL9QWb+5SKU2krLzkCbpKdk5lXgOm1fifPojm6v5aHjwbY6NOHerIxzlyRJ0qnqsVstHYW2sf8R8D6ws+yTMyPii8z8KWWqah2asMnxipDBCY9HzW21ef1blNJUSXPMQJukk9yklAjU0eXdINppxockjMa2H9CWE3gAIUmSNPvqwKs6ab4e6z0CdiPiYY9rmylNuewnmbkD3Kb8rGqgsgbUqm4v41qKuw5sZebHZrVJ881Am6RjMvP7lCtqVS0HPc9U0YPO4/ES0h1KqegXl7FOSZIkTVw9tqu9xo6AbeDny9CH7UVExOPM/DnlAvMf0gbcuv2Ka+Cybq82gduZ6c9XmmMG2iT9Rma+SuktUTPQ4OxMtq56oDCkDbLtUEoKzGKTJEmaLzUgBCVw9CAiPulxPXOhk91W+69t0laI1DLbeqzcLc9dpfRIPgQ+nO6qJV2W3+p7AZJmyi3abLZD2sDZwckvf6baHPeeQTZJkqS5VI8F9zDI9tyaY+B7lGPik4aL1V7IK7QZb6vARtMzWdIcMqNNEgCZ+e+bhzWoNux8uNuTo/aYGIx97Cvg9eb5PuUq3H3T3iVJkmZWnYrZDQJ1e/NeBR4CdyNifIKmziEiPsvM/5FyQXuLcrzcHYJQf/artD2NrwE/y8z/V0T87fRXLekiDLRJIjPXzvGyeoWtHhCMN3Zdo2TB7VB6d2wbZJMkSZp540G2um1EycbaNsh2MRGxn5n3KD/TTdo2K192XrbC8SDnAbCZmX/rMbU0XywdlZZcZl4D3j3ny2twDY5PFV2lZLFtA3ciwiCbJEnSfOkGeXaBjyPirw2yXY6I2AfuAA9o+7SNOrcjSrCtTiQ9pATl/vlUFyrpwsxok5ZYZg4oww82OX5F7SS1Yev4Vc/aU+IOZejBBFYqSZKkCeheOB02z/co5aL/0NeiFlVEkJn3KT/vtzg+dKz+LlY624bAjcw8jAh/H9KcMNAmLanMHHJ8+MF5jShv+rWPxANKgO3Ty12hJEmSpqBmso1oKhQM6kxOJ9gG8DZtW5Y6iKxmtdUL3NeAm5m5a3ahNB8MtElLqMlkqw1Zu2PGz6MbZHsYEb+4/BVKkiRpCro92fYoQba/7m85yyEiRk2w7Z80m2oWWzfDsB6jD4F14CbwH6e5TkkvxkCbtGSawQc3aINs51Xf+H8z8MAsNkmSpLlWM9n2KBdQnXA5JU2w7WfAH1AqTE46Lq/BtgGlhHQUEX81xWVKegEOQ5CWSGZCCbJd5+Sea8/SbY57xyCbJEnS3KvHd/uAQbYpi4ivKRew4fgwiqr2zRsBG5Rg20tTW6CkF2KgTVoSmfk28CPgDeBb4Jvm9qS5fQ94DHwGfAW8Arze3H/VfOyjiPh5RDye+j9AkiRJz6s71fIkvw18DvyvDrTqR0R8BPwbyrH4PwX+C/CPwO9Sjr9fB74LfNE8/jfNxXNJM8rSUWkJZOYblEaqq5QrY10jytWz/eZj15ptu81tQOkL8X+JiPNmv0mSJGn21F5gR839A0o7EI/xehQRjzLzDqWH8grl97MDXOH4FFIox+tvAlaXSDPKQJu04DLz+8BtSsBshTYl/Yjj6elrlB4Qj5rtG5Tg2wPgLzwAkyRJmju1VchJRsD7EbE/xfXodPcpx9/XaS96P2k+VoNvUC6c38jMQUR8MvVVSjqTgTZpQTUp5T+ivGFDeVOGkw+26gjxA9oMtxHwcUTcP+H1kiRJml+HwKFBttkREWTmQ8pghCHl+PwJT08kXem8xkCbNIMMtEkLKDOvAH9IeROGMklqRHslrAbToH3z3qGdePQwIt6fymIlSZI0KeNBGigXVmuLEM2QiNhpSkivc7xk9Ii2117dPszMm14Ul2aPgTZpwTRDD+pU0YNm8zrH36DHg2xHlMy3Otr94dQWLEmSpGk5orQG2Y6Iz/pejJ4WEQ8zcwjcoC0d7TqiPYa/lZn7EbFzwusk9cSpo9ICaYJsP6TNTDtsPlT7s9XH0PZrqwG4XUovNoNskiRJi6V7LHhgkG3mbdNmIR51Hg9o28EcNs9vZubadJcn6VkMtEkLIjP/PXCzebpHOZjaoLwB7zX347dqFBF/ERGHSJIkaVEcjT0f0V6I1YxqeuedlKW2yvHj+BHleP/WlJYm6RwMtElzLjPfzcz/P+3VrX2OZ7LReT5qPl4/tgf8YUT899NYqyRJkqZqlbav15BSMvphv0vSeUTEHUqwrWauDSmB09p7eUhpEzMErmfm9Z6WKmmMgTZpTmXmWma+C1wD7lLecFeBNdo34tqjbY2Sgj4AtigHW3eAfxURX0935ZIkSZqSbm/eXU7OktLsukNbqVKzEWv7l3rs/6jZvmUJqTQbDLRJcygzN4E/Bt6lvMHu05YGdKdL1Uy2VUrwDcpB1t2I+EVETGfBkiRJ6kNtnH9AGXhlb7Y5EhGPKRfLD074cA2i7jUf36KcG0jqmYE2ac40WWzvUQJndSz7FuXN9qC5dRum0mzbpFzF/FeWDEiSJC2NOiDrQd8L0fOLiE+B+5Tj+/Vm8wHtcf6w8/JNS0il/hlok+ZEZg6bINtNSinoIeUKFpQ33dqjrQbZVpvtI0pK+V3gp2axSZIkLY1acrjbZEdpDkXER5Tj/toe5pC2/94G5Zi/lpDeysytnpYqCfhO3wuQ9GyZOQCuAzeaTd1BB/Wq1i7wGu2VrTqN6ICSxbbTXA2TJEnScrE322J4SDn2H5862q1gGVCqWK5n5k5EjJ76KpImzow2aYY1DU3fpQTZrlGuYo1o31S7b7K1d0NtjroDfAD83CCbJEnS0tqxN9v8a36Hf06bzVaP/Q9pByOsdB7f7mGZkjDQJs2szLxJGXhQU7+3KW+ca81tRFs6OqQMRKhXrQ4p49s/slRUkiRpaR3RHi9qzkXE15QAW734DuX32z1H2G+2O4VU6omBNmnGZOYgM39AyWJ7rdl8hXJl6uXm+cuUzLWXKW+2nwP/J+AV4MOI+JOml4MkSZIW1wrtxdbas2vUbD8EvrCyYbFExE+BXwC/D1wFvgW+pJwXvAw8Ab5pHv9/M/NqT0uVlpY92qQZkplDSgbb71OuVNUy0O8A36McMP2X5uUrzTYob7B3KD04tqe4ZEmSJPXvpJ5dA+DvelmNJu1jyrnC2819HZK2Qgm4HnVu1zPz51a5SNNjoE2aEZn5I8ob4xpt9tqvKG+QI0p22zfALylvqK/RZrTtR8T701+1JEmSenRECaitNM/H+/g+7GNRmqyIeJSZd4Dfo+3LVgemrVJ+/7Wk9Ebz/KfTX6m0nAy0ST1reifcAN6kPSiCEkCr6f9QstUGlKEI3Wmj9wHLRCVJkpZTN5uNzuPDiDg84fVaABFxmJkPKNUw67SBtXFD4K3M3LaMWJoOA21SjzJzE7hJGcP9ZbO5G1yDp0sB1mmnit51ipQkSZIaNZvtiHJBVovt55Tf9y3aYNsBbYZjLSsFuJWZuxHxeOqrlJaMgTapB5k5oA2wrdK+AXbVANtKZ9sRpQfbNuBEUUmSJFXdMtI97Nu78CKCzHwIbFACbbW/c71Av0IJvA2a19yiDFKQNEFOHZWmLDOvAe9RykVrCWidDgXH+2qM2wHuRIRBNkmSJNX+XEfN8wFNFlNEfNHbqjQ1TXXLfUpwtfZng/K3Uf8uarXMVma+Pd0VSsvHQJs0RU2Q7RYlk61ecYJyQATlDbGbwTaiXIU6oJko6kGTJEmSxtRjyhXa0lEtiYj4CNhvnnbPJQ5pg28HzeMfZuYb012htFwsHZWmJDP/LW222pdjH34C/C4lY22PEnjbaD62QwmwOTVKkiRJXfW4cZ1SKrpBuTjrhMnl8zPaEtE6dXSd49mO1WZmfmaFjE5Qe/yt8fQ5q87JQJs0YZn5fdoMNng6a636uNleX3tIOWC6GxEnTRCSJEnScjup3cjIAMryiYivM/MupUVNHZ52RMlig+PD1jaAd4APp7lGzbwh7Xmq558XYOmoNEGZ+Q5wm1IuOqB9o+s6olw5gLJzq9OB7kXEHYNskiRJOkV3Oj0nPNYSafq17dKed9SBa/XvpJ5zrAHXM3NtuivUjKsDNXRBZrRJE9D0Pdji+FTR9eb+iKcPgEbA7zcff0gJsj2a2oIlSZI0r7pTJj1J1kPKecf4FNIDjk8jXQFuZeb7ZkAqM6EEYLt9xPWCzGiTLlmTxfYeZapobTx60HnJIe3Oq15tqkG4beB9g2ySJEk6p+5xpSfJS67JanufktlWq2kOaLPbugMzNoH3miCLltuQ9u/FYSoXZKBNuiSZ+WoTZLtOO8igXjWqWW014Fa31SlAR8BfRMT7lopKkiTpOXWDbAdnvFYLLiK+AO52NtW/j9qmBtrzlOvAD6e6QM0iM2IvkaWj0iXIzE3gB8D3KDuoLyhvXt8BXqEdblCfDzvbdoC/iYid6a9ckiRJc67bp20PsDJCRMRnmfkxJQGgOxDhsPOyQ+Aa8FZmbkfE/pSXqdnSLTXWBZjRJl1QZr5LGae9CbxMecOqo5CvUHZUn3eeD5vXjYC/Ae5ExCfTXLMkSZIWQp0QWINth5SSQQlKW5pu8Kz+fdSsx4Pm40PK8DYtt26Azey2CzCjTXpBzcCDdyn91f4e+Ipytahmq406216nvNFtNB9/RAmwmcUmSZKkF3VAOdbca56/0ZQNSkTEp5n5HeB3KFU13+N4ZU392xkC72Tmk4j4aV/rVa9+jzZZ5GVKoojBthdkoE16AZn5fcqwg3XaKaLdK4rdRrR1GMJ1mgAbcN9ebJIkSZImKSJ2MvMBJWNtjRJgO6Q9Z+kGU9Yz89WI+HrqC1VvmmEYJ/Xv0wuydFR6DplJZv4I+ENKqWhX3THVN6+6rfZE2AfuRcQHBtkkSZIkTUNEfEApGT1pYEa37HgduO0U0qXzKuWcdYV2Kq0uwIw26Zwy821KcO0aZedzQJu1VqeHdt+46rbqDwywSZIkSerBfcq5ySoloAblvGWFUqFTy5DfoiQIfNjDGtWP7nlrrdYCA24vzECbdIbmis73gfcoO50jSi+DmlLbDbLB8R3VHmWq6I5BNkmSJEl9aEpIoZzTrFGCabVP24CS8bZH6Sl9MzMHEfGLflarKat9xHVJDLRJz5CZV4GblCs7NVOtBsyGtH3Z6uCD2lwUypvV/YjYns5qJUmSJOlkTbBth9ODKqPmtgpcz8xfRMTU1qfpy8xXKVVbtd1RLR896mtNi8BAm3SCThbbW7Slonu0DUNXOi+vO6Ga1bZHGXrwcUQ8mtKSJUmSJOks9yjnLTWLqZtEUKt3oJzv/CgztyPis6mvUtOyTpssUhNLVk5/uc7DQJs0JjOvUCaKbtFOFa3NQ7tlorV8tO6Yhs3rHkbEw+mvXJIkSZJOFxH7mfmQEmhbpe07vdrcRp1tN5p7A22Lb0Q70M8ebRdkoE1qNAG2TdosNmibQXZHX49f9akZbtuUqaJmsUmSJEmaSU0J6TalgqeWDB5Qzn1qwG23eX49Mw8j4qNeFquJ6SSYbNAG2Wp7pIPTPk9nM9AmAZm5BvwepTHoGu1Y4xFt6uxRc6sfq+m1jyhvRB858ECSJEnSHLgHvNY8rsG22qMN2qSCVWAzMz+yX9vCWef4tFGwbPRSGGjT0svMTcrAg5dpI/jdKaJwfAd01Hm+T8liM51akiRJ0lyIiMPM/Lh5WrPY9iiJBIPOcyhVPz8Cfj7tdWqiNinnv4e0lVq6BAbatLSagQc/pKTKDoB/0nzoiDZVtpaF1l5sNB/bae5tDipJkiRp7kTEJ8050TVKdlO3ZxuUc6FaTrqVmfuWkC6GpqJrk/Z3XNWEEwNvF2CgTUspM4fAu5SBB3WwAbQ92Z61Y9kHHkTEp5NepyRJkiRNShNsq4MRhpTzodqvqxt0qcG23Yj4opfF6jLVwX/QngN3p9AaZLsAA21aOpn5Q8rAgwHtm8g68G3nZbUHW7c/2wGlF9u2QTZJkiRJC+Ie5Xxok7aap5t4UMtJ14CbmXknIh73sVBdXJN0stE87Q7/q891QQbatDQyc0DpxXaL8kayS3nTWKFE77/svLwbZDugBOQeALsR8fWUlixJkiRJExURX2fmPco5UbdBfs1kO+o8fotybvSLHpaqy1Gz2WpQrZu9ZkbbJfitvhcgTUMTZPsZZXzxiBJkq00+aZ7D8QEIUHY++5QA2ycG2SRJkiQtmqZiZ795Wocj1Eyn+viIktW2mZlX+1inLqY5L67B1O6U2ZWx57oAA21aeJn5A+B/okwV/Qb4vLl/GbhKGWv9LfBPgVeAr4DHwHebx/9jRHjFRpIkSdLCioifAH9HOQ/6L5RgzB4l+LJBCcbsNNv/LDPf6GeluoB3gH9Gqeaq7ZKgBFEHlKxGs9kuyNJRLaxmx3+LsrPYpZ0uuta8pE4WrVH7B5To/hbwCHg/Ih5ObcGSJEmS1K/7lAy2dUpyQs1kO6l31xbw2fSWpovIzCu058SaIDPatJAy823gPcrOf9hsPqJchVmlTY09pJ2wUnuyPQLuGWSTJEmStEwiYoeSgFB7VtcSw3re1M2CupGZ7/SxTr2QW5SBF5owM9q0UJpeAe9RIvV1SijN83oVpmawrXL8yswmcJeSyTbxtUqSJEnSDLpPyWh7u3ne7dvVHRi3Dmxl5l7T400zKjPfpCSh1MDp+LmwLpEZbVoYmfl94DYlYFaz2LpTU1YoO5NaMlrHGq9QrtDcwSCbJEmSpCXWnA+9Tzlv6g6Q6xpR+retA7cy89UpLU/PqSkZrUG2PdrfqybEQJvmXmYOMvMm8MeU/mvbzW2FdnTxXvPyOkmlRu/3gY8ppaJ3DLJJkiRJWnbNedF92gqhkwIzh839BqUsUbPpFuV3VEuANWGWjmquZeYa7Y5jSDsVZ1wNrnV7CuxQAnIfGmCTJEmSpFZEfJiZ0FYLjVunzY7azMz9iPhoWuvT2ZqS0euUJJQD2t7kB8/6PF2MGW2aW50stq1mUx01vUnJbNtrttUdyoiyU1nvvN4gmyRJkiSdbIc2C6rblmdAOeeqWVKrlH5tU1+gnmmT9vwXyu+p9mnThBho09zJzDcy80+B/xvwBvAt8IS2d0AtCx3SZq+NOh/fAe5ExC8MskmSJEnSySLiC0q/NigJDkeUctIB5bxqg7ZVzxD4t82AOvUsM/895Xe2R1vddYA92ibO0lHNjaaJ4wZlZ7HWbD6kDazVHUYdetC94rLaPN8B7jZvGJIkSZKkZ4iILzLzIccHI4w6N2gDN0NKFpXnWz1psgqv972OZWagTfPkz2lryqEE1ka0qcuHtDv4FZ5Oh31AGXrw9cRXKkmSJEkLounXNgBuU4Jtu6e8dIWmhDQiPpzaAtV1HXgP+LLndSwtS0c18zLzzcz8I0pKcg2ydTPWoK01Z2wblMmiDyLi5wbZJEmSJOmF3KMtGz1pQEI9P9sAbtqvbfqan/kGlob2ykCbZlpmvg28S4nKH1ACbEcnvLTbg607XXREyWT76cQXK0mSJEkLKiIeAw8pPb9WODmYU6uOVoE/y8xr01vhcsvMISWTbQN41O9qlpulo5pJTQPN65T6/lXaSTd1h16vlnT7Aqx0ttUd/E5EfDKNNUuSJEnSIouIj5qAznXKedlJSRB12w3gMDMfOYRusppMtpqgMqJkHl7pc03LzECbZk5mfp+yU17j+GCD09Jf6/Y6DKH2a9umZLNJkiRJki7HA9qhB91hCPW8rG7ba17zXmY+iAizrCag0ztvgzYRZeWZn6SJsnRUMyMzX83Mdyg7iU3KzqE78GBECbrVEtJuJtt41tshJZvt8dT+AZIkSZK04Jq+1ztjm+s5WbfKaIcSkLvd3DQZ7wE3KefMu5Rz4ZN66GlKzGjTTGjSj/9tZ9NBc9/NYlulDbwNaXuy0Wz7HvA6ZfjB/xwRjpSWJEmSpEsWEZ9k5m8DW5ShdXuUKZdrwFVKj7Dfa7Z9CVzNzD8F7kXEp70sesE0lWAblJ/3ryjJKC8DT4Bve1za0jPQpl41teQ3KRls59Xt0da1Rrlqcj8i9i++OkmSJEnSKbZpS0aHlEyqWmU05Hj/tpVm20Zm7lp5dDGZuQW8QQm0rXJ6vzz1wECbetNksd2mvQry92d8Sp0mCseHIHSz3h5GxPZlrlOSJEmSdFxEfJ6Z9yjnY1vNfU14uAZ0K4xqaekWQBNsM7PtBWTmTeAW8A3lZzrk5EQU9cRAm3qRmddpA2xQUo3PUsdED2hLSLt2KOOmJUmSJEkTFhG/zMyHlMyqdUpG22lBnwHt+d9GZr4CbDuR9Hwyc40SYKtDD+q5cTcJBU4fIqgpMdCmqWomorxLe8WjphcfAa+d8ekn7bBXm889BO66k5YkSZKk6YmIf8jMOvhgjTbY1m350y1rXG1u3wM2M/OerX+erVMNVlsu7QFXmsf1Z9sdFmgpaY8MtGlqmiy2TY6nFR9QdgTrlNTX86o7big78oeOi5YkSZKkXtyjBNo2aQNsL3G89U9VJ5Neqx832Ha6plR0q3m6R3v+/CWnZ7JZStojA22auCb6vkmJwHdTW0e00fYB5w+0jafGbkfER5e2YEmSJEnSuTUlpPcp53drJ7xkfKDdCu3ghA3gdpMVtx0RBon4zXn0dUq56HiiSj2HHreCmWy9M9CmiWp2Du9Sdg67tGWi3Z3DiLLTuHLKl6nqjuSIdic9ar6uJEmSJKknTQnpHicH2k5SA211mMIWpZT0TkQcnv5piy0zoQTYbjeb6rnvkHbwwSFtZuBJuhVgmjIDbZqYzHwHuEmpv/8ceEIJptWA2hPaLLazgmxQ0mMPmsdblLTZ9yPis8tasyRJkiTpxUTE/9AEim4D/0gb8KmDEmovtw3azKsnlDJIgDeAf5uZRMS/nOLSZ0Jmvk051+3+fODk6q8nz/hSBtl6ZKBNly4zXwVucLyOfETZoV5EDbLVNOMdzGaTJEmSpFmyQwmsvd48rxlYR7TZbmf2Y8vMf0/pxf2LSSxylmTmG5Qstk3aaaKWgM4pA226VJn5Ju00lBFtcOwyIurd9Nc9Sv3+40v4upIkSZKky/G3lHO3f0Nb3rhHSbxYpQSQdjm7xHQV2GraEe0AO4t2/peZVykBthu0ZaEHWPo51wy06dJk5o8oKa4blB1DN5NtvXl+ESPKzhZgLyI+veDXkyRJkiRdoogA+IfM3KWcG67SZrXVbK3zTBjdpgTj3qL0/N7LzPsR8eEk1j0tmTmg/Fx+QHuuXM+fu33rNKcMtOnCMnOLEoX/7WZTjcBD2UGscDnjhbvDEB5dwteTJEmSJE3GPdpqpzoE74ASbDvPwITrzefUIBTAzeb8cwT8u3kampCZa5T2Sm9RfiZ/T9sW6aC5r/3s1rBN0twy0KYX1kTi36XsLIaUgQfjAbYBZadRU4UvotapPwI+vuDXkiRJkiRNSER8mpmrlPPAGlCq0zLPU/HUDc7VSqn6uQCvN1lz25Sy0stI7rhUzTlz7b22Tvk31XPkGkSsCSX1fPmI82X8aUYZaNMLaXYYtylBtpr6O6L9m3qFdsf4GPg1Z/+9PWtqCpSd6h4LWJsvSZIkSYsmIj5qzh1vUgJJNXtrwNnnhx/RJnC8Tnt++RklyeP3KQGsLYDM3KckZDzsM9OtyVyrLZXq47r2Q9oWS78NvNR82ivNfQ0sftZ83rOcdf6snhho03NpRjXXLLYBx2vIVyk7ihqZ736s9m27qBGm0EqSJEnSvHhAOX/coM1qO0+gbb3zuHsuOaAEsA7Htg0pQwXeyswazHsEfBwRE2k91Jwf36SdFtpdS13fYbP+OkW09qn7luNZbcPObW5KYvU0A206t8x8lbLj+j7wGiXS/g1lp/AyT48fvtLcP2led1EvAV9ExBeX8LUkSZIkSRMWEY8z8++A32luh5Rg0pfNS7rth6oVnj6/7J5Tjg8L6J5zXgGuNo+/D3y/CYiN+38232P0rIqpzLxCm6FW+6c9a1jBE9p/W3WF08+Pr5zyOZpTBtp0Lpn5JiXIdo3jVxamyWw2SZIkSZozEfFBZo4o00OHlNZDNfB0UtBqPMg2CX9ZH5wSiKtr6GbTjTq3i/Yg14Iy0KYzZebblHTYbo14TX+tzRyn4QDYmdL3kiRJkiRdkoi4n5kbND3VZsBB53HtBVcfQxtIG3XupxEA1Jwz0KZTZeYblCsOdfTyIU1qbedl3R3SpM3kJBlJkiRJ0rk8pC2/PK1U8qRS0kkY//oHY88PO68Zvz+ptFUCDLTpFE2Q7V1KU8cRZTJKHUEM7fCDaho7me0pfA9JkiRJ0gRExE5m3gV+TFshBf0ErtZ5uiyUzjrWjr/8NyWj9fG0Krs0Zwy06Zhm4MFtSoANSk+0AWUnVCe3dFNqa/psbWg5MRGxP8mvL0mSJEmarIjYzsz7wBvNpm6wbZrO6v89HkgzsKZzMdCm3+gMPLjebNrjeABtvGa9W6NuI0hJkiRJ0pki4k5m/mln08rY42lkt3UrtAYnPN7uPO/2Jq9rtXRUJzLQpjph5Rrw582mw86H12hLR6HsXManr6w228dr2iVJkiRJOsl4L7ZuQsc0gm0nTRXtPt845bXT6iGnOWWgbcll5iYlg23I6YGy03YgdfsRl7cTXKWk8G7Qlq1uRsT/8ZK+viRJkiSpZxHxk6aq6jblfHREOSetQwimFcg6rUT0pHNcg2s6k4G2JdYJstVI/ZMel3OSuhM7fOarJEmSJEnzaJdSPVVbEdUhAwa0NLcMtC2hzLwGvEUZeLBG2YkdAt/0uS6Op+B203d3eliLJEmSJGmCIuJxZtZeaOu0QbY+ppBKl8JA25LJzC3gJsd3YofN7UqPS6tqgK1OOB1hoE2SJEmSFlJEfNr0DV+lnKeCQTbNMQNtS6LZcf2Qksm21myexZLMI9rgX50C83F/y5EkSZIkTVITbNukVF1Bm3ghzR0DbUugyWK73TytTSZrkK07qrjv0tFqBdinmXAaEV/3uxxJkiRJ0oTtUDLa6jmrgTbNpd/qewGanMwkM69TgmzXOh/q9kIb8nRPtD7VHao7VkmSJElaEhHxKXCXMiBheMbLpZlloG1BNQMP/gx4j7KTqn3OxoNsq822vSkv8SzW5EuSJEnSEomIzyjVTSt9r0V6UZaOLqDMfBu4Tkm7/bLZ/Fpz/6Tz0i87H786ndU9U81g26X0ktvFrDZJkiRJWib/GfjnlPPZQ0oSxipt5VOtfnpyyudLvTKjbYFk5tXMfIc2yHZEuyOSJEmSJGmmRcQh8AGl6mpAOyRvvM+4NJMMtC2IzFwDfkzpx7bRbO5G+029lSRJkiTNvIjYAbYp57NrzeYD7OWtOWDp6JzLTIAfAjeAl5vNI9psthpkG2LfM0mSJEnSfLhPSSLZpM1iq0E2q7Y0swy0zbEmi+02ZcczBP6WdsczviM6fOoLSJIkSZI0gyKCzHxICbbVQX61T9sBbR9yaaZYOjqnMnMTeJfSj21AmSraDbKt0NayHzQ3SZIkSZLmQlNCepcyiXTYbLYPuWaaGW1zJjOHwC3gGiWQ1t3J1EDbSf3YrGWXJEmSJM2ViHiYmeuUQFttk7T67M+S+mNG2xxpSkXfo/Rk26Bkqe03H96gDbrVDDZ7skmSJEmS5t0Ox5NM1p7xWqlXBtrmQGZeycx3gD8FrgKfA19SatKvAN80zwc83ZuN5vEQSZIkSZLmTFNC+oeUc9tNykRSKL3Iaz/yESURZQSsT3uNUmXp6IzLzFcppaJbPS9FkiRJkqReRMRhZm5T+pRvcHwYQret0gjYm/4KpcJA2wzLzDcpQbY6ZcWdhSRJkiRpWd2hZLVdB74d+9iQ0j6pBtvsUa5eGGibQZl5BbhNSYldpewsDnBHIUmSJElaUhFBZt6lJKM84fj00RVOHgwoTZU92mZMZl6l1J7fotSVH1Fqzh1fLEmSJElaahFxCNyl7UU+oJ1GCgbc1DMDbTMkM39EmSpa+7HtUZo5DigRe0mSJEmSllpEbFOCayuUBJXxYNvRKZ8qTZylozMgMzcpZaJvAy8Bv6bsJH4NfBd4pdl+1u/ryQSXKUmSJEnSrLgD3KCcS69gFZhmhIG2nmXmFqUf2xbwN8BjSvR9hdKfrUbma2abJEmSJElLLSI+zcwRpXx0OPbhFcxqU08MtPUkM18F/oC2TPRvmvsrzQ1Khto3ne2LnrF2SFsiu0dJAd7NzCsR8bi/ZUmSJEmSZk1EfJaZnwGvA9+jnTgq9cYebT3IzDcoww7WaHcENmtss/dWaEczr1FSgSVJkiRJGncX2Ok8N9CmXhlom6LMfDUz36EMPLhFKQ09wJTWakDJZBtQfjaHlKy2G30uSpIkSZI0myJiBNyjtFsCWy6pZwbapiQzr1KCa1uU8shuDbkR96I2sBw0t0OcuCpJkiRJeoaIeEQJttWebVJv7NE2YU0vthuUYNFas/mQNoutRtvNajt+5aGOZjYIKUmSJEl6poh4mJmbwHXKeeSVMz5FmggDbRPU9GK7TukxttpsPgB2m8fDZnsNKJniejyTrZaPHvS6IkmSJEnSPHhIm9FmoE29sHR0AjLzStOL7TYlyFYHHdTBBwPKf34Da8fVn81B83iDEoQ8zMwf9bkwSZIkSdJsi4gd4IO+16HlZqBtMm7TBtmgBI72mvsBpcH/KiUAZ8loq/4satnoWudjt6a/HEmSJEnSPGmCbVJvLB29RJn5R7TZatUqbZ+xo7H7LrPbijoIAdoS2zUsH5UkSZIknUNE/OvM/F84nuxS2xR5bqmJMqPtEmTmIDPf5XiQCNpSUTBz7cIyc6vvNUiSJEmS5sIfA/uUSrI9YJs2yLbf16K0+Ay0XVBmDoF3KUMPBjwdbAODbJdl7eyXSJIkSZKWXUR8Rgmw1YqzESXotooVZZogS0cvIDN/CNyg/IfdAa5y/D9st+cY+J/5otb7XoAkSZIkaW48oAzZW2tu9Zx8eOpnSBdkRtsLyEyaUtHblP+09T/rSUE2XZ7rlo9KkiRJks4jIr4G/gR4RFtCuvusz5EuykDbc2oCPT8DblLquh80H3rWVMyTykn1/PaxfFSSJEmSdE4RAaUCrWu1h6VoSRhoew6ZeZMSYNukBM6OsCx0mnaxfFSSJEmS9Hw+bm7QTiCVJsIebeeQmWuUXmw/pGRV1Wj4RnO/D9wF3mienxR8W8Fy0ou6Dmxk5k5EPOx7MZIkSZKk2RcRjzPzPuW8vCbNSBNhRtsZMvNt4P8BvAN8DjwBrjS3L5vbFdogGzh5dFL+Afhb4J/1vRBJkiRJ0vyIiC+Afwd8BvwuJejWvXWNP5fOzYy2U2TmG8AWJWttCBz0uyLRmRCTmW8045olSZIkSTpTRIwyc5cyFKEmw1h9pktloO0Emfl9ynCDWho6ogTarOPu1wrld7FKmUC6FxGPe16TJEmSJGl+bFP6tL3B8TJS+6/rUlg62pGZb2TmDyhBtnXaANsRTiWZFUeUHd9bzU2SJEmSpHOJiENKj/VDyjl/LR2tAbbRKZ8qnYuBtkZmXgPepTTcX6cEdPYo//nAqPYsqFNeR5Ry3mv9LkeSJEmSNG+aYNuzzvctJdULM9AGZOa7wM/GNq9QgjnD5rlR7f6Nxh6vZ+abfS1GkiRJkjS37gE7tP3YHYCgS7HUgbbMHGbmDylDD+p/qkPa/2irtCWjDkPoX53mekT5fQyBG5l5pddVSZIkSZLmSkR8DTwAdmnP9+s5p0E3vbClDbRl5hbw55RyUSg12nXCaO3NdkCbRWVG22yoO7xaS79JO7RCkiRJkqRzaYbrPcLzfV2ipQy0ZeY7wA+A14DPgW+AN2mj2EPaGu2jzjb1a4U2+Fl/PwfAZjMpVpIkSZKkc4uIj4B9yjn/fnNb63VRmmvf6XsB05SZVykZUFs4RXQRDCi/x5rR9kmPa5EkSZIkzaefUZJs3mqe7/a4Fs25pcloy8y3aaeKbtD2+qrZUdZgz6chZUrsZlMOLEmSJEnSuTX92u40T6/RTiOVnttSBNqaINtN2nLD2oPNOuz50x27PKINlK4C1zNzfCyzJEmSJEnP1PRr+5gSZLN1lF7Ywgfamn5s1ynBmBqYORp7WQ28abZ1Mw/r7/Gg83gdeDcz+1mdJEmSJGme/RS4h62mdAEL3aOtCbLdpARn9mgbGnbLREedmw0PZ1vNQByMPa/3r1D67x0AH0xxXZIkSZKkORcRZOZdShKHWW16IQub0daUi17neCR6lRJkO6LNahs0N/8Tzb76e6uB0sHY7aC5v5GZ13pZoSRJkiRpbo31a5Oe20IG2jLzB5TBB3Ua5RFt6egBpeb6sHm+QolWr09/pXpO3Z56KyfcupmJty0hlSRJkiQ9r4j4rO81aH4tXKCtyWSr0yd3acfyrtMG3IbNrU4ePcAebfOglowenXK7CnwL/Ar4beCPMvNqD+uUJEmSJM2xiPiXwCfA65Q2RV81968AX/S4NM24hQq0ZeaPKOWi6zw9nVKLr5YFHzT3a5RJpL0uSpIkSZI0l3aB/ebxKm1swYo4nWphhiE05aI3aEtEx3uwaTnU8tEhbcB1lJnbEeFVB0mSJEnSuUTEdmauAW9xfCjfAPimt4Vppi1ERlsTZLtFCa7tNbfD5sMDjk8Z1fIYUK46bAG3e16LJEmSJGnORMQHwMedTSPaeIP0lLkPtDVBtuuUoEp3yAEcD7LZg23x1amj65Tf+15n22Zm/t8z89X+lidJkiRJmkMPKeeW3V7v0onmunS0GXxwnTaoMux8uJvFdkBbTqjFtkJbPlyvMtSd4a1m+8/7WZokSZIkad5ExGFmblOSOobYB17PMLcZbZ0g2yolmlyDKiu0QbbaGB/s07YMujXzdcJsd9shJbPtR2a2SZIkSZLOKyLuUzLbTOLRM81lRlunJ9uQtlR0PKo86jwf0k6k1OKqU2C6wdXuJNJDYBPYaD720x7WKEmSJEmaTw+Aazh1VM8wdxltmfl9SnP7A2CHEkRZbT7czVobUAJsNdJskG3xHfB0Jlt3+uyQdljGjcz8/2TmO1NfpSRJkiRp7kTEPnCftl0RHK+qq33jtcTmLtBGyUZapQ2m1D9oa6R1XjXbcRXYysx3LCWVJEmSJJ3DNnCH48kd3b7w9nBbcnMVaGuyjzZp/6C7mUvSWVY7j2vm2wZwG/jzXlYkSZIkSZobEVH7te3TBtRqFts6x887tYTmJtCWmddphx9UdcKkwTadx4D276f2cqs7xkFm/r8z82Zm9rI4SZIkSdLcuEcJsK1wfDhCt6xUS2guhiFk5hZl+MFrzaZjAZLm3qkfOq+64+sOzBgB/y1NWXJmPowIa+slSZIkSU+JiE8zcxVYo5xH1gF8YDLQUpv5QFtmDijlomvAl83m8emi4FRRnW2P42XH43ab+7eAzcx8BHwcEY+msThJkiRJ0vyIiI8y8xpti6uD5kOrGJ9YWjNdOtqU8N2kBNm6wbXTpkpKz9LNYBu3SgnE1QaWG5RS5duZeT0z16azREmSJEnSHLkDPKIk/9RzTuMTS2zWM9quUyLDq5QUzCvN9tqb7aQSUuk03QBtN+hWt63zdEnpevPxzczcBvaakc6SJEmSpCUXEY8zc5c2q81A25Kb2UBbZr4JvEP5I/2SkmFU0zCPeDqT7QDp2QZjj8d3ft+c8nmvNberwCgz94AdYCciHl/6KiVJkiRJcyMiPszMr4D3KOeZfwe8zNOJHnVA35BSUaUFNLOBNkpgrdY1P6vkT5qW+vc4pGS6bWbmPk3JaUR81ufiJEmSJEm92QG2aavyXm62d6eQHnE8cUgLaCYDbZn5NrDF8YyjA0y/VL9q1uSAEmgbUnaiI0qm298A+5RMt2/7WaIkSZIkadoiYpSZ9yjni1u0wxyrbjVe7Q2uBTRzgbbMfIMyAKGOx12hbSoo9emkabddf0jJbttpyktrttsvI2IKy5MkSZIk9SUi9pve3uvAE8p54yFt66Lab14LbOYCbZQMoXVKkO2w2eYfo2ZBveKw0tzXdN9aa7/bPF6nlD7XFOHDzDyiBN6g/ds+BA4i4leTX7okSZIkaQq2KeeO74xt7yZrGN9YYDMVaGsGIGw0T7vTH1dO/SRp+mqAbWXs/u9pg8K1ySXN40Pgrc7n1ysbB5lZ/84tN9Uiq+X/h5Ty6sMzXi9JkiTNnYggMx9SAm2rtAkYNeHipMF8WiAzFWgDblEivzVDaK3ZbqNAzYLxctH6vO4kN8a219r7Q473d6v3a7R/49A2y5QW0TrtAcZuk1J/37JqSZIkLZqmX9t9yjniJm1wzZZYS2BmAm2ZuUn5AzygBNZq5PcQA22aDd2rDif1a3uZ45mYQ44H1MZ3qocnfL60qPZp9+WrwG1gPTPvRIQHHJIkSVooEfFh07t7SJuUUa1gnGNhzUSgLTMBfkyb9cPYY2nWnJTq+2vgJeC7neddL53wWjqvlxbdFUpg+RtKYPmfAd9k5s/NbJMkSdICqqWitdppvfNcC+q3+l5A44eYQilJy2Aw9ngdeLOntUiSJEkTExFfAHcpAbdVShbbAfahX2izEmh7C5sBStIiqxdTxqdIrwE3pr8cSZIkafIi4hNgp7Op9qTXguo90JaZf9Y89A9NkpZHvZoHcC0z1571YkmSJGmO3QN2KRedV7Gib6H1HmijNAWsk0YlSYupXkypTV/rRN4R5YBjq49FSZIkSZMWEY8pwTYo8Q97tC2wXgNtmfkeJaq7Duz1uRZJ0kSt0E7krerzI8rUaUmSJGkhRcSnwANK7MNEowXW99TRLcofmdFcLYK+/z9Js+wl2km8rwDf4/hk3vWpr0iSJEmaooj4eWaOgOt9r0WT01tGW2b+mBJku0FpDOjUDUlabDWDbdDcVin7/hUMtEmSJGk5bFOOg7WgesnAycxXgauUUqH/BLzcPDezTfPsSd8LkGbYN5T9fH38TfP4CqV0dLePRUmSJEnTFBFfZOb/Gfj/UY6BDykXnYfNSw4px8ev9bNCXVRfGW01c+GwuR9gjbIkSZIkSVpwETEC7lIqOzZpLzyPKAE3K/7m2NQDbZkJpTfbgJLBNug8liRJkiRJWmgR8QGlndY6JbBWE5GGlBiJ5lQfGW1v0k6XO6Ttz2NGmyRJkiRJWhYPKZlsQ2Cj2XZ4+ss1D/oItG3Slo7W4JrRWkmSJEmStDQiYge40zytCUm1hFRzaqqBtsy8SonS1sBaN8BmsE2SJEmSJC2NiNgGdjqbDLLNuWlPHb1JSYns/uEcNfcG2iRJkiRJ0rK5Q4mJrDe3AfCk1xXphU27dHSD403+usE1p2pIkiRJkqSlEhGHwP3m6TVMRJprUwu0ZeZNyh/LEU9nsXW3SZIkSZIkLY2mX9s2sE+ZRrpKm5A0Xk5qeekMm2bp6OoUv5ckSZIkSdI8uUdJSNrk5ODaSf3uNWOmWTp6bYrfS5IkSZIkaW40JaQPaINs3WpAW2/NiakE2jJziBltkiRJkiRJp4qIR5RgWw2yrWBgba5MK6Ntc0rfR5IkSZIkaW5FxH3gEccHSXb7tdnjfoYZaJMkSZIkSZot94AdymAEhyHMkYkPQ8jMNUqg7RC4MunvJ0mSJEmSNM8i4rPM3KPtz9bt0eYwhBk2jYy2DWB9Ct9HkiRJkiRpIUTEY2CXtoRUc2AagbZvgb8Brk7he0mSJEmSJC2EiPgE+AnwBfC7wPeAz3i6fPSwuY1weEKvJl46CqxR0hoPpvC9JEmSJEmSFkZEjDJzG1gFhpTKwSfNh1c693VIgsMSejTRjLbMfJPyB7CCzfokSZIkSZKeW0Q8BO5ShiOsdT7UDap1J5OqJ5POaKvRVhv1SZIkSZIkvaCI2M7MISXWUjPYRrSBtUHnuXGYnkw60Dagjaj6S5YkSZIkSXpx95v7f9HZNp7BZvylR5MOtA2xNliSJEmSJOnCIgLgfmb+Nm0F4bDzkhXsk9+rifVoy8yrwDrHG/JJkiRJkiTpYn4CPKRks9VSUmjLSdWTSQ5D2KCdOAr+oiVJkiRJki4sIoiIj4DDzuZR89xsth5NMtB2RPsLX5/g95EkSZIkSVo6EfET4M8pwbUNSvzlkBJ0W6HNdhuNbdeETLJH2yrtxIsBNuOTJEmSJEm6VBHxSWbWYNo6sNk8PuJ4dtuw2X6AMZqJmXTp6IC2PtiIqSRJkiRJ0iVrykjvAnu0QxKgzWIb0A5KsLXXBE0koy0zXwWuNU/9BUqSJEmSJE1QRHyamTWQttlsHj7jUzQBk8poW+f41AuDbZIkSZIkSRMUEZ8AfwLs0E4kXW0+fNTc20d/giYVaOvW+ta6YEmSJEmSJE1QREApI92mlJLWmExNgrI/2wRNahjCiKcDbAbbJEmSJEmSJiwiPgM+y8xdYIu2jz4cH5CgSzapjDZLRSVJkiRJknoUEZ8Cj5qntYT0sKflLIVJBdqGlAjpCu34WKeOSpIkSZIkTVEzkfRfAR9SKhv/G0qw7avm9rjZ/kpzX58/6zbv6r/jpeZ2qV94Ek4Kqlk6KkmSJEmSNGURQWbeofRs2wDepg0wHdKWk64Ca5j19sImFWir42NrcM1Ge5IkSZIkST1phiQ8zMxt4DVKwG3YPP6GElx7uXn+pKdlzr1LLx3NTGgDbZIkSZIkSZoRETGKiD8B/hLYaTavUzLZoGS96QVNIqPtVUqq4YDSm81sNkmSJEmSpBkSEZ80U0lvUSaT1mEJI2z/9cImMQyhDkAY3+YkUkmSJEmSpBkREV9HxM+BO7TZbWvP+BSdYRIZbUNKFpvBNUmSJEmSpBnXZLftADeATQy2vbBJZLTByVNHJUmSJEmSNIMi4nFEfEjJbtMLmkSgbcDxaaPdGl9Jkk7ie8T5DSjNaveA3eaxHEHfF3/uZWLbPnCbtuRm9fSXawr2KVU2y9DMe5Vy7jWi/A36f1LShUXEFxHxL4H/HvgEeAV4Hfge8Bj4ipJgVZOsRpT9z6jZtt48rsf4KyfcZsmlzhaYROnoaOxxfe5QBEnSaXyPOL9D4Erz2J9b4c+hPwPgSd+L6Fk93j1onteBYOrfrJ3ITULd/+1TAosHz3itJD2XiDgE7jQlpZvANUoQ7Rrw15SLGqvNrQ5QOGhu3eOz7r6pvkeO9/ZfGJMKtNUoJpQf9Art1RZJksYZKDm/A+C1vhcxYwYY3OjLAPim70X0rP7d7dNWcxjs6Negc1v0QHDd93WzSSTpUkXEDrCTmWu0E0o3Oi/Z43gAbbXz/Ijjx2mzGGC71H3nJAJt0L6xwfFUQUmSTmKpy/l1TyC7meNSH/z7Kz+D+v9xiEHfWdCtqFn0QPB49ZAXriRNTETsA+9n5j3gX1D2OfW9r+5/6mDM8USrOjSzPl7Yi1KTGoZQDzjc0UuSzmMZ+uhclpolXntALexBynMw4Nif3b4XMCOGtFfsB/hz6VVEwPLsE2p5Vj3RlaSJi4j9iPgJ8CfAdrN5nTaru74PjsZuB7TlpX2b2D5zEhltB5TU+VWON8aTJOk022e/RI3a9LqeVB3iydVec2Kt6XsIvNH3Inp2RHtisUr5P7nzzM/QNCzL+cch5e+uZlKaIS5paprjr18Av8jMq5Q+bpu0ZaUrHK92POo8npXj10u/YHvpgbaI+LpplLeGk9AkSedjoO38doBfcbwvxrIze6gnEbGTmX0vo28jjvei2YuIT3pcj4oDygnelbNeuCBGlOxw308l9SIivgC+yMw9Sg+3GmSrPdtmJbDWNZF2D5Pq0bZL+cEaaJMknclspOfyCPiWckELZvOgZdrM4FCfugfoR5TKDvWv/l6WKdC2D/xD3wuRtNwi4lPg08y8QgmwbdBOK+0ety7sMezEzmwy8zrwLuWHuUe5Ar91xqd9O6n1SJIm6qypbnUSWu3HsE65urUNPIwITwyeQ2ZuATdpL2i9zPF0/PE0/Vk/kDnPVMB9yvHEKuVgbYVybPG/RcR/nODadIYmo+3/Svmb7E4+rFeJr53xJSZ14feynNZHprZIeYmyPzuklNLe8eJB/zJzAPwZ5QSv/l2etI+c9amkKxxvKD6+T3+lud8F7jeTASVp5mTmkLastF4wrvvj7n7tpFLO8WGbAK+d8S3rdNP69bplqwD/FPgY+OCy952TDLQNKIG2Lc7fM2DW3+gkSSc760JJPTGob3gDSuDkbkT87SQXtqgyc5MS2NgCPu98aDR2D7MfaDvP30/tg7VGOSjbxb+fmZGZ/xXtBdbuVNzzZBu+NMGlTcPrlH+rgY4Z01yUuM3pJ3FHlAsVs+xZ++8V4LuUiw4PI8KyUUlzozmWHdJegO8eQ4wbD7yNOHuqdPfCxElf83XK+/ad8675vCZ6ua0Jtt0E3qIcGJ9V+2pGmyTNp7MulOxT3gdq8/5dYCci/nrC61ponWDby7T9L+Dp7LZZd9bfT3ea+Qols+1eRPzVpBem82uCbVuUK9UbnL/vyaxntFXjgZo6mOTXlH3ctkG22dME22pz7ppBUbMuYX4u9Hez8KD9G3xM2R8+7GVVknQJmtjRGuVYtl6Yv8XTF467t1+e8WXrVOaTBjKMgM8o+89Lb/kwlbz2zLxGOeC6dcZL5+WNTpJ03HkykqAESCwVvURN2d73Ke+zm7TBjTqZtE5DnGVn/f3Uf9MeJUi7HRFnHVypJ5n5XUrAbZPzNT+e9Yy2Otl3MLat/j/7nydxkK7L05Qr3aItOz9q7ofM/oX+PY5faKgniPVv8D+bySZpETVxpKrus9dpA3Ln6cFZg2w1wFZbkYyADyNiIhOqp9pAYuwHdZJZf6OTJJ3srBPlOpFvLyJsXD8hmVmzBp830Nb3++95Ai0jYN/eV/OjCW4Mz3xh/39/Z6nTKwdj20YR8bifJel5NRcl6j6ye8J2VulR32qgt6r9Tg+Bo4j4uo9FSVJfmv35eY4xxodzHgK7kwquSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZKW2v8OMpqu/K3cACgAAAAASUVORK5CYII=" alt="ZIIN">
+  <div class="hdr-right">
+    <span class="hdr-date" id="headerDate"></span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     TELA 1 — OBJETIVO DO INVESTIDOR
+═══════════════════════════════════════════ -->
+<div id="screen-objetivo">
+  <div class="obj-intro">
+    <h2>O que você quer<br>conquistar com o seu <em>dinheiro?</em></h2>
+    <p>Cada sonho tem um caminho — vamos encontrar o seu</p>
+  </div>
+
+  <div class="obj-grid">
+
+    <div class="obj-card" data-obj="aposentadoria" data-label="Aposentadoria" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          <path d="M17 13l2 2 3-3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="obj-name">Aposentadoria</div>
+      <div class="obj-desc">Construir patrimônio para uma renda passiva na aposentadoria</div>
+    </div>
+
+    <div class="obj-card" data-obj="imovel" data-label="Compra de Imóvel" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="obj-name">Compra de Imóvel</div>
+      <div class="obj-desc">Acumular capital para aquisição de imóvel residencial ou comercial</div>
+    </div>
+
+    <div class="obj-card" data-obj="renda" data-label="Complemento de Renda" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+        </svg>
+      </div>
+      <div class="obj-name">Complemento de Renda</div>
+      <div class="obj-desc">Gerar renda adicional para elevar o padrão de vida atual</div>
+    </div>
+
+    <div class="obj-card" data-obj="educacao" data-label="Educação dos Filhos" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <div class="obj-name">Educação dos Filhos</div>
+      <div class="obj-desc">Garantir recursos para faculdade, pós-graduação ou intercâmbio</div>
+    </div>
+
+    <div class="obj-card" data-obj="empresa" data-label="Abertura de Empresa" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <rect x="2" y="7" width="20" height="14" rx="2"/>
+          <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+          <line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
+        </svg>
+      </div>
+      <div class="obj-name">Abertura de Empresa</div>
+      <div class="obj-desc">Formar capital para empreender ou expandir um negócio</div>
+    </div>
+
+    <div class="obj-card" data-obj="reserva" data-label="Reserva Estratégica" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="obj-name">Reserva Estratégica</div>
+      <div class="obj-desc">Proteção patrimonial e segurança para imprevistos de longo prazo</div>
+    </div>
+
+    <div class="obj-card" data-obj="viagem" data-label="Grande Viagem / Sonho" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+        </svg>
+      </div>
+      <div class="obj-name">Grande Viagem / Sonho</div>
+      <div class="obj-desc">Realizar um projeto pessoal especial com planejamento financeiro</div>
+    </div>
+
+    <div class="obj-card" data-obj="sucessao" data-label="Sucessão Patrimonial" onclick="selectObj(this)">
+      <div class="obj-icon">
+        <svg width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" viewBox="0 0 24 24">
+          <polyline points="17 1 21 5 17 9"/>
+          <path d="M3 11V9a4 4 0 014-4h14"/>
+          <polyline points="7 23 3 19 7 15"/>
+          <path d="M21 13v2a4 4 0 01-4 4H3"/>
+        </svg>
+      </div>
+      <div class="obj-name">Sucessão Patrimonial</div>
+      <div class="obj-desc">Planejar a transferência de riqueza às próximas gerações</div>
+    </div>
+
+  </div>
+
+  <button class="btn-continuar" id="btnContinuar" onclick="irParaSimulador()">
+    Continuar para Simulação &nbsp;→
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA 2 — SIMULADOR
+═══════════════════════════════════════════ -->
+<div id="screen-main">
+<div class="shell">
+
+  <div class="hero">
+    <div class="hero-copy">
+      <h1 id="heroTitle">Construindo o seu<br><em>futuro com clareza.</em></h1>
+      <p id="heroSub" style="margin-top:5px;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Simule agora · Juros reais · Resultados em poder de compra</p>
+    </div>
+    <div class="hero-meta">
+      <button class="btn-back" onclick="voltarObjetivo()">
+        ← Mudar Objetivo
+      </button>
+      <div class="hero-obj-tag" id="objTag">—</div>
+      <div class="live-pill">Simulação Ativa</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: GRÁFICO (maior) -->
+    <div>
+      <div class="chart-card">
+        <div class="ct">
+          <div class="ct-title">
+            <span id="chartSub">Curva de Crescimento Patrimonial</span>
+            <span id="chartTitle">Poder de Compra Real · Descontada a Inflação</span>
+          </div>
+          <div class="lb"><div class="ld"></div>Ao Vivo</div>
+        </div>
+        <div class="cw"><canvas id="chartP"></canvas></div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="kl" id="kl1">Patrimônio na Meta</div><div class="kv" id="kpMeta">—</div><div class="ks" id="kpMetaSub">na aposentadoria</div></div>
+        <div class="kpi"><div class="kl" id="kl2">Total Investido</div><div class="kv" id="kpInv">—</div><div class="ks" id="ks2">patrimônio + aportes</div></div>
+        <div class="kpi"><div class="kl" id="kl3">Ganho dos Juros</div><div class="kv" id="kpRend">—</div><div class="ks" id="ks3">juros compostos reais</div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: CONTROLES -->
+    <div>
+      <div class="card">
+        <div class="sec-label" data-sec="horizonte">O Horizonte</div>
+        <div class="field">
+          <div class="row2">
+            <div><label>Idade Atual</label><input type="number" id="idadeAtual" value="40" min="18" max="80"></div>
+            <div><label>Idade Meta</label><input type="number" id="idadeMeta" value="65" min="20" max="100"></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label-row">
+            <label>Perfil de Risco</label>
+            <span class="info-btn">i
+              <span class="tooltip-box">Taxa real de retorno projetada, já descontada a inflação esperada. Conservador: 4% a.a. · Moderado: 6% a.a. · Arrojado: 8% a.a. Baseada em carteiras diversificadas de renda fixa e variável.</span>
+            </span>
+          </div>
+          <select id="perfil">
+            <option value="conservador">Conservador — 4% a.a.</option>
+            <option value="moderado" selected>Moderado — 6% a.a.</option>
+            <option value="arrojado">Arrojado — 8% a.a.</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-label" data-sec="potencial">O Potencial</div>
+        <div class="sf">
+          <div class="sf-hdr"><label>Patrimônio Inicial</label><span class="sv" id="lblP">R$&nbsp;200.000</span></div>
+          <input type="range" id="slP" min="0" max="5000000" step="10000" value="200000">
+        </div>
+        <div class="sf">
+          <div class="sf-hdr"><label>Aporte Mensal</label><span class="sv" id="lblA">R$&nbsp;3.000</span></div>
+          <input type="range" id="slA" min="0" max="50000" step="500" value="3000">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-label">Cenário Econômico</div>
+        <div class="field">
+          <label>Inflação Esperada (IPCA a.a.)</label>
+          <div class="econ-row">
+            <input type="range" id="slInflacao" min="0" max="15" step="0.5" value="4.5">
+            <span class="econ-val" id="lblInflacao">4,5%</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>CDI / Taxa Bruta Esperada (a.a.)</label>
+          <div class="econ-row">
+            <input type="range" id="slCDI" min="0" max="20" step="0.25" value="11">
+            <span class="econ-val" id="lblCDI">11,0%</span>
+          </div>
+        </div>
+        <div class="econ-result">
+          <div class="econ-result-item">
+            <span class="econ-result-label">Taxa Real Líquida</span>
+            <span class="econ-result-val" id="txRealLiquida">—</span>
+          </div>
+          <div class="econ-divider"></div>
+          <div class="econ-result-item">
+            <span class="econ-result-label">Simulação</span>
+            <span class="econ-result-badge" id="txBadge">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="taxa-box">
+        <div>
+          <div class="tl">Taxa Real Simulada</div>
+          <div class="tv" id="txAnual">—</div>
+        </div>
+        <div style="text-align:right">
+          <div class="tl">Taxa Mensal Equiv.</div>
+          <div class="tmv" id="txMensal">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANO DE VOO — DROPDOWN -->
+  <div class="pv-wrap" id="pvWrap">
+    <div class="pv-toggle" id="pvToggle" onclick="togglePV(event)">
+      <div class="pv-toggle-left">
+        <span class="pv-toggle-label">Relatório Detalhado</span>
+        <span class="pv-toggle-title">Plano de Voo · Projeção Consolidada</span>
+      </div>
+      <div class="pv-toggle-right">
+        <button class="btn-print" onclick="event.stopPropagation();window.print()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Imprimir / PDF
+        </button>
+        <svg class="pv-chevron" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+    <div class="pv-body">
+      <div class="rb">
+        <div class="narrative-wrap" id="narrativeWrap"></div>
+        <div class="rg" id="rg"></div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Ano</th><th>Idade</th><th>Total Aportado</th><th>Patrimônio Acumulado</th></tr></thead>
+            <tbody id="rtb"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+</div><!-- /screen-main -->
+
+<script>
+// ── FORMATTERS ──
+
+// ══════════════════════════════════════════════════════════
+//  CONFIGURAÇÃO POR OBJETIVO
+// ══════════════════════════════════════════════════════════
+const OBJ = {
+  aposentadoria: {
+    label:       "Aposentadoria",
+    heroTitle:   "Construindo o seu<br><em>futuro com clareza.</em>",
+    heroSub:     "Simule agora · Juros reais · Poder de compra na aposentadoria",
+    secHorizonte:"O Horizonte",
+    secPotencial: "O Potencial",
+    chartTitle:  "Curva de Crescimento Patrimonial",
+    chartSub:    "Poder de Compra Real · Descontada a Inflação",
+    kpi1:        "Patrimônio na Aposentadoria",
+    kpi2:        "Total Acumulado",
+    kpi3:        "Gerado pelos Juros",
+    kpi2sub:     "patrimônio + aportes",
+    kpi3sub:     "juros compostos reais",
+    headline:    (pm,fmtS,anos) => pm>=1e6
+      ? `Em ${anos} anos, o seu patrimônio pode alcançar <em>${fmtS(pm)}</em> em poder de compra real.`
+      : `Com consistência e tempo, a aposentadoria de <em>${fmtS(pm)}</em> está ao seu alcance.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Partindo de ${fmt(p)} em patrimônio inicial e aportes mensais de ${fmt(a)}, a projeção indica que, ao longo de ${anos} anos sob perfil ${pnFull[perf].toLowerCase()}, os juros compostos amplificarão cada contribuição de forma exponencial. Do total acumulado, ${jurosVsInv}% corresponde a rendimentos — capital que o próprio dinheiro gerou, sem esforço adicional da sua parte.`,
+    ni1Title:    "O poder do aporte extra",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Aumentar o aporte mensal em apenas <strong>${fmt(extraAporte)}</strong> — 10% do valor atual — resultaria em <strong>${fmtS(bonusDelta)}</strong> adicionais ao final do período. Na aposentadoria, esse diferencial se traduz diretamente em qualidade de vida.`,
+    ni2Title:    "O custo de adiar",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Começar 5 anos antes, com os mesmos aportes, produziria <strong>${fmtS(earlyDelta)}</strong> a mais. Cada ano de antecipação é um ativo insubstituível — o tempo é a única variável que não pode ser comprada.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+  imovel: {
+    label:       "Compra de Imóvel",
+    heroTitle:   "O imóvel dos seus sonhos<br><em>começa aqui.</em>",
+    heroSub:     "Simule o prazo · Planejamento real · Sem surpresas",
+    secHorizonte:"O Prazo da Conquista",
+    secPotencial: "A Reserva Atual",
+    chartTitle:  "Evolução da Reserva para o Imóvel",
+    chartSub:    "Acumulação Real · Corrigida pela Inflação",
+    kpi1:        "Capital Disponível na Meta",
+    kpi2:        "Total Investido",
+    kpi3:        "Rendimentos Acumulados",
+    kpi2sub:     "entrada + aportes mensais",
+    kpi3sub:     "sem esforço adicional",
+    headline:    (pm,fmtS,anos) =>
+      `Em ${anos} anos de planejamento, você terá <em>${fmtS(pm)}</em> disponíveis para a aquisição.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Com ${fmt(p)} já reservados e aportes mensais de ${fmt(a)}, o capital cresce de forma estruturada ao longo de ${anos} anos. Sob perfil ${pnFull[perf].toLowerCase()}, os rendimentos já representam ${jurosVsInv}% do total acumulado — reduzindo o esforço de poupança necessário para chegar ao valor do imóvel desejado.`,
+    ni1Title:    "O efeito do aporte extra",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Contribuir com mais <strong>${fmt(extraAporte)}</strong> por mês antecipa a chegada ao valor do imóvel e pode gerar <strong>${fmtS(bonusDelta)}</strong> adicionais — margem suficiente para cobrir custos de cartório, ITBI e reforma inicial.`,
+    ni2Title:    "O custo de esperar",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Iniciar o planejamento 5 anos antes produziria <strong>${fmtS(earlyDelta)}</strong> a mais. Com imóveis historicamente em apreciação, antecipar a reserva significa alcançar o mesmo bem com menor esforço total.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+  renda: {
+    label:       "Complemento de Renda",
+    heroTitle:   "Construa uma renda<br><em>que trabalha por você.</em>",
+    heroSub:     "Simule agora · Renda passiva real · Liberdade financeira",
+    secHorizonte:"O Horizonte de Renda",
+    secPotencial: "O Capital Inicial",
+    chartTitle:  "Patrimônio Gerador de Renda",
+    chartSub:    "Crescimento Real · Base para Renda Passiva Futura",
+    kpi1:        "Patrimônio Gerador na Meta",
+    kpi2:        "Total Investido",
+    kpi3:        "Rendimentos Acumulados",
+    kpi2sub:     "capital + aportes mensais",
+    kpi3sub:     "juros compostos reais",
+    headline:    (pm,fmtS,anos) =>
+      `Em ${anos} anos, o patrimônio de <em>${fmtS(pm)}</em> poderá gerar renda mensal passiva consistente.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Com ${fmt(p)} de base e aportes mensais de ${fmt(a)}, ao longo de ${anos} anos em perfil ${pnFull[perf].toLowerCase()}, o patrimônio acumulado passará a gerar rendimentos que complementam — ou até substituem — a renda do trabalho. ${jurosVsInv}% do total virá dos próprios juros compostos.`,
+    ni1Title:    "O efeito do aporte extra",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Aportar mais <strong>${fmt(extraAporte)}</strong> por mês resultaria em <strong>${fmtS(bonusDelta)}</strong> adicionais no patrimônio final — o que se traduz diretamente em maior renda mensal disponível no futuro.`,
+    ni2Title:    "O custo de adiar",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Começar 5 anos antes geraria <strong>${fmtS(earlyDelta)}</strong> a mais no patrimônio gerador. Na prática, isso significa uma renda passiva significativamente superior sem nenhum aporte adicional.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+  educacao: {
+    label:       "Educação dos Filhos",
+    heroTitle:   "O melhor investimento<br><em>é no futuro deles.</em>",
+    heroSub:     "Planeje com antecedência · Sem pressão financeira · Com segurança",
+    secHorizonte:"Quando Precisará do Capital",
+    secPotencial: "O Que Já Foi Reservado",
+    chartTitle:  "Acumulação para Educação",
+    chartSub:    "Reserva Real · Protegida da Inflação Educacional",
+    kpi1:        "Capital Educacional na Meta",
+    kpi2:        "Total Investido",
+    kpi3:        "Rendimentos Acumulados",
+    kpi2sub:     "reserva + aportes mensais",
+    kpi3sub:     "gerado pelos juros",
+    headline:    (pm,fmtS,anos) =>
+      `Em ${anos} anos, você terá <em>${fmtS(pm)}</em> reservados para garantir a melhor educação.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Com ${fmt(p)} já separados e aportes mensais de ${fmt(a)}, o plano educacional cresce de forma protegida ao longo de ${anos} anos em perfil ${pnFull[perf].toLowerCase()}. Do total, ${jurosVsInv}% virá dos rendimentos — aliviando a pressão sobre a renda familiar no momento em que os estudos começarem.`,
+    ni1Title:    "O poder de antecipar",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Reservar mais <strong>${fmt(extraAporte)}</strong> por mês adicionaria <strong>${fmtS(bonusDelta)}</strong> ao fundo educacional — valor suficiente para cobrir pós-graduação, intercâmbio ou moradia universitária.`,
+    ni2Title:    "O custo de esperar",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Iniciar o planejamento 5 anos antes resultaria em <strong>${fmtS(earlyDelta)}</strong> a mais disponíveis. Na educação, essa diferença pode significar acesso a instituições de referência que hoje parecem fora do alcance.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+  empresa: {
+    label:       "Abertura de Empresa",
+    heroTitle:   "O seu negócio começa<br><em>com planejamento.</em>",
+    heroSub:     "Simule o capital inicial · Estruture a saída · Invista com propósito",
+    secHorizonte:"O Horizonte do Projeto",
+    secPotencial: "O Capital Disponível",
+    chartTitle:  "Formação do Capital Empresarial",
+    chartSub:    "Crescimento Real · Capital para Abertura ou Expansão",
+    kpi1:        "Capital Disponível na Meta",
+    kpi2:        "Total Investido",
+    kpi3:        "Gerado pelos Juros",
+    kpi2sub:     "capital + aportes mensais",
+    kpi3sub:     "sem risco operacional",
+    headline:    (pm,fmtS,anos) =>
+      `Em ${anos} anos, o capital de <em>${fmtS(pm)}</em> estará formado para viabilizar o seu projeto.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Com ${fmt(p)} já acumulados e aportes mensais de ${fmt(a)}, o capital cresce de forma estruturada ao longo de ${anos} anos em perfil ${pnFull[perf].toLowerCase()}. Dos recursos disponíveis, ${jurosVsInv}% virá dos rendimentos — o que representa capital formado sem risco operacional ou comprometimento do fluxo do negócio.`,
+    ni1Title:    "Capital adicional sem esforço extra",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Aportar <strong>${fmt(extraAporte)}</strong> adicionais por mês resultaria em <strong>${fmtS(bonusDelta)}</strong> a mais disponíveis — capital que pode cobrir capital de giro, estoque inicial ou contratações estratégicas no lançamento.`,
+    ni2Title:    "O custo de adiar o projeto",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Antecipar o planejamento em 5 anos geraria <strong>${fmtS(earlyDelta)}</strong> adicionais. Com mais capital, a empresa nasce com estrutura sólida — reduzindo a dependência de crédito externo nos primeiros anos críticos.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+  reserva: {
+    label:       "Reserva Estratégica",
+    heroTitle:   "Patrimônio que protege<br><em>em qualquer cenário.</em>",
+    heroSub:     "Solidez · Liquidez · Proteção real do poder de compra",
+    secHorizonte:"O Horizonte de Proteção",
+    secPotencial: "A Reserva Atual",
+    chartTitle:  "Evolução da Reserva Estratégica",
+    chartSub:    "Preservação e Crescimento Real · Protegida da Inflação",
+    kpi1:        "Reserva Consolidada na Meta",
+    kpi2:        "Total Aportado",
+    kpi3:        "Crescimento Real",
+    kpi2sub:     "base + aportes mensais",
+    kpi3sub:     "acima da inflação",
+    headline:    (pm,fmtS,anos) =>
+      `Em ${anos} anos, a sua reserva estratégica alcançará <em>${fmtS(pm)}</em> em poder de compra real.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Com ${fmt(p)} de base e reforços mensais de ${fmt(a)}, a reserva cresce de forma sólida ao longo de ${anos} anos em perfil ${pnFull[perf].toLowerCase()}. ${jurosVsInv}% do total virá dos rendimentos — garantindo que o poder de compra não apenas seja preservado, mas efetivamente ampliado com o tempo.`,
+    ni1Title:    "Reforçar é ampliar a proteção",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Contribuir com mais <strong>${fmt(extraAporte)}</strong> mensais adicionaria <strong>${fmtS(bonusDelta)}</strong> à reserva final — margem que pode absorver crises, mudanças de cenário ou oportunidades que exigem liquidez imediata.`,
+    ni2Title:    "O valor da antecipação",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Iniciar 5 anos antes geraria <strong>${fmtS(earlyDelta)}</strong> a mais na reserva. Em patrimônio de proteção, a espessura do colchão define a qualidade do sono — e essa diferença é irreplicável.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+  viagem: {
+    label:       "Grande Viagem / Sonho",
+    heroTitle:   "O mundo espera.<br><em>O plano começa agora.</em>",
+    heroSub:     "Simule o custo · Planeje sem dívidas · Viaje com tranquilidade",
+    secHorizonte:"Quando Quer Realizar",
+    secPotencial: "O Que Já Guardou",
+    chartTitle:  "Acumulação para o Grande Sonho",
+    chartSub:    "Reserva Real · Crescimento Protegido da Inflação",
+    kpi1:        "Capital Disponível na Data",
+    kpi2:        "Total Investido",
+    kpi3:        "Rendimentos Acumulados",
+    kpi2sub:     "poupança + aportes mensais",
+    kpi3sub:     "gerado pelos juros",
+    headline:    (pm,fmtS,anos) =>
+      `Em ${anos} anos, você terá <em>${fmtS(pm)}</em> para realizar o sonho com total liberdade.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Com ${fmt(p)} já reservados e aportes mensais de ${fmt(a)}, o plano cresce de forma disciplinada ao longo de ${anos} anos em perfil ${pnFull[perf].toLowerCase()}. ${jurosVsInv}% do capital virá dos rendimentos — o que significa que uma parte considerável da viagem será financiada pelos próprios juros, não pelo seu esforço.`,
+    ni1Title:    "Cada real extra acelera o sonho",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Guardar mais <strong>${fmt(extraAporte)}</strong> por mês resultaria em <strong>${fmtS(bonusDelta)}</strong> adicionais — capital que pode representar uma classe de cabine melhor, mais tempo no destino ou incluir um acompanhante no roteiro.`,
+    ni2Title:    "O custo de adiar o sonho",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Começar 5 anos antes geraria <strong>${fmtS(earlyDelta)}</strong> extras. Sonhos têm um custo de oportunidade — quanto mais cedo o planejamento, mais a experiência pode ser ampliada.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+  sucessao: {
+    label:       "Sucessão Patrimonial",
+    heroTitle:   "Um legado construído<br><em>com visão de longo prazo.</em>",
+    heroSub:     "Planejamento sucessório · Proteção intergeracional · Crescimento real",
+    secHorizonte:"O Horizonte do Legado",
+    secPotencial: "O Patrimônio Atual",
+    chartTitle:  "Crescimento do Patrimônio para Sucessão",
+    chartSub:    "Poder de Compra Real · Proteção Intergeracional",
+    kpi1:        "Patrimônio Legado na Meta",
+    kpi2:        "Total Aportado",
+    kpi3:        "Crescimento Gerado",
+    kpi2sub:     "patrimônio + aportes mensais",
+    kpi3sub:     "juros compostos reais",
+    headline:    (pm,fmtS,anos) => pm>=1e6
+      ? `Em ${anos} anos, o legado patrimonial poderá alcançar <em>${fmtS(pm)}</em> em termos reais.`
+      : `Com planejamento estruturado, o legado de <em>${fmtS(pm)}</em> estará protegido e valorizado.`,
+    body:        (p,a,anos,perf,pnFull,fmt,jurosVsInv) =>
+      `Com ${fmt(p)} de base e aportes mensais de ${fmt(a)}, o patrimônio cresce de forma estruturada ao longo de ${anos} anos em perfil ${pnFull[perf].toLowerCase()}. ${jurosVsInv}% do total virá dos rendimentos — capital que se soma ao legado sem exigir novos sacrifícios, ampliando o que será transferido às próximas gerações.`,
+    ni1Title:    "Cada real é um tijolo do legado",
+    ni1Body:     (fmt,extraAporte,fmtS,bonusDelta) =>
+      `Aportar mais <strong>${fmt(extraAporte)}</strong> mensais adicionaria <strong>${fmtS(bonusDelta)}</strong> ao patrimônio legado — diferença que pode representar a estruturação de uma holding familiar ou a liquidação antecipada de passivos sucessórios.`,
+    ni2Title:    "Tempo é o maior aliado do legado",
+    ni2Body:     (fmtS,earlyDelta) =>
+      `Iniciar o planejamento sucessório 5 anos antes resultaria em <strong>${fmtS(earlyDelta)}</strong> adicionais. No contexto de transferência patrimonial, essa diferença pode cobrir custos de inventário, impostos e ainda ampliar o que é deixado.`,
+    ni3Title:    "O custo real do seu objetivo",
+  },
+};
+function getObj(){ return OBJ[selectedObj] || OBJ.aposentadoria; }
+
+const fmt=v=>"R$ "+Math.round(v).toLocaleString("pt-BR");
+const fmtS=v=>{
+  if(v>=1e9)return "R$ "+(v/1e9).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+" Bi";
+  if(v>=1e6)return "R$ "+(v/1e6).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+" Mi";
+  return fmt(v);
+};
+// Taxa real de retorno fixa por perfil (já descontada a inflação estrutural)
+const RATES_PROFILE = {conservador: 0.04, moderado: 0.06, arrojado: 0.08};
+
+function getTaxaReal(){
+  const perf = document.getElementById("perfil").value;
+  return RATES_PROFILE[perf];
+}
+
+function projetar(ia,im,p0,am,ta){
+  const tm=Math.pow(1+ta,1/12)-1;
+  const rows=[{ano:0,idade:ia,saldo:p0}];
+  let s=p0;
+  for(let a=1;a<=Math.max(im-ia+10,30);a++){
+    for(let m=0;m<12;m++) s=s*(1+tm)+am;
+    rows.push({ano:a,idade:ia+a,saldo:s});
+  }
+  return{rows,tm};
+}
+
+// ── OBJETIVO SCREEN ──
+let selectedObj="";
+function selectObj(el){
+  document.querySelectorAll(".obj-card").forEach(c=>c.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedObj=el.dataset.obj;
+  const btn=document.getElementById("btnContinuar");
+  btn.classList.add("active");
+  btn.textContent="Continuar: "+el.dataset.label+" →";
+}
+function applyObjTexts(){
+  if(!document.getElementById('heroTitle')) return; // guard: screen-main not yet visible
+  const o=getObj();
+  // Hero
+  document.getElementById("heroTitle").innerHTML=o.heroTitle;
+  document.getElementById("heroSub").textContent=o.heroSub;
+  // Section labels
+  const secLabels=document.querySelectorAll(".sec-label[data-sec]");
+  secLabels.forEach(el=>{
+    if(el.dataset.sec==="horizonte") el.textContent=o.secHorizonte;
+    if(el.dataset.sec==="potencial") el.textContent=o.secPotencial;
+  });
+  // Chart
+  document.getElementById("chartTitle").textContent=o.chartTitle;
+  document.getElementById("chartSub").textContent=o.chartSub;
+  // KPI labels
+  document.getElementById("kl1").textContent=o.kpi1;
+  document.getElementById("kl2").textContent=o.kpi2;
+  document.getElementById("kl3").textContent=o.kpi3;
+  document.getElementById("ks2").textContent=o.kpi2sub;
+  document.getElementById("ks3").textContent=o.kpi3sub;
+  // obj tag
+  document.getElementById("objTag").textContent=o.label;
+}
+function irParaSimulador(){
+  if(!selectedObj)return;
+  document.getElementById("screen-objetivo").style.display="none";
+  const ms=document.getElementById("screen-main");
+  ms.style.display="block";
+  applyObjTexts();
+  initChart();
+  update();
+}
+function voltarObjetivo(){
+  document.getElementById("screen-main").style.display="none";
+  document.getElementById("screen-objetivo").style.display="flex";
+}
+
+// ── PLANO DE VOO TOGGLE ──
+function togglePV(e){
+  // Don't toggle if the print button was clicked
+  if(e && e.target && e.target.closest && e.target.closest(".btn-print")) return;
+  document.getElementById("pvWrap").classList.toggle("open");
+}
+
+// ── CHART ──
+let chart=null;
+function initChart(){
+  if(chart)return;
+  const ctx=document.getElementById("chartP").getContext("2d");
+  const grad=ctx.createLinearGradient(0,0,0,300);
+  grad.addColorStop(0,"rgba(46,46,46,0.20)");
+  grad.addColorStop(1,"rgba(46,46,46,0.00)");
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{labels:[],datasets:[{data:[],borderColor:"#2E2E2E",borderWidth:2.5,fill:true,backgroundColor:grad,
+      pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:"#2E2E2E",
+      pointHoverBorderColor:"#fff",pointHoverBorderWidth:2,tension:.4}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:"index",intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:"#1A1A1A",titleColor:"#C9A84C",bodyColor:"#fff",
+          padding:12,cornerRadius:6,
+          titleFont:{family:"Inter",size:10,weight:"600"},
+          bodyFont:{family:"Inter",size:13},
+          callbacks:{title:i=>"Idade "+i[0].label,label:i=>"  "+fmtS(i.raw)}}
+      },
+      scales:{
+        x:{grid:{display:false},border:{display:false},
+          ticks:{color:"#9B9B9B",font:{family:"Inter",size:10},maxTicksLimit:12}},
+        y:{grid:{color:"rgba(46,46,46,0.06)",drawBorder:false},border:{display:false},
+          ticks:{color:"#9B9B9B",font:{family:"Inter",size:10},
+            callback:v=>v>=1e6?"R$"+(v/1e6).toFixed(1)+"Mi":v>=1e3?"R$"+(v/1e3).toFixed(0)+"k":"R$"+v}}
+      }
+    }
+  });
+  Chart.register({id:"metaLine",afterDraw(c){
+    const meta=+document.getElementById("idadeMeta").value;
+    const idx=c.data.labels.indexOf(String(meta));
+    if(idx<0)return;
+    const x=c.scales.x.getPixelForValue(idx);
+    const{top,bottom}=c.scales.y;
+    c.ctx.save();c.ctx.setLineDash([5,4]);
+    c.ctx.strokeStyle="rgba(46,46,46,0.4)";c.ctx.lineWidth=1.5;
+    c.ctx.beginPath();c.ctx.moveTo(x,top);c.ctx.lineTo(x,bottom);c.ctx.stroke();c.ctx.restore();
+  }});
+}
+
+// ── UPDATE ──
+function update(){
+  if(!chart)return;
+  const ia=+document.getElementById("idadeAtual").value;
+  const im=+document.getElementById("idadeMeta").value;
+  const p=+document.getElementById("slP").value;
+  const a=+document.getElementById("slA").value;
+  const perf=document.getElementById("perfil").value;
+  const ta=getTaxaReal();
+
+  document.getElementById("lblP").textContent=fmtS(p);
+  document.getElementById("lblA").textContent=fmt(a);
+  const pct=(v,mn,mx)=>((v-mn)/(mx-mn)*100).toFixed(1)+"%";
+  document.getElementById("slP").style.background=`linear-gradient(to right,var(--green) ${pct(p,0,5000000)},var(--border2) ${pct(p,0,5000000)})`;
+  document.getElementById("slA").style.background=`linear-gradient(to right,var(--green) ${pct(a,0,50000)},var(--border2) ${pct(a,0,50000)})`;
+  // Econ sliders display
+  const cdiVal = +document.getElementById("slCDI").value;
+  const infVal = +document.getElementById("slInflacao").value;
+  document.getElementById("lblInflacao").textContent = infVal.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";
+  document.getElementById("lblCDI").textContent      = cdiVal.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";
+  // Slider fills
+  document.getElementById("slInflacao").style.background=`linear-gradient(to right,var(--green) ${((infVal/15)*100).toFixed(1)}%,var(--border2) ${((infVal/15)*100).toFixed(1)}%)`;
+  document.getElementById("slCDI").style.background=`linear-gradient(to right,var(--green) ${((cdiVal/20)*100).toFixed(1)}%,var(--border2) ${((cdiVal/20)*100).toFixed(1)}%)`;
+  // Real líquida
+  const realLiq = (ta*100);
+  document.getElementById("txRealLiquida").textContent = realLiq.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+  document.getElementById("txBadge").textContent       = realLiq.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"% a.a.";
+  // Green taxa box
+  document.getElementById("txAnual").textContent=(ta*100).toLocaleString("pt-BR",{minimumFractionDigits:2})+"%";
+  const tm=(Math.pow(1+ta,1/12)-1)*100;
+  document.getElementById("txMensal").textContent=tm.toLocaleString("pt-BR",{minimumFractionDigits:3,maximumFractionDigits:3})+"%";
+
+  const{rows}=projetar(ia,im,p,a,ta);
+  const anos=Math.max(im-ia,1);
+  const shown=rows.filter(r=>r.ano<=anos+10);
+  chart.data.labels=shown.map(r=>String(r.idade));
+  chart.data.datasets[0].data=shown.map(r=>r.saldo);
+  chart.update("none");
+
+  const mr=rows.find(r=>r.idade===im)||rows[anos];
+  const pm=mr?mr.saldo:0;
+  const tinv=p+a*12*anos;
+  const rend=Math.max(0,pm-tinv);
+  document.getElementById("kpMeta").textContent=fmtS(pm);
+  document.getElementById("kpMetaSub").textContent="aos "+im+" anos";
+  document.getElementById("kpInv").textContent=fmtS(tinv);
+  document.getElementById("kpRend").textContent=fmtS(rend);
+
+  const pn={conservador:"Conservador",moderado:"Moderado",arrojado:"Arrojado"};
+  // ── NARRATIVE ──
+  const pnFull={conservador:"Conservador",moderado:"Moderado",arrojado:"Arrojado"};
+  const o=getObj();
+  const objLabel=o.label;
+  const jurosVsInv = pm>0&&tinv>0 ? ((rend/tinv)*100).toFixed(0) : 0;
+
+  // Headline & body from OBJ config
+  const headline = o.headline(pm,fmtS,anos);
+  const bodyText  = o.body(p,a,anos,perf,pnFull,fmt,jurosVsInv);
+
+  // Insight 1: poder dos juros
+  const extraAporte=a*0.1; // +10% do aporte
+  const {rows:rowsBonus}=projetar(ia,im,p,a+extraAporte,ta);
+  const mrBonus=rowsBonus.find(r=>r.idade===im)||rowsBonus[Math.max(im-ia,1)];
+  const bonusDelta=mrBonus?(mrBonus.saldo-pm):0;
+
+  // Insight 2: antecipação (aportar 5 anos antes)
+  const iaEarly=Math.max(ia-5,18);
+  const anosEarly=im-iaEarly;
+  const {rows:rowsEarly}=projetar(iaEarly,im,p,a,ta);
+  const mrEarly=rowsEarly.find(r=>r.idade===im)||rowsEarly[anosEarly];
+  const earlyDelta=mrEarly?(mrEarly.saldo-pm):0;
+
+  // Insight 3: impacto do cenário econômico
+  // ── IMPACTO DA INFLAÇÃO: NOMINAL vs REAL ──
+  const infPctNi = +document.getElementById("slInflacao").value / 100;
+  // Nominal value of pm in today's money (what pm would "look like" without real growth)
+  const pmNominal = pm * Math.pow(1 + infPctNi, anos);
+  // What the target would cost in nominal terms (how much you'd need to save with no real return)
+  const custoSemJuros = (p + a * 12 * anos); // pure savings, no returns
+  const erosaoInflacao = pmNominal - pm; // extra nominal cost inflation creates
+  const protecaoReal = pm - custoSemJuros; // how much returns saved vs pure savings
+
+  let niInflText = "";
+  if(infPctNi === 0){
+    niInflText = `Com inflação zero neste cenário, o poder de compra do patrimônio acumulado se mantém intacto. Na prática, qualquer inflação positiva corrói silenciosamente o valor real — razão pela qual esta simulação já desconta a inflação projetada.`;
+  } else {
+    const fatorInflacao = Math.pow(1 + infPctNi, anos);
+    const pmEmHoje = pm; // já é real
+    const pmNominalFmt = fmtS(pmNominal);
+    const pctErosao = (((fatorInflacao - 1)) * 100).toFixed(0);
+    niInflText = `Os <strong>${fmtS(pm)}</strong> projetados são em poder de compra de hoje — o que realmente importa. Em valores nominais, esse mesmo patrimônio equivaleria a <strong>${pmNominalFmt}</strong> daqui a ${anos} anos, com inflação de ${infPctNi*100 < 10 ? (infPctNi*100).toFixed(1) : Math.round(infPctNi*100)}% a.a. Em outras palavras, quem poupa sem investir com retorno real precisaria acumular ${pctErosao}% a mais apenas para preservar o mesmo poder de compra que esta simulação já garante.`;
+  }
+
+  document.getElementById("narrativeWrap").innerHTML=`
+    <div class="narrative-block">
+      <div class="narrative-eyebrow">Análise Personalizada · ${objLabel}</div>
+      <div class="narrative-headline">${headline}</div>
+      <div class="narrative-body">${bodyText}</div>
+    </div>
+    <div class="narrative-insights">
+      <div class="ni">
+        <div class="ni-icon">📈</div>
+        <div class="ni-title">O efeito do aporte extra</div>
+        <div class="ni-text">Aumentar o aporte mensal em apenas <strong>${fmt(extraAporte)}</strong> — o equivalente a 10% do valor atual — resultaria em <strong>${fmtS(bonusDelta)}</strong> adicionais ao final do período. Pequenas consistências geram resultados desproporcionalmente grandes.</div>
+      </div>
+      <div class="ni">
+        <div class="ni-icon">⏳</div>
+        <div class="ni-title">O custo do tempo não investido</div>
+        <div class="ni-text">Começar 5 anos antes, com os mesmos aportes, produziria <strong>${fmtS(earlyDelta)}</strong> a mais no horizonte da meta. Cada ano de antecipação é irreplicável — o tempo é o ativo mais escasso em qualquer estratégia patrimonial.</div>
+      </div>
+      <div class="ni">
+        <div class="ni-icon">🛡️</div>
+        <div class="ni-title">${o.ni3Title}</div>
+        <div class="ni-text">${niInflText}</div>
+      </div>
+    </div>`;
+
+  document.getElementById("rg").innerHTML=
+    `<div class="ri"><div class="rk">Objetivo</div><div class="rv">${document.getElementById("objTag").textContent}</div></div>`+
+    `<div class="ri"><div class="rk">Idade Atual</div><div class="rv">${ia} anos</div></div>`+
+    `<div class="ri"><div class="rk">Idade Meta</div><div class="rv">${im} anos</div></div>`+
+    `<div class="ri"><div class="rk">Horizonte</div><div class="rv">${anos} anos</div></div>`+
+    `<div class="ri"><div class="rk">Perfil</div><div class="rv">${pn[perf]}</div></div>`+
+    `<div class="ri"><div class="rk">Patrimônio Inicial</div><div class="rv">${fmt(p)}</div></div>`+
+    `<div class="ri"><div class="rk">Aporte Mensal</div><div class="rv">${fmt(a)}</div></div>`+
+    `<div class="ri"><div class="rk">Patrimônio na Meta</div><div class="rv g">${fmtS(pm)}</div></div>`;
+
+  const tr=rows.filter(r=>r.ano%5===0||r.idade===im);
+  document.getElementById("rtb").innerHTML=tr.map(r=>{
+    const ms=r.idade===im;
+    return`<tr class="${ms?"ms":""}"><td>${r.ano}${ms?" ★":""}</td><td>${r.idade}</td><td>${fmt(a*12*r.ano)}</td><td>${fmt(r.saldo)}</td></tr>`;
+  }).join("");
+}
+
+["idadeAtual","idadeMeta","perfil"].forEach(id=>document.getElementById(id).addEventListener("input",update));
+["slP","slA","slInflacao","slCDI"].forEach(id=>document.getElementById(id).addEventListener("input",update));
+document.getElementById("headerDate").textContent=new Date().toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
+</script>
+</body>
+</html>
