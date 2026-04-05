@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZIIN Assessoria — Gerador de Relatório</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#1A1A1A;--dark2:#2E2E2E;--dark3:#3D3D3D;
+  --gold:#C9A84C;--gold-pale:#FBF5E7;
+  --muted:#888;--border:rgba(46,46,46,.14);--border2:rgba(26,26,26,.09);
+  --bg:#F5F5F5;--surface:#fff;
+  --sh-sm:0 1px 6px rgba(0,0,0,.07);--sh:0 2px 16px rgba(0,0,0,.10);
+  --r:6px;--rl:10px;
+  --gp:#0E6B47;--gpb:#EDFAF4;
+  --ap:#8A5E0A;--apb:#FEF8EC;
+  --bp:#2351A3;--bpb:#EDF2FB;
+  --pp:#6B2FA0;--ppb:#F3EDF8;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--dark);font-size:13px;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* ── HEADER ── */
+.shell-header{background:var(--dark);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.28)}
+.hdr-logo{height:24px;width:auto;display:block}
+.hdr-badge{display:flex;align-items:center;gap:7px;padding:5px 13px;border:1px solid rgba(255,255,255,.16);border-radius:99px;font-size:9px;font-weight:700;letter-spacing:.16em;color:rgba(255,255,255,.6);text-transform:uppercase}
+.hdr-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── LAYOUT ── */
+.layout{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:252px 1fr;gap:20px;padding:24px 20px 80px}
+
+/* ── SIDEBAR ── */
+.sidebar{position:sticky;top:80px;height:fit-content;display:flex;flex-direction:column;gap:13px}
+.card{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-sm);border:1px solid var(--border2)}
+.card-head{padding:11px 15px;border-bottom:1px solid var(--border2);font-size:8.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.card-head::before{content:'';width:11px;height:2px;background:var(--gold);border-radius:99px;flex-shrink:0}
+.card-body{padding:13px 15px}
+.tipo-list{display:flex;flex-direction:column;gap:4px}
+.tipo-opt{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);border:1.5px solid transparent;background:transparent;cursor:pointer;transition:all .13s;width:100%;text-align:left;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;color:var(--dark3)}
+.tipo-opt:hover{background:var(--bg);border-color:var(--border)}
+.tipo-opt.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.tipo-opt svg{flex-shrink:0;opacity:.7}
+.tipo-opt.active svg{opacity:1;stroke:#fff}
+.fg{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.fg:last-child{margin-bottom:0}
+.fg label{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.fg input,.fg textarea{font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--r);color:var(--dark);background:var(--bg);transition:border-color .14s,box-shadow .14s;width:100%}
+.fg input:focus,.fg textarea:focus{outline:none;border-color:var(--dark2);box-shadow:0 0 0 3px rgba(46,46,46,.09)}
+.btn-export{width:100%;padding:10px;background:var(--dark);color:#fff;border:none;border-radius:var(--r);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .13s}
+.btn-export:hover{background:var(--dark2)}
+.btn-reset{width:100%;padding:7px;margin-top:5px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-family:'Montserrat',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .13s}
+.btn-reset:hover{background:var(--bg);color:var(--dark)}
+
+/* ── DOC WRAP ── */
+.doc-wrap{min-width:0}
+.doc-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
+.doc-tipo-badge{font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:99px;background:var(--dark);color:#fff}
+.doc-hint{font-size:10px;color:var(--muted)}
+.btn-gold{padding:6px 14px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:none;border-radius:var(--r);background:var(--gold);color:var(--dark);cursor:pointer;transition:opacity .13s;display:inline-flex;align-items:center;gap:6px}
+.btn-gold:hover{opacity:.85}
+
+/* ── DOCUMENT ── */
+.doc{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh);border:1px solid var(--border2);overflow:hidden}
+[contenteditable]{outline:none;border-radius:3px;transition:background .12s,box-shadow .12s}
+[contenteditable]:hover{background:rgba(201,168,76,.07)}
+[contenteditable]:focus{background:rgba(201,168,76,.13);box-shadow:0 0 0 2px rgba(201,168,76,.35)}
+.edit-hint{font-size:9.5px;color:var(--muted);font-style:italic;margin-top:4px}
+
+/* doc header */
+.doc-hdr{background:var(--dark);padding:26px 36px 22px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.doc-hdr-logo{height:26px;width:auto;display:block;margin-bottom:14px}
+.doc-title{font-size:22px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:3px}
+.doc-sub{font-size:11.5px;color:rgba(255,255,255,.42);font-weight:500}
+.doc-hdr-right{text-align:right;flex-shrink:0}
+.hdr-label{font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-bottom:5px}
+.hdr-val{font-size:12px;font-weight:600;color:rgba(255,255,255,.7)}
+
+/* coop bar */
+.coop-bar{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border2)}
+.coop-cell{padding:14px 20px}
+.coop-cell:first-child{border-right:1px solid var(--border2)}
+.coop-cell .cl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.coop-cell .cv{font-size:14px;font-weight:700;color:var(--dark)}
+.coop-cell.dark-cell{background:var(--dark)}
+.coop-cell.dark-cell .cl{color:rgba(255,255,255,.4)}
+.coop-cell.dark-cell .cv{color:#fff}
+
+/* doc body */
+.doc-body{padding:28px 36px}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dark2);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:8px}
+.body-text{font-size:12.5px;line-height:1.85;color:var(--dark3);padding:2px}
+
+/* ── DRAG SECTIONS ── */
+.sec{margin-bottom:22px;position:relative;border-radius:var(--r)}
+.sec:last-child{margin-bottom:0}
+.sec-actions{position:absolute;top:2px;right:0;display:flex;gap:4px;opacity:0;transition:opacity .15s;z-index:10}
+.sec:hover .sec-actions{opacity:1}
+.drag-handle{cursor:grab;padding:3px 6px;color:var(--muted);border-radius:var(--r);border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center}
+.drag-handle:active{cursor:grabbing}
+.drag-handle svg{pointer-events:none}
+.sec-del{padding:3px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;font-family:'Montserrat',sans-serif;border:1px solid #f0c0c0;border-radius:var(--r);background:#fff5f5;color:#c0392b;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:4px}
+.sec-del:hover{background:#fde8e8}
+.sec.sortable-ghost{opacity:.35;background:var(--gold-pale);border:2px dashed var(--gold)}
+.sec.sortable-chosen{box-shadow:0 4px 20px rgba(0,0,0,.15)}
+
+/* ── METRICS ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:9px}
+.metric-card{background:var(--bg);border-radius:var(--r);border-top:2px solid var(--border2);padding:11px 13px}
+.metric-card.gold{border-top-color:var(--gold)}
+.m-lbl{font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.m-val{font-size:17px;font-weight:800;color:var(--dark);line-height:1.1}
+.m-val.gold{color:var(--gold)}
+.m-sub{font-size:10px;color:var(--muted);margin-top:3px;font-weight:500}
+
+/* ── TABLES ── */
+.perf-table{width:100%;border-collapse:collapse}
+.perf-table th{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1.5px solid var(--border);text-align:left}
+.perf-table td{padding:8px 10px;border-bottom:1px solid var(--border2);font-size:12px;color:var(--dark)}
+.perf-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--bg)}
+.perf-table .gold-cell{color:var(--gold);font-weight:700}
+.stat-table{width:100%;border-collapse:collapse}
+.stat-table th{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1.5px solid var(--border);text-align:left}
+.stat-table th:not(:first-child){text-align:right}
+.stat-table td{padding:7px 10px;border-bottom:1px solid var(--border2);font-size:12px;color:var(--dark)}
+.stat-table td:not(:first-child){text-align:right;font-weight:600}
+.stat-table tr:last-child td{border-bottom:none}
+.stat-table .gold{color:var(--gold)}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700}
+.pill-pos{background:var(--gpb);color:var(--gp)}
+.pill-inf{background:var(--apb);color:var(--ap)}
+.pill-pre{background:var(--bpb);color:var(--bp)}
+.pill-mm{background:var(--ppb);color:var(--pp)}
+
+/* ── FUND CARDS ── */
+.fund-card{border:1px solid var(--border2);border-radius:var(--rl);overflow:hidden;margin-bottom:11px;box-shadow:var(--sh-sm)}
+.fund-card:last-child{margin-bottom:0}
+.fund-head{padding:11px 15px 9px;border-bottom:1px solid var(--border2);background:var(--bg);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.fund-name{font-size:12.5px;font-weight:700;color:var(--dark);line-height:1.3}
+.fund-type{font-size:10px;color:var(--muted);margin-top:2px;font-weight:500}
+.fund-tags{display:flex;flex-wrap:wrap;gap:4px;flex-shrink:0;margin-top:2px}
+.tag{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:99px}
+.tag-liq{background:var(--gpb);color:var(--gp)}
+.tag-val{background:var(--gold-pale);color:#7A5500}
+.fund-metrics{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border2)}
+.fm{padding:8px 11px;border-right:1px solid var(--border2);text-align:center}
+.fm:last-child{border-right:none}
+.fm-val{font-size:12.5px;font-weight:700;color:var(--dark)}
+.fm-lbl{font-size:8.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.fund-rationale{padding:10px 15px;font-size:12px;line-height:1.8;color:var(--dark3)}
+.fund-rationale strong{color:var(--dark);font-weight:700}
+
+/* ── LIQUIDITY ── */
+.liq-row{display:flex;align-items:center;gap:11px;margin-bottom:8px}
+.liq-lbl{font-size:11px;font-weight:600;color:var(--dark3);width:86px;flex-shrink:0}
+.liq-bar-wrap{flex:1;height:6px;background:var(--border2);border-radius:99px;overflow:hidden}
+.liq-bar{height:100%;border-radius:99px;transition:width .3s ease}
+.liq-pct-input{font-size:11.5px;font-weight:700;color:var(--dark);width:46px;text-align:right;flex-shrink:0;background:transparent;border:none;border-bottom:1px dashed var(--border);font-family:'Montserrat',sans-serif;padding:1px 2px}
+.liq-pct-input:focus{outline:none;border-color:var(--gold)}
+.liq-val{font-size:10.5px;font-weight:500;color:var(--muted);width:88px;text-align:right;flex-shrink:0}
+
+/* ── REASONS / STEPS ── */
+.reason-list{display:flex;flex-direction:column;gap:10px}
+.reason-item{display:flex;gap:10px;align-items:flex-start}
+.reason-num{font-size:9.5px;font-weight:800;color:var(--dark);width:21px;height:21px;border-radius:50%;border:2px solid var(--dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.reason-text{flex:1;font-size:12.5px;line-height:1.8;color:var(--dark3)}
+.reason-text strong{color:var(--dark);font-weight:700}
+.steps-list{list-style:none;counter-reset:step;display:flex;flex-direction:column;gap:11px}
+.step-item{display:flex;gap:11px;align-items:flex-start;counter-increment:step}
+.step-item::before{content:counter(step,"01");font-size:9.5px;font-weight:800;color:var(--gold);width:25px;height:25px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-variant-numeric:tabular-nums}
+.step-body{flex:1;font-size:12.5px;line-height:1.8;color:var(--dark3)}
+.step-body strong{display:block;color:var(--dark);font-weight:700;margin-bottom:2px}
+
+/* ── COMPARE ── */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare-card{border:1px solid var(--border2);border-radius:var(--rl);overflow:hidden}
+.compare-head{padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border2)}
+.compare-head.gold-head{background:var(--dark);color:var(--gold)}
+.compare-body{padding:13px 14px}
+.compare-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border2);font-size:12px}
+.compare-row:last-child{border-bottom:none;font-weight:700}
+.compare-row .lbl{color:var(--muted);font-size:11px}
+.compare-row .val{font-weight:600;color:var(--dark)}
+.compare-row .val.up{color:var(--gp)}
+.compare-row .val.down{color:#c0392b}
+.blist{list-style:none;display:flex;flex-direction:column;gap:6px;padding:3px 0}
+.blist li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.7;color:var(--dark3)}
+.blist li::before{content:'•';color:var(--gold);font-weight:700;margin-top:1px;flex-shrink:0}
+.phase-list{display:flex;flex-direction:column;gap:13px}
+.phase-item{border-left:3px solid var(--gold);padding-left:13px}
+.phase-title{font-size:11px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.phase-desc{font-size:12px;line-height:1.75;color:var(--dark3)}
+
+/* ── ADD BTNS ── */
+.add-btn{margin-top:8px;padding:4px 11px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .12s;display:inline-flex;align-items:center;gap:5px}
+.add-btn:hover{background:var(--bg);border-color:var(--dark2);color:var(--dark)}
+
+/* ── ADD FIELD BAR ── */
+.add-field-bar{margin-top:14px;padding-top:12px;border-top:1.5px dashed var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.add-field-bar-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ── FIELD TYPE PICKER MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadein .15s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border-radius:var(--rl);box-shadow:0 8px 40px rgba(0,0,0,.2);padding:24px;width:480px;max-width:94vw}
+.modal-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dark);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-title::before{content:'';width:12px;height:2px;background:var(--gold);border-radius:99px}
+.field-types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ft-opt{padding:12px 14px;border:1.5px solid var(--border2);border-radius:var(--rl);cursor:pointer;transition:all .13s;display:flex;align-items:flex-start;gap:10px}
+.ft-opt:hover{border-color:var(--gold);background:var(--gold-pale)}
+.ft-opt.selected{border-color:var(--dark);background:var(--dark)}
+.ft-opt.selected .ft-name{color:#fff}
+.ft-opt.selected .ft-desc{color:rgba(255,255,255,.5)}
+.ft-opt.selected svg{stroke:#fff}
+.ft-icon{flex-shrink:0;margin-top:1px}
+.ft-name{font-size:11.5px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.ft-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.modal-cancel{padding:7px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:1px solid var(--border);border-radius:var(--r);background:transparent;color:var(--muted);cursor:pointer}
+.modal-cancel:hover{color:var(--dark)}
+.modal-confirm{padding:7px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:none;border-radius:var(--r);background:var(--dark);color:#fff;cursor:pointer}
+.modal-confirm:hover{background:var(--dark2)}
+
+/* ── FREE FIELD TYPES ── */
+.free-texto .sec-lbl{color:var(--dark2)}
+.free-metrics .free-inner{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:9px}
+.free-metric-item{background:var(--bg);border-radius:var(--r);border-top:2px solid var(--gold);padding:11px 13px}
+.free-tabela .free-inner table{width:100%;border-collapse:collapse}
+.free-tabela .free-inner th{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1.5px solid var(--border);text-align:left}
+.free-tabela .free-inner td{padding:8px 10px;border-bottom:1px solid var(--border2);font-size:12px;color:var(--dark)}
+.free-lista .free-inner ul{list-style:none;display:flex;flex-direction:column;gap:6px;padding:3px 0}
+.free-lista .free-inner li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.7;color:var(--dark3)}
+.free-lista .free-inner li::before{content:'•';color:var(--gold);font-weight:700;margin-top:1px}
+.free-nota{background:var(--gold-pale);border-left:4px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:13px 16px}
+.free-nota .free-inner{font-size:12.5px;line-height:1.8;color:var(--dark3)}
+
+/* ── DOC FOOTER ── */
+.doc-footer{border-top:1px solid var(--border2);padding:11px 36px;display:flex;justify-content:space-between;align-items:center;background:var(--bg)}
+.doc-footer span{font-size:9px;color:var(--muted);font-weight:500}
+
+/* ── PRINT ── */
+@media print{
+  .shell-header,.sidebar,.doc-bar,.edit-hint,.add-btn,.sec-actions,.add-field-bar,.modal-overlay{display:none!important}
+  .layout{display:block;padding:0;margin:0;max-width:100%}
+  .doc-wrap{display:block}
+  .doc{border:none;border-radius:0;box-shadow:none}
+  body{background:#fff;font-size:11.5px}
+  [contenteditable]:hover,[contenteditable]:focus{background:transparent!important;box-shadow:none!important}
+  .doc-body{padding:22px 36px}
+  .doc-hdr{padding:18px 36px}
+  .fund-card,.sec,.compare-card{break-inside:avoid;page-break-inside:avoid}
+  @page{margin:14mm 12mm;size:A4}
+}
+
+@media(max-width:740px){
+  .layout{grid-template-columns:1fr;padding:14px 12px 60px}
+  .sidebar{position:static}
+  .fund-metrics,.compare-grid{grid-template-columns:1fr}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .doc-hdr{flex-direction:column;gap:10px}
+  .doc-hdr-right{text-align:left}
+  .doc-body{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<header class="shell-header">
+  <img class="hdr-logo" src="data:image/png;base64,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" alt="ZIIN"/>
+  <div class="hdr-badge"><span class="hdr-dot"></span>Uso interno</div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+
+    <div class="card">
+      <div class="card-head">Tipo de demanda</div>
+      <div class="card-body">
+        <div class="tipo-list">
+          <button class="tipo-opt active" data-tipo="agenda" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Retorno de agenda
+          </button>
+          <button class="tipo-opt" data-tipo="carteira" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Elaboração de carteira
+          </button>
+          <button class="tipo-opt" data-tipo="revisao" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Revisão de carteira
+          </button>
+          <button class="tipo-opt" data-tipo="comparativo" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Comparativo de carteiras
+          </button>
+          <button class="tipo-opt" data-tipo="previdencia" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Comparativo VGBL
+          </button>
+          <button class="tipo-opt" data-tipo="duvida" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Dúvida sobre produto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">Dados do relatório</div>
+      <div class="card-body">
+        <div class="fg"><label>Título</label><input type="text" id="f-titulo" placeholder="Ex: Relatório de Agenda" oninput="sync('f-titulo','d-titulo')"/></div>
+        <div class="fg"><label>Capital / Patrimônio</label><input type="text" id="f-capital" placeholder="Ex: R$ 160.000,00" oninput="sync('f-capital','d-capital')"/></div>
+        <div class="fg"><label>Cooperado / Perfil</label><input type="text" id="f-coop" placeholder="Ex: Perfil Sofisticado" oninput="sync('f-coop','d-coop')"/></div>
+        <div class="fg"><label>Data / Período</label><input type="text" id="f-data" placeholder="Ex: Março 2026" oninput="sync('f-data','d-data')"/></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <button class="btn-export" onclick="window.print()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar PDF
+        </button>
+        <button class="btn-reset" onclick="confirmaLimpar()">Limpar documento</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <div class="doc-wrap">
+    <div class="doc-bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="doc-tipo-badge" id="badge-tipo">Retorno de agenda</span>
+        <span class="doc-hint">Clique para editar · Arraste para reordenar</span>
+      </div>
+      <button class="btn-gold" onclick="window.print()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar PDF
+      </button>
+    </div>
+
+    <div class="doc" id="documento">
+      <div class="doc-hdr">
+        <div>
+          <img class="doc-hdr-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLMAAAGQCAYAAABVgiJdAAAW8UlEQVR4nO3d23KzxhKAUeHS+7+ycmE7vw+yBGIO3T1r3e1K7QQjBMPnBm+XE2632+3M/x+AuLZt22ZvQ1UrXT8dRzk4JonsyPHp8wV4V+Ha/uic/uc/qPCDA3CeG4O2Vr6+OpbicTwSVetj0+cNrKDydf3nefzXSb3yDw/A69wInOca6ziKxPHoeIxq1LHp8wcqqX5dfxizqv/wAJxj4f8619h/HEfzOR7/cTzGMvvYdDwA2cw+b472eZ7+/2S92g4A4DUW+se5xn7nGJrL8fibYzKGiMemYwOILuK5s7dt27a32RsBQC4rXjDPsL9+s0+An6KeF25fzN4WgJ9WPje9XS5r7wAAANZmLcwewhZADLfb7WYyC4DDLOQhJ99daEPUAmZb/Rx0XX0HAAAAvOLrvZT3awGMc529AQAAwLqq/HJd2AIYx2OGAAAADVUJdABRiVkAwHBu9IDqvDAeoB8xCwAAoCNRC6AtMQsAAGAAQQugDTELAABgEFNaAOeJWQAAAIOJWgCvE7MAAAAmEbQAjhOzAAAAJjKlBXCMmAUAABCAqAWwj5gFwGHbtm2ztwEAqhK0AB4TswAAAIIRtAD+JmYBAAAE5LFDgPvELAAAgMAELYDvxCwAAIDgBC2Af8QsAACABDx2CPBOzAIAAEhE0AJWJ2YBAAAkI2gBKxOzADhk27Zt9jYAAIIWsC4xCwAAIClBC1iRmAUAAJCYoAWsRswCAABITtACViJmAQAAFHD7MHs7AHoTswDYzcvfAQCA2cQsAACAQkxnAdWJWQAAAMUIWkBlYhYAAEBBghZQlZgFAABQlKAFVCRmAbCLl78DQE6CFlCNmAUAAFCcoAVUImYBAAAAkIaYBcBTHjEEgPxMZwFViFkAAACLELSACsQsAACAhQhaQHZiFgAAAABpiFkAPOR9WQBQj+ksIDMxCwAAYEGCFpCVmAXAn0xlAUBtghaQkZgFAAAAQBpiFgAAwMJMZwHZiFkA3OURQwBYh6AFZCJmAQAAAJCGmAXAL6ayAGA9prOALMQsAAAALpeLoAXkIGYBAADwP0ELiE7MAuAbjxgCAACRiVkAAAB8YzoLiEzMAuB/prIAgE+CFhDVmxsXAAAA7hG0gIhMZgFwuVxMZQEAADmIWQAAAPzJdBYQzdvl4rfxAKtzHQAAHhG0gEj+n8xyIwMAAABAdN8eMxS0ANbj3A8A7GE6C4ji1zuz3NQAAABwj6AFRHD3BfDbh9EbA8BYzvUAwFGCFjDb9dE/dJPD6lyoqcw5HgAAyOhhzILV3bvZF7gAAFjd7Xa7+cUYMIuYBQcJXFRg8QkAnCVoAbPcfWcWcIz3zAEAAMAYJrOgoa9By7QWEYmuAEBLprOAGUxmQSemtQAAWIFf4gKjiVnQmahFFI5DAACgAjELBhG1AACoynQWMJKYBYMJWszguAMAehO0gFHELJjAlBYjOdYAAIBKxCyYSNSiN8cXADCS6SxgBDELAhAcAACoQtACehOzIAhBi5ZM/QEAMwlaQE9iFgQiPgAAAMBjYhYEY6KGsxw/AEAEprOAXsQsCEqQ4BWOGwAgEkEL6EHMgsCECY5wvAAAEQlaQGtiFgQnULCH4wQAAFiFmAUJCBU84vgAAKIznQW0JGYBJCZkAQAAqxGzIAl/5ZCfHA8AQCams4BWxCyAhIQsACAjQQtoQcyCZExo4fMHADITtICzxCyARIQsAABgdWIWJCVqrMdnDgBUYToLOEPMAkhAyAIAqhG0gFeJWZCYwFGfd6QBAJUJWsArxCxITugAAABgJWIWQEAmsgCAVZjOAo4Ss6AA0aMWnycAsBpBCzhCzIIiBJD8TGMBAAA8J2YBBCBiAQCrM50F7CVmQSGCSE4+NwCAd4IWsIeYBTCJxwoBAH4TtIBnxCwoRhzJwecEAADwGjELYCDTWAAAz5nOAh4Rs6AgsSQmnwsAwH6CFvCX6+wNAKhOxAIAAGjHZBZAR0IWAMDrTGcB94hZUJSIMp/PAADgPEEL+EnMAuhAyAIAaEfQAr7yziyAhkQsAACAvkxmQWHCyjjbh9nbAQBQleks4JOYBXCSiAUAMIagBVwuYhbAKUIWAADAWGIWFCe29OGxQgCAOUxnAWIWwEEiFgDAXIIWrE3MAjhAyAIAAJhLzALYwWOFAACxmM6CdYlZsAAR5hz7DwAgJkEL1iRmwQJc5F9jGgsAID5rXViPmAULEGSOs88AAABiErMAvjCNBQCQj+ksWIuYBfBBxAIAyEvQgnWIWbAIoeYx+wcAACAHMQtYmscKAQDqMJ0FaxCzgGWJWAAA9QhaUJ+YBSxJyAIAAMhJzAKW4rFCAID6TGdBbWIWsAwRCwBgHYIW1CVmAeWZxgIAWJOgBTWJWUBpIhYAAEAtYhZQkmksAAAuF9NZUJGYBZQjYgEA8JWgBbVcZ28AQCsiFgAAQH0ms4AShCwAAB4xnQV1iFmwiKoXb+/GAgBgr6prYliNmAWkJWIBAHCUoAX5iVlASkIWAADAmsQsIBWPFQIAcJbpLMhNzALSELEAAGhF0IK8rrM3AOAZEQsAAIBPJrOA0IQsAAB6MZ0FOYlZQEjejQUAwAiCFuQjZsECsl2gRSwAAEbKtl6G1YlZQChCFgAAAI+IWUAYQhYAALOYzoI8xCxgOu/HAgAgAkELchCzoLjoF2QRCwCASKKvn4HL5Tp7A4A1iVgAAAC8wmQWMJyQBQBAZKazIDYxCwqLeBEWsgAAADhDzAKG8JJ3AAAyifiLYeCdmAV0J2IBAJCRoAUxeQE8FBXhwitiAQCso8faL8Ka9na73axrIRYxC+jCBR8AoLYR6717/40IgQuYS8wCmhKxAABqirLO+7kdI+KW6SyIRcyCgmb9tsoFHgCglgzru89t7L0GFrQgDjELihGyAAA4K+Pa7us291oTC1oQg5gFnOJiDgBQQ6V13ahpLWAOMQsKGXmxrrTYAQBYWeV1XY+oZToL5nubvQFAPi7eAAA1rLKua/1zmviCuUxmQRGjLqirLHgAACpbcU3n0UOow2QWFDDigrx96P3fAQCgr9XXdK3WtaIYzGMyC3hq9QUPAEAF1nTfmdSCvExmQXK9L74WPQAAuZmwf+zMvhHCYA4xCxLrefG06AEAyM96bh9BC3IRs4BfLHoAAPKzpjtG0II8xCxIqscF0zQWAEB+1nSvE7QgBzELEuoVslr/OwEAGMua7jz7EOITsyAZIQsAgHus6dp5dbrNdBaMIWbBwoygAwDUYE3Xh6AFMYlZkMTtQ6t/nwUPAEAN1nV92b8Qj5gFizGNBQBQh3XdGEf3s+ks6EvMguBaTmRZ7AAA1GFtF5ugBf2IWbAA01gAALVY241nn0McYhYE1Woiy0UXAKAW67t5PG4IMYhZEFCriGWhAwAAbQlaMJ+YBcG42AEA8Be/rIxB0IK5rrM3APjHY4UAAPzFOg/gncksCOJsyPJYIQAAjGM6C+YRs2CyFi96F7EAAGqz3otJ0II5xCyYyGOFAAA8Y71Xi6AF54lZMInHCgEAID9rchhPzILBPFYIAMBe1n05eNwQxhKzYJBWEcuCBgAA4hG0YBwxCwbwbiwAAI6y/gO4T8yCzkxjAQBwlPVfTqazYAwxCzrxbiwAAFiPoAX9iVnQgccKAQAAoA8xCxrykncAAM6yFszPdBb0JWZBI6axAACAT4IW9CNmQQOmsQAAaMGasBZBC/q4zt4AyMw0FgAAAIxlMgteZBoLAAB4xnQWtCdmwUGtXvLeansAAKjBGrEuQQvaErPgAI8VAgAAr3AfAO2IWbCTxwoBAIBRTGfB38QseMJjhQAA9Ga9uAaPG0IbYhY84LFCAACgJUELzrvO3gCIyjQWAAAjWDcCHGMyC344+1ihd2MBAACPmM6Cc8Qs+MI0FgAAMIKgBa/zmCFcvBsLAAAAsjCZxfJaTGMJWQAAwFGms3iF40DMYmFn3411uZjGAgAAzhG04DgxiyV5rBAAAIhC0IJjvDOL5ZjGAgAAgLxMZrEMjxUCABCN9SWfTGfBfmIWS/CSdwAAIDpBC/YRsyjPNBYAAJCF+w8eETDfeWcWZYlYAABAdbfb7ebehdWYzKIktRoAAMjK44bwmMksSmlxEvdbDQAAYLZt2zaRiq8cD/+YzKIMIQsAAFhVi7/eDlmIWZTgrxUCAADVuEeB+8QsUmvx2wcXCAAAICrvz4LfvDOLlDxSCAAAwCpEyu9MZpGOkAUAAKzEdBZ8J2aRipAFAACsSNBal8/yNzGLFFq9G0vIAgAAshK04J2YRXimsQAAAFiRIHmfmEVoQhYAAMA/prNAzCIwjxUCAAD8JmixOjGLcFq9H6vV9gAAAEQjaNXnM/vbdfYGwCePFAIAAADPmMwiBCELAADgGNNZdfmsHhOzmKrVI4VCFgAAsCJBqx6f0XNiFtOYxgIAADhP0GI1YhZTCFkAAADwndC4j5jFUB4rBAAAaM90Vn4+k/3ELIYxjQUAAACcJWbRXYtprMtFyAIAAHjkleks00Ax+ByOEbPoqtUXUsgCAAB4zr1TPkLWcWIW3QhZAAAA43l/Vh72/WuuszeAekQsAACAubZt24QSqhKzaErIAgAAyOfzXs692BhC4zkeM6SJli8OdPIEAAA4z70VVYlZnNayKDvZAgAAzOMvHPZn/54nZvEyJzkAAIDYDAzE4h66DTGLl/T4AjrJAgAAtPfKvZbhhbbsz7bELA4TsgAAAGAfEas9MYvdepVkIQsAAKCvV++7TBSdY9/1IWaxS68voJAFAAAwxpn7L1HmGBGwLzGLp3wBAQAAajgbtNwfPmcf9Sdm8afeJypTWQAAAPmINX+zb8YQs/hlRG0XsgAAAOZocT8m2nxnam0sMYtvfPkAAADqaxW03EO6j55BzOJ/o76AprIAAADma3VvtmrMEfPmuc7eAOYb+eUTsgAAAOr5vK9c4Z5PwJrPZNbifAkBAADW1To+VZ5WqvyzZSNmLWz0l3CFQg8AAJBNj3u1SuGn0s9ShccMF+RLCAAAwAhf7z8zDTi4b47NZNZiZn0hM520AAAAVjPini3DhFOGbcRk1lJ8IQEAAPjLtm3biPvGn/+NmcMP7pNzErMW4MsJAADAHqOC1lcj45b74xrErMKifEk9YggAAMBej+5l99xfRrkXph8xqyhfXgAAAF4xYzprr6jbxVheAF9QpC+3qSwAAIB83MsRmcmsQiJFLAAAAIAeTGYVIWQBAADQkuksohKzkrt9mL0d9zjxAQAA5Oa+jojErMSiRiwAAADqELSIRsxKSsgCAAAAViRmJRP5scKvlHsAAIA63OMRiZiVSIaIBQAAQE2CFlFcZ28Az4lYAAAAAO9MZgUnZAEAABCF6SwiELMCE7IAAACIRtBiNo8ZBpQ9YjmxAQAAAL2YzAome8gCAACgPkMMzCRmBXH7MHs7AAAAYA9Bi1nErABELAAAAIB9xKyJTGMBAACQmeksZhCzJhGxAAAAqEDQYjQxawIhCwAAgEoELUa6zt6AlYhYAAAAAOeYzBpEyAIAAKAy01mMImZ15iXvAAAArELQYgQxqyMRCwAAAKAtMasTIQsAAIAVmc6iNzGrMY8VAgAAsDpBi57ErIZELAAAAHgnaNGLmNWIkAUAAADQn5h1kscKAQAA4D7TWfQgZp0gYgEAAMBjghatXWdvQEYiFgAAAMAcJrMOErIAAADgGNNZtCRm7eTdWAAAAPA6QYtWxKwdRKxj7C8AAADuEbRowTuzHhBlAAAAAGIxmfUHIQsAAADaM53FWWLWD96NBQAAAH0JWpwhZn0hYgEAAADEJmZ9ELLasj8BAAB4xHQWrxKzLsILAAAAzCBo8YqlY5b3YwEAAMBcghZHLRuzRKz+7GMAAACgteVilmksAAAAiMV0FkcsFbNELAAAAIDclolZQtYc9jsAAAB7bB9mbwfxXWdvQG9iCgAAAEAdpSezhCwAAADIxXQWz5SMWV7yHovPAgAAAGilXMwSTgAAACA378/ikTIxyzRWbD4bAAAAoIUSMUsoAQAAAFhD6phlGisXnxUAAABHeNSQe9LGLGEEAAAA6hO0+CllzBKy8vLZAQAAAGdcZ2/AEUIIAAAArOdzOksX4HJJNJnlgK3DZwkAAAC8KkXMEj/q8ZkCAABwlPdncbkEf8xQ8AAAAADgq7CTWUJWfT5jAAAAjto+zN4O5gkZs0QOAAAAAO4JF7OErLX4vAEAAHiF6ax1hYpZwsaafO4AAADAXmFilqCxNp8/AAAAR5nOWlOImCVkAAAAAK8QtNYzPWYJWXy6fZi9HQAAAOQiaK1laswSLgAAAAA4YlrMErL4iwktAAAAjjKdtY4pMUuoAAAAAFoTtNYwPGYJWexlQgsAAAD4aWjMEiYAAACAnkxn1TcsZglZvMqEFgAAAEcIWrUNiVlCBAAAAAAtdI9ZQhatmNACAABgL9NZdU35a4ZwhqgFAADAHoJWTV1jluAAAAAAzCRo1dMtZglZ9GZCCwAAANbTJWYJDIwkagEAAPCI6axavDOLMkQtAAAA/iJo1dE8ZokJzCZqAQAAcI+gVUPTmCUgEImoBQAAAPU0i1miAVGJWgAAAHwynZXfdfYGwCg/g5YTGAAAwJq2bdsMPeTVZDLLAUBGJrYAAAAgn9OTWWIA2ZnYAgAAWI/prLw8Zgg/PDuZiV0AAAA1CFo5nYpZPnBW5LhnRSIuAABVCVr5NPtrhgDU5eIOAABE8XLMcmMDsBbnfQAAqvIkQi4mswDYTdACAABmeylmuZkBWJdrAAAAFZnOysNkFgAAAMBF0MricMzyG3kAXAsAAKhK0IrPZBYAAAAAaRyKWX4TDwAAAFRnOis2k1kAAAAAPwhace2OWaayAAAAAJhtV8wSsgAAAIDVbB9mbwffecwQAAAAgDTELAAAAIAHTGfF8jRmecQQAAAAgChMZgEAAAA8YTorjocxy1QWAAAAwDtBKwaTWQAAAACkIWYBAAAA7GQ6a74/Y5ZHDAEAAAB+E7TmMpkFAAAAQBpiFgAAAMBBprPmuRuzPGIIAAAA8JigNYfJLAAAAIAXCVrjiVkAAAAApPErZnnEEAAAAGC/7cPs7ViFySwAAAAA0hCzAAAAABowoTWGmAUAAABAGt9ilvdlAQAAAJxjOqsvk1kAAAAAjQla/YhZAAAAAB0IWn2IWQAAAACdCFrt/R+zvC8LAAAAoD1Bqy2TWQAAAACdCVrtiFkAAAAAAwhabYhZAAAAAIMIWueJWQAAAAADCVrnvF0uXv4OAAAAMJKg9TqTWQAAAAATbB9mb0c2YhYAAAAAaYhZAAAAABOZ0DpGzAIAAAAIQNDaR8wCAAAACMKU1nNiFgAAAEAwgtbfxCwAAACAgExp3SdmAQAAAAQmaH33drvdbrM3AgAAAIC/CVr/mMwCAAAASMBjh+/ELAAAAIBEVo9aYhYAAABAQqsGLTELABhu1YUX8JvzAcA5K05piVkAAAAAya0UtcQsAAAAgCJWiFpiFgAAAEAxlaPWdfYGAAAAANDH16B1u91uM7elFZNZAAAAAAuoMq31VuGHAGAs1w7IyXf3PvsFgNVkj1oeMwQAAJgg840kUEPWRxDfLhcnUQDoxTX2N/tkLvv/O/sjBp8DwHzbF7O35ZFt27a3r/9j5sYAkIPrxXH22T/2BcA750Mgsu2H2dvz6XNbfm1QprEyAMaKdCHLaPVrrOMnltWPx8vFMRnRKselYw/Ibtb5+s+YdbmscxEBYB+L7rZWvM46huJyPBJN9WPS8QdU1Pvc/fPc+fBEWv1CAsBzFt39VL/OOnZycTwSTcVj0nEIrOjV8/mjc+Z/w/KYABj1YzsAAAAASUVORK5CYII=" alt="ZIIN"/>
+          <div class="doc-title" id="d-titulo" contenteditable="true">Relatório de Agenda</div>
+          <div class="doc-sub" id="d-capital" contenteditable="true">Capital disponível: R$ —</div>
+        </div>
+        <div class="doc-hdr-right">
+          <div class="hdr-label">ZIIN Assessoria</div>
+          <div class="hdr-val" id="d-data" contenteditable="true">—</div>
+        </div>
+      </div>
+
+      <div class="coop-bar" id="coop-bar" style="display:none">
+        <div class="coop-cell"><div class="cl">Cooperado</div><div class="cv" id="d-coop" contenteditable="true">—</div></div>
+        <div class="coop-cell dark-cell"><div class="cl">Patrimônio para alocação</div><div class="cv" id="d-coop-capital" contenteditable="true">R$ —</div></div>
+      </div>
+
+      <div class="doc-body" id="doc-body"></div>
+
+      <div class="doc-footer">
+        <span>ZIIN Assessoria · Material de uso interno — sujeito à revisão do profissional responsável.</span>
+        <span id="footer-date"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FIELD TYPE PICKER MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Escolha o tipo de campo</div>
+    <div class="field-types" id="field-types-grid"></div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-confirm" onclick="confirmAddField()">Adicionar campo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LOGO_B64 = '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';
+
+/* ═══ TIPOS ═══ */
+const TIPO_LABELS = {
+  agenda:'Retorno de agenda',
+  carteira:'Carteira proposta',
+  revisao:'Revisão de carteira',
+  comparativo:'Comparativo de carteiras',
+  previdencia:'Comparativo previdência VGBL',
+  duvida:'Dúvida sobre produto / instrumento'
+};
+let currentTipo = 'agenda';
+
+function setTipo(btn) {
+  document.querySelectorAll('.tipo-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentTipo = btn.dataset.tipo;
+  document.getElementById('badge-tipo').textContent = TIPO_LABELS[currentTipo];
+  renderTemplate(currentTipo);
+  updateCoopBar();
+  resetFields();
+}
+
+function updateCoopBar() {
+  document.getElementById('coop-bar').style.display =
+    ['carteira','previdencia','revisao'].includes(currentTipo) ? 'grid' : 'none';
+}
+
+function resetFields() {
+  ['f-titulo','f-capital','f-coop','f-data'].forEach(id => { const e = document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('d-titulo').textContent = TIPO_LABELS[currentTipo];
+  document.getElementById('d-capital').textContent = 'Capital disponível: R$ —';
+  document.getElementById('d-data').textContent = '—';
+  document.getElementById('d-coop').textContent = '—';
+  document.getElementById('d-coop-capital').textContent = 'R$ —';
+}
+
+function sync(from, to) {
+  const val = document.getElementById(from).value;
+  const el = document.getElementById(to);
+  if (!el) return;
+  if (to === 'd-capital') { el.textContent = val ? 'Capital disponível: ' + val : 'Capital disponível: R$ —'; document.getElementById('d-coop-capital').textContent = val || 'R$ —'; }
+  else el.textContent = val || (to==='d-titulo' ? TIPO_LABELS[currentTipo] : '—');
+}
+
+document.getElementById('footer-date').textContent =
+  new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+
+/* ═══ RENDER TEMPLATE ═══ */
+function renderTemplate(tipo) {
+  const body = document.getElementById('doc-body');
+  body.innerHTML = TEMPLATES[tipo] || TEMPLATES.agenda;
+  // inject drag handle + delete into every .sec
+  body.querySelectorAll('.sec').forEach(injectSecActions);
+  // sortable
+  initSortable(body);
+  // reactive liq inputs
+  body.querySelectorAll('.liq-pct-input').forEach(attachLiqInput);
+  // add-field bar at bottom
+  const bar = document.createElement('div');
+  bar.className = 'add-field-bar';
+  bar.innerHTML = `<span class="add-field-bar-label">Adicionar</span><button class="add-btn" onclick="openModal()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Campo livre</button>`;
+  body.appendChild(bar);
+}
+
+function injectSecActions(sec) {
+  if (sec.querySelector('.sec-actions')) return;
+  const actions = document.createElement('div');
+  actions.className = 'sec-actions';
+  actions.innerHTML = `<div class="drag-handle" title="Arrastar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div><button class="sec-del" onclick="deleteSec(this)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Remover</button>`;
+  sec.prepend(actions);
+}
+
+function initSortable(container) {
+  if (container._sortable) container._sortable.destroy();
+  container._sortable = Sortable.create(container, {
+    animation: 180,
+    handle: '.drag-handle',
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    filter: '.add-field-bar',
+  });
+}
+
+function deleteSec(btn) {
+  const sec = btn.closest('.sec');
+  if (sec && confirm('Remover esta seção?')) sec.remove();
+}
+
+/* ═══ REACTIVE LIQUIDITY BARS ═══ */
+function attachLiqInput(input) {
+  input.addEventListener('input', () => {
+    const row = input.closest('.liq-row');
+    const bar = row && row.querySelector('.liq-bar');
+    if (!bar) return;
+    const raw = input.value.replace('%','').trim();
+    const pct = Math.min(100, Math.max(0, parseFloat(raw) || 0));
+    bar.style.width = pct + '%';
+  });
+}
+
+/* ═══ ADD HELPERS ═══ */
+function addFundCard(cid) {
+  const c = document.getElementById(cid); if (!c) return;
+  const d = document.createElement('div'); d.className = 'fund-card';
+  d.innerHTML = `<div class="fund-head"><div><div class="fund-name" contenteditable="true">Nome do fundo</div><div class="fund-type" contenteditable="true">Classe | Subtipo</div></div><div class="fund-tags"><span class="tag tag-liq" contenteditable="true">D+0</span><span class="tag tag-val" contenteditable="true">R$ — (—%)</span></div></div><div class="fund-metrics"><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Rent. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">% CDI</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Vol. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Participação</div></div></div><div class="fund-rationale"><strong contenteditable="true">Por que está aqui: </strong><span contenteditable="true">Descreva o racional deste ativo na carteira.</span></div>`;
+  c.appendChild(d); d.querySelector('.fund-name').focus();
+}
+
+function addTableRow(tid, cols) {
+  const tb = document.getElementById(tid); if (!tb) return;
+  const last = tb.querySelector('tr:last-child');
+  const tr = document.createElement('tr');
+  tr.innerHTML = cols.map(c => `<td contenteditable="true">${c}</td>`).join('');
+  tb.insertBefore(tr, last);
+}
+
+function addLiqRow(cid, color) {
+  const c = document.getElementById(cid); if (!c) return;
+  const colors = ['#1A1A1A','#C9A84C','#aaa','#555'];
+  color = color || colors[c.querySelectorAll('.liq-row').length % colors.length];
+  const r = document.createElement('div'); r.className = 'liq-row';
+  r.innerHTML = `<div class="liq-lbl" contenteditable="true">D+—</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:10%;background:${color}"></div></div><input class="liq-pct-input" type="text" value="10%" /><div class="liq-val" contenteditable="true">R$ —</div>`;
+  c.appendChild(r);
+  attachLiqInput(r.querySelector('.liq-pct-input'));
+}
+
+function addReasonItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const n = list.querySelectorAll('.reason-item').length + 1;
+  const d = document.createElement('div'); d.className = 'reason-item';
+  d.innerHTML = `<div class="reason-num">${n}</div><div class="reason-text"><strong contenteditable="true">Título.</strong> <span contenteditable="true">Desenvolva a justificativa.</span></div>`;
+  list.appendChild(d); d.querySelector('strong').focus();
+}
+
+function addStepItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const li = document.createElement('li'); li.className = 'step-item';
+  li.innerHTML = `<div class="step-body"><strong contenteditable="true">Próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento.</span></div>`;
+  list.appendChild(li); li.querySelector('strong').focus();
+}
+
+function addBulletItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const li = document.createElement('li'); li.innerHTML = `<span contenteditable="true">Novo item</span>`;
+  list.appendChild(li); li.querySelector('span').focus();
+}
+
+function addPhaseItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const d = document.createElement('div'); d.className = 'phase-item';
+  d.innerHTML = `<div class="phase-title" contenteditable="true">Fase — Título</div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">Descrição do item</span></li></ul></div>`;
+  list.appendChild(d);
+}
+
+function confirmaLimpar() {
+  if (!confirm('Limpar o documento atual?')) return;
+  setTipo(document.querySelector('.tipo-opt.active'));
+}
+
+/* ═══ FIELD TYPE MODAL ═══ */
+const FIELD_TYPES = [
+  { id:'texto',    icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>', name:'Texto livre', desc:'Parágrafo editável com título' },
+  { id:'nota',     icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', name:'Destaque / Nota', desc:'Bloco dourado para informação em evidência' },
+  { id:'lista',    icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>', name:'Lista de itens', desc:'Bullets editáveis com pontos dourados' },
+  { id:'metricas', icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>', name:'Cards de métricas', desc:'Grade de indicadores numéricos' },
+  { id:'tabela',   icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>', name:'Tabela', desc:'Tabela de duas colunas editável' },
+  { id:'passos',   icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>', name:'Próximos passos', desc:'Lista numerada com estilo dourado' },
+];
+
+let selectedFieldType = 'texto';
+
+function openModal() {
+  selectedFieldType = 'texto';
+  const grid = document.getElementById('field-types-grid');
+  grid.innerHTML = FIELD_TYPES.map(ft => `
+    <div class="ft-opt ${ft.id==='texto'?'selected':''}" data-ft="${ft.id}" onclick="selectFieldType(this)">
+      <div class="ft-icon">${ft.icon}</div>
+      <div><div class="ft-name">${ft.name}</div><div class="ft-desc">${ft.desc}</div></div>
+    </div>`).join('');
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function selectFieldType(el) {
+  document.querySelectorAll('.ft-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedFieldType = el.dataset.ft;
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal'))
+    document.getElementById('modal').style.display = 'none';
+}
+
+function confirmAddField() {
+  document.getElementById('modal').style.display = 'none';
+  insertFreeField(selectedFieldType);
+}
+
+function insertFreeField(type) {
+  const body = document.getElementById('doc-body');
+  const addBar = body.querySelector('.add-field-bar');
+  const sec = document.createElement('div');
+  sec.className = 'sec free-' + type;
+  const uid = 'ff' + Date.now();
+
+  const BUILDS = {
+    texto: `<div class="sec-lbl" contenteditable="true">Título da seção</div><div class="body-text" contenteditable="true">Escreva aqui o conteúdo deste campo. Use para qualquer informação adicional relevante ao retorno.</div>`,
+    nota: `<div style="background:var(--gold-pale);border-left:4px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:14px 16px"><div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ap);margin-bottom:6px" contenteditable="true">Destaque</div><div class="body-text" contenteditable="true">Informação relevante a ser destacada para o cooperado ou gerente.</div></div>`,
+    lista: `<div class="sec-lbl" contenteditable="true">Título da seção</div><ul class="blist" id="${uid}"><li><span contenteditable="true">Primeiro item</span></li><li><span contenteditable="true">Segundo item</span></li></ul><button class="add-btn" onclick="addBulletItem('${uid}')">+ Item</button>`,
+    metricas: `<div class="sec-lbl" contenteditable="true">Indicadores</div><div class="metrics-grid"><div class="metric-card gold"><div class="m-lbl" contenteditable="true">Indicador 1</div><div class="m-val gold" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Descrição</div></div><div class="metric-card"><div class="m-lbl" contenteditable="true">Indicador 2</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Descrição</div></div><div class="metric-card"><div class="m-lbl" contenteditable="true">Indicador 3</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Descrição</div></div></div>`,
+    tabela: `<div class="sec-lbl" contenteditable="true">Título da tabela</div><table class="perf-table"><thead><tr><th contenteditable="true">Coluna 1</th><th contenteditable="true">Coluna 2</th><th contenteditable="true">Coluna 3</th></tr></thead><tbody id="${uid}"><tr><td contenteditable="true">Item</td><td contenteditable="true">—</td><td contenteditable="true">—</td></tr><tr><td contenteditable="true">Item</td><td contenteditable="true">—</td><td contenteditable="true">—</td></tr><tr><td><strong>Total</strong></td><td contenteditable="true"><strong>—</strong></td><td contenteditable="true"><strong>—</strong></td></tr></tbody></table><button class="add-btn" onclick="addTableRow('${uid}',['Item','—','—'])">+ Linha</button>`,
+    passos: `<div class="sec-lbl" contenteditable="true">Próximos passos</div><ol class="steps-list" id="${uid}"><li class="step-item"><div class="step-body"><strong contenteditable="true">Primeiro passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado.</span></div></li><li class="step-item"><div class="step-body"><strong contenteditable="true">Segundo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado.</span></div></li></ol><button class="add-btn" onclick="addStepItem('${uid}')">+ Passo</button>`,
+  };
+
+  sec.innerHTML = BUILDS[type] || BUILDS.texto;
+  injectSecActions(sec);
+  body.insertBefore(sec, addBar);
+  sec.scrollIntoView({behavior:'smooth', block:'nearest'});
+  const firstEdit = sec.querySelector('[contenteditable]');
+  if (firstEdit) setTimeout(() => firstEdit.focus(), 50);
+}
+
+/* ═══ TEMPLATES ═══ */
+const SEC = (content) => `<div class="sec">${content}</div>`;
+
+const TEMPLATES = {
+
+agenda: [
+  SEC(`<div class="sec-lbl">Contexto da reunião</div>
+  <div class="body-text" contenteditable="true">Na última semana realizamos uma reunião com foco em entender seus objetivos, necessidades e horizonte de investimento para os recursos disponíveis para alocação. O principal ponto levantado foi a necessidade de liquidez para uma parte relevante do capital. Com isso em mente, estruturamos uma carteira inicial que equilibra rentabilidade competitiva, segurança e acesso rápido aos recursos, respeitando o momento atual.</div>
+  <div class="edit-hint">↑ Edite livremente</div>`),
+
+  SEC(`<div class="sec-lbl">Resumo da carteira</div>
+  <div class="metrics-grid">
+    <div class="metric-card gold"><div class="m-lbl">Valor investido</div><div class="m-val gold" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Capital inicial alocado</div></div>
+    <div class="metric-card"><div class="m-lbl">Rentabilidade anual est.</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">—% do CDI</div></div>
+    <div class="metric-card"><div class="m-lbl">Patrimônio est. / 12m</div><div class="m-val" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Ganho estimado</div></div>
+    <div class="metric-card"><div class="m-lbl">Volatilidade anual</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">Oscilação da carteira</div></div>
+    <div class="metric-card"><div class="m-lbl">Índice Sharpe</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Retorno ajustado ao risco</div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Racional da alocação</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira foi montada priorizando segurança e liquidez. Dado que há necessidade de acesso rápido a parte do capital, concentramos a maior parte em fundos com resgate imediato ou em até 1 dia útil.</div>
+  <table class="perf-table"><thead><tr><th>Classe de ativo</th><th>Participação</th><th>Volume</th></tr></thead>
+  <tbody id="alloc-tbody">
+    <tr><td><span class="pill pill-pos" contenteditable="true">Pós-fixado</span></td><td contenteditable="true">95%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td><span class="pill pill-inf" contenteditable="true">Inflação (IPCA+)</span></td><td contenteditable="true">5%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td><strong>Total</strong></td><td contenteditable="true"><strong>100%</strong></td><td contenteditable="true"><strong>R$ —</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('alloc-tbody',['Classe','—%','R$ —'])">+ Linha</button>`),
+
+  SEC(`<div class="sec-lbl">Descrição dos ativos</div>
+  <div id="funds-container">
+    <div class="fund-card"><div class="fund-head"><div><div class="fund-name" contenteditable="true">Nome do fundo</div><div class="fund-type" contenteditable="true">Pós-fixado | Crédito Privado</div></div><div class="fund-tags"><span class="tag tag-liq" contenteditable="true">D+0</span><span class="tag tag-val" contenteditable="true">R$ — (—%)</span></div></div><div class="fund-metrics"><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Rent. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">% CDI</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Vol. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Participação</div></div></div><div class="fund-rationale"><strong contenteditable="true">Por que está aqui: </strong><span contenteditable="true">Descreva o racional de inclusão deste ativo na carteira.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addFundCard('funds-container')">+ Adicionar ativo</button>`),
+
+  SEC(`<div class="sec-lbl">Perfil de liquidez</div>
+  <div id="liq1">
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+0 / D+1</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:65%;background:#1A1A1A"></div></div><input class="liq-pct-input" type="text" value="65%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+2</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:5%;background:#C9A84C"></div></div><input class="liq-pct-input" type="text" value="5%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+6 / D+7</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:30%;background:#aaa"></div></div><input class="liq-pct-input" type="text" value="30%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+  </div>
+  <button class="add-btn" onclick="addLiqRow('liq1')">+ Faixa</button>`),
+
+  SEC(`<div class="sec-lbl">Por que essa alocação faz sentido agora</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">Apesar do perfil declarado, o momento atual justifica a abordagem adotada. Há razões principais para essa decisão:</div>
+  <div class="reason-list" id="reason1">
+    <div class="reason-item"><div class="reason-num">1</div><div class="reason-text"><strong contenteditable="true">Necessidade de liquidez real.</strong> <span contenteditable="true">Você sinalizou que precisará acessar parte do capital. Uma carteira com ativos ilíquidos criaria fricção exatamente quando você mais precisa de acesso.</span></div></div>
+    <div class="reason-item"><div class="reason-num">2</div><div class="reason-text"><strong contenteditable="true">Capital ainda em transição.</strong> <span contenteditable="true">Faz sentido aguardar a consolidação do patrimônio para montar uma carteira definitiva com visão completa do total.</span></div></div>
+    <div class="reason-item"><div class="reason-num">3</div><div class="reason-text"><strong contenteditable="true">Rentabilidade já competitiva.</strong> <span contenteditable="true">Mesmo sendo conservadora, essa carteira entrega retorno acima do CDI com excelente relação risco/retorno.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('reason1')">+ Razão</button>`),
+
+  SEC(`<div class="sec-lbl">Próximos passos</div>
+  <ol class="steps-list" id="steps1">
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Título do próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado, responsabilidades e prazo esperado.</span></div></li>
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Título do próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado.</span></div></li>
+  </ol>
+  <button class="add-btn" onclick="addStepItem('steps1')">+ Passo</button>`)
+].join(''),
+
+carteira: [
+  SEC(`<div class="sec-lbl">1. Contexto macroeconômico</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:10px">O cenário econômico brasileiro é marcado por uma política monetária restritiva, com a taxa Selic em patamar historicamente elevado, que remunera bem os ativos de renda fixa e cria um ambiente favorável para estratégias conservadoras e moderadas.</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">Os juros reais ex-ante seguem em território significativamente positivo, criando condições excepcionais para captura de prêmio em renda fixa de qualidade.</div>
+  <div style="margin-top:4px"><div style="font-size:11px;font-weight:700;color:var(--dark);margin-bottom:7px">Premissas levantadas na reunião</div>
+  <ul class="blist" id="premissas1">
+    <li><span contenteditable="true">Objetivo: acumulação patrimonial, sem objetivo de resgate definido</span></li>
+    <li><span contenteditable="true">Horizonte: longo prazo, com apetite ao risco condizente</span></li>
+    <li><span contenteditable="true">Valor inicial disponível: R$ —</span></li>
+    <li><span contenteditable="true">Próximos passos: complementar a carteira com LCA, LCI e fundos multimercado nos aportes futuros</span></li>
+  </ul>
+  <button class="add-btn" onclick="addBulletItem('premissas1')">+ Item</button></div>`),
+
+  SEC(`<div class="sec-lbl">2. Composição da carteira inicial</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira foi montada com foco em fundos de renda fixa pós-fixados, com crédito privado como estratégia de geração de alfa sobre o CDI. A alocação está distribuída em fundos complementares entre si, com diferentes gestores e perfis de crédito.</div>
+  <table class="perf-table"><thead><tr><th>Fundo</th><th>Rent. 12m</th><th>% CDI</th><th>Liquidez</th><th>Alocação</th><th>Valor (R$)</th></tr></thead>
+  <tbody id="comp-tbody">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">—%</td><td class="gold-cell" contenteditable="true">—%</td><td contenteditable="true">D+—</td><td contenteditable="true">—%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">—%</td><td class="gold-cell" contenteditable="true">—%</td><td contenteditable="true">D+—</td><td contenteditable="true">—%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td><strong>Total</strong></td><td contenteditable="true"><strong>—%</strong></td><td class="gold-cell" contenteditable="true"><strong>—%</strong></td><td>—</td><td contenteditable="true"><strong>100%</strong></td><td contenteditable="true"><strong>R$ —</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('comp-tbody',['Nome','—%','—%','D+—','—%','R$ —'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">3. Racional de cada produto</div>
+  <div id="rat-container">
+    <div class="fund-card"><div class="fund-head"><div><div class="fund-name" contenteditable="true">Nome do fundo</div><div class="fund-type" contenteditable="true">Classe | Subtipo</div></div><div class="fund-tags"><span class="tag tag-liq" contenteditable="true">D+1</span><span class="tag tag-val" contenteditable="true">—% · R$ —</span></div></div><div class="fund-metrics"><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Rent. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">% CDI</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Vol. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Participação</div></div></div><div class="fund-rationale"><div class="body-text" contenteditable="true" style="margin-bottom:6px">Descreva o papel deste fundo na carteira.</div><ul class="blist"><li><span contenteditable="true">Rentabilidade 12m: —% (—% do CDI)</span></li><li><span contenteditable="true">Volatilidade 12m: —%</span></li><li><span contenteditable="true">Liquidez: D+—</span></li></ul></div></div>
+  </div>
+  <button class="add-btn" onclick="addFundCard('rat-container')">+ Produto</button>`),
+
+  SEC(`<div class="sec-lbl">4. Desempenho da carteira</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A simulação demonstra consistência e superação do CDI no período analisado.</div>
+  <table class="stat-table"><thead><tr><th>Indicador</th><th>Resultado</th></tr></thead>
+  <tbody id="perf-tbody">
+    <tr><td>Rentabilidade anualizada estimada</td><td class="gold" contenteditable="true">—%</td></tr>
+    <tr><td>Rentabilidade acumulada 12m</td><td contenteditable="true">—%</td></tr>
+    <tr><td>CDI no período</td><td contenteditable="true">—%</td></tr>
+    <tr><td>Superação do CDI</td><td contenteditable="true">+— p.p.</td></tr>
+    <tr><td>% do CDI entregue</td><td contenteditable="true">—%</td></tr>
+    <tr><td>Volatilidade anualizada</td><td contenteditable="true">—%</td></tr>
+    <tr><td>Índice Sharpe</td><td contenteditable="true">—</td></tr>
+    <tr><td>Patrimônio projetado (12m)</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td>Meses positivos</td><td contenteditable="true">— de 12</td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('perf-tbody',['Indicador','—'])">+ Linha</button>`),
+
+  SEC(`<div class="sec-lbl">5. Gestão de liquidez</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A distribuição por liquidez foi desenhada de forma intencional, considerando que em uma carteira de acumulação de longo prazo não é necessário manter todo o patrimônio em disponibilidade imediata.</div>
+  <div id="liq2">
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+1</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:40%;background:#1A1A1A"></div></div><input class="liq-pct-input" type="text" value="40%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+6 / D+7</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:60%;background:#C9A84C"></div></div><input class="liq-pct-input" type="text" value="60%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+  </div>
+  <button class="add-btn" onclick="addLiqRow('liq2')">+ Faixa</button>`),
+
+  SEC(`<div class="sec-lbl">6. Visão de evolução da carteira</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira inicial é apenas o ponto de partida. A estratégia prevê evolução gradual da alocação à medida que o patrimônio cresce.</div>
+  <div class="phase-list" id="phases1">
+    <div class="phase-item"><div class="phase-title" contenteditable="true">Fase 1 — Atual: Base Pós-Fixada</div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">100% em fundos de renda fixa pós-fixados com crédito privado</span></li><li><span contenteditable="true">Foco: preservação de capital, superação do CDI</span></li></ul></div></div>
+    <div class="phase-item"><div class="phase-title" contenteditable="true">Fase 2 — Próximos aportes: Diversificação em Renda Fixa</div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">Inclusão de LCA e LCI: isenção de IR para PF</span></li></ul></div></div>
+    <div class="phase-item"><div class="phase-title" contenteditable="true">Fase 3 — Patrimônio em crescimento: Multimercado e Renda Variável</div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">Fundos multimercado macro e fundos de ações ou ETFs</span></li></ul></div></div>
+  </div>
+  <button class="add-btn" onclick="addPhaseItem('phases1')">+ Fase</button>`)
+].join(''),
+
+revisao: [
+  SEC(`<div class="sec-lbl">Contexto da revisão</div>
+  <div class="body-text" contenteditable="true">A revisão periódica da carteira tem como objetivo verificar a aderência dos investimentos ao perfil, objetivos e momento do cooperado, avaliar o desempenho dos ativos e propor ajustes quando necessário.</div>
+  <div class="edit-hint">↑ Edite livremente</div>`),
+
+  SEC(`<div class="sec-lbl">Composição atual da carteira</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira atual apresenta o seguinte perfil de alocação por classe de ativo e estratégia.</div>
+  <table class="perf-table"><thead><tr><th>Fundo / Ativo</th><th>Classe</th><th>Alocação</th><th>Rent. 12m</th><th>% CDI</th><th>Vol. 12m</th></tr></thead>
+  <tbody id="rev-comp">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Inflação</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td contenteditable="true"><strong>100%</strong></td><td contenteditable="true"><strong>—%</strong></td><td contenteditable="true"><strong>—%</strong></td><td contenteditable="true"><strong>—%</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('rev-comp',['Nome','Classe','—%','—%','—%','—%'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">Desempenho da carteira</div>
+  <div class="metrics-grid">
+    <div class="metric-card gold"><div class="m-lbl">Patrimônio atual</div><div class="m-val gold" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Saldo em carteira</div></div>
+    <div class="metric-card"><div class="m-lbl">Rentabilidade 12m</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">—% do CDI</div></div>
+    <div class="metric-card"><div class="m-lbl">Patrimônio inicial</div><div class="m-val" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Capital aportado</div></div>
+    <div class="metric-card"><div class="m-lbl">Valorização</div><div class="m-val" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Ganho no período</div></div>
+    <div class="metric-card"><div class="m-lbl">Volatilidade anual</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">Oscilação da carteira</div></div>
+    <div class="metric-card"><div class="m-lbl">Índice Sharpe</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Retorno ajustado ao risco</div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Análise da alocação atual</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">As alocações percentuais por estratégia estão aderentes ao que entendemos como adequado para o momento, tanto do ponto de vista de risco quanto de eficiência da carteira.</div>
+  <div class="reason-list" id="rev-reason">
+    <div class="reason-item"><div class="reason-num">✓</div><div class="reason-text"><strong contenteditable="true">Ponto positivo da carteira.</strong> <span contenteditable="true">Descreva o que está funcionando bem na alocação atual.</span></div></div>
+    <div class="reason-item"><div class="reason-num">✓</div><div class="reason-text"><strong contenteditable="true">Ponto positivo da carteira.</strong> <span contenteditable="true">Descreva outro aspecto positivo da estrutura atual.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('rev-reason')">+ Item</button>`),
+
+  SEC(`<div class="sec-lbl">Ajustes e direcionamentos</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">Com base na análise atual e no momento do cooperado, sugerimos os seguintes ajustes.</div>
+  <div id="rev-funds">
+    <div class="fund-card"><div class="fund-head"><div><div class="fund-name" contenteditable="true">Ativo / movimento sugerido</div><div class="fund-type" contenteditable="true">Ação: Aporte / Resgate / Manutenção</div></div><div class="fund-tags"><span class="tag tag-val" contenteditable="true">R$ —</span></div></div><div class="fund-rationale"><strong contenteditable="true">Racional: </strong><span contenteditable="true">Explique por que esse ajuste faz sentido agora para a carteira do cooperado.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addFundCard('rev-funds')">+ Ajuste</button>`),
+
+  SEC(`<div class="sec-lbl">Perfil de liquidez atual</div>
+  <div id="rev-liq">
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+0 / D+1</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:50%;background:#1A1A1A"></div></div><input class="liq-pct-input" type="text" value="50%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+6 / D+7</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:50%;background:#C9A84C"></div></div><input class="liq-pct-input" type="text" value="50%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+  </div>
+  <button class="add-btn" onclick="addLiqRow('rev-liq')">+ Faixa</button>`),
+
+  SEC(`<div class="sec-lbl">Próximos passos</div>
+  <ol class="steps-list" id="rev-steps">
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado, responsabilidades e prazo esperado.</span></div></li>
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Acompanhamento periódico</strong><span contenteditable="true">Revisão periódica para ajustar alocações conforme o cenário e os objetivos do cooperado evoluam.</span></div></li>
+  </ol>
+  <button class="add-btn" onclick="addStepItem('rev-steps')">+ Passo</button>`)
+].join(''),
+
+comparativo: [
+  SEC(`<div class="sec-lbl">Análise da carteira atual</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">A carteira atual apresenta perfil conservador, com alocação focada em renda fixa. A composição evidencia boa diversificação dentro do pós-fixado.</div>
+  <table class="perf-table"><thead><tr><th>Fundo / Ativo</th><th>Classe</th><th>Alocação</th><th>Rent. 12m</th><th>% CDI</th></tr></thead>
+  <tbody id="atual-tbody">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Multimercado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td contenteditable="true"><strong>100%</strong></td><td contenteditable="true"><strong>—%</strong></td><td contenteditable="true"><strong>—%</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('atual-tbody',['Nome','Classe','—%','—%','—%'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">Comparativo de indicadores</div>
+  <div class="compare-grid">
+    <div class="compare-card"><div class="compare-head">Carteira atual</div><div class="compare-body">
+      <div class="compare-row"><span class="lbl">Rentabilidade anualizada</span><span class="val" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">% CDI</span><span class="val" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Volatilidade</span><span class="val down" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Índice Sharpe</span><span class="val" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses positivos</span><span class="val" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses negativos</span><span class="val down" contenteditable="true">—</span></div>
+    </div></div>
+    <div class="compare-card"><div class="compare-head gold-head">Proposta ZIIN</div><div class="compare-body">
+      <div class="compare-row"><span class="lbl">Rentabilidade anualizada</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">% CDI</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Volatilidade</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Índice Sharpe</span><span class="val up" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses positivos</span><span class="val up" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses negativos</span><span class="val up" contenteditable="true">—</span></div>
+    </div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Carteira proposta ZIIN</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">O direcionamento proposto tem como objetivo aumentar a eficiência da carteira, mantendo o perfil de risco adequado.</div>
+  <table class="perf-table"><thead><tr><th>Fundo / Ativo</th><th>Classe</th><th>Alocação</th><th>Rent. 12m</th><th>% CDI</th></tr></thead>
+  <tbody id="prop-tbody">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td contenteditable="true"><strong>100%</strong></td><td contenteditable="true"><strong>—%</strong></td><td contenteditable="true"><strong>—%</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('prop-tbody',['Nome','Classe','—%','—%','—%'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">Racional da proposta</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">A comparação evidencia melhora estrutural da carteira, com aumento de rentabilidade, redução de volatilidade e maior consistência em relação ao CDI.</div>
+  <div class="reason-list" id="comp-reason">
+    <div class="reason-item"><div class="reason-num">1</div><div class="reason-text"><strong contenteditable="true">Redução de volatilidade.</strong> <span contenteditable="true">A carteira proposta apresenta oscilação significativamente menor, proporcionando maior previsibilidade.</span></div></div>
+    <div class="reason-item"><div class="reason-num">2</div><div class="reason-text"><strong contenteditable="true">Aumento de rentabilidade.</strong> <span contenteditable="true">A nova composição entrega rentabilidade acima do CDI de forma consistente.</span></div></div>
+    <div class="reason-item"><div class="reason-num">3</div><div class="reason-text"><strong contenteditable="true">Maior aderência ao perfil.</strong> <span contenteditable="true">Os produtos propostos são mais adequados ao objetivo e horizonte de investimento do cooperado.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('comp-reason')">+ Razão</button>`),
+
+  SEC(`<div class="sec-lbl">Próximos passos</div>
+  <ol class="steps-list" id="comp-steps">
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Portabilidade / migração dos recursos</strong><span contenteditable="true">Detalhe o procedimento de transferência e prazo esperado.</span></div></li>
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Acompanhamento mensal</strong><span contenteditable="true">Revisão periódica da carteira para ajustar alocações conforme o cenário evolua.</span></div></li>
+  </ol>
+  <button class="add-btn" onclick="addStepItem('comp-steps')">+ Passo</button>`)
+].join(''),
+
+previdencia: [
+  SEC(`<div class="sec-lbl">Período e parâmetros da análise</div>
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="m-lbl">Período analisado</div><div class="m-val" style="font-size:13px;font-weight:700" contenteditable="true">— meses</div><div class="m-sub" contenteditable="true">Backtest</div></div>
+    <div class="metric-card gold"><div class="m-lbl">Valor investido</div><div class="m-val gold" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Ambas as carteiras</div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Comparativo de indicadores</div>
+  <div class="compare-grid">
+    <div class="compare-card"><div class="compare-head">Previdência atual</div><div class="compare-body">
+      <div class="compare-row"><span class="lbl">Rentabilidade anualizada</span><span class="val" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">% CDI</span><span class="val" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Volatilidade</span><span class="val down" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Índice Sharpe</span><span class="val" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Rentabilidade acumulada</span><span class="val" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Meses negativos</span><span class="val down" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Maior queda mensal</span><span class="val down" contenteditable="true">—%</span></div>
+    </div></div>
+    <div class="compare-card"><div class="compare-head gold-head">Proposta ZIIN</div><div class="compare-body">
+      <div class="compare-row"><span class="lbl">Rentabilidade anualizada</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">% CDI</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Volatilidade</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Índice Sharpe</span><span class="val up" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Rentabilidade acumulada</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Meses negativos</span><span class="val up" contenteditable="true">0</span></div>
+      <div class="compare-row"><span class="lbl">Menor retorno mensal</span><span class="val up" contenteditable="true">+—%</span></div>
+    </div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Composição dos fundos</div>
+  <div class="compare-grid">
+    <div class="compare-card"><div class="compare-head">Previdência atual</div><div class="compare-body">
+      <ul class="blist" id="prev-atual"><li><span contenteditable="true">Nome do fundo (Classe)</span></li><li><span contenteditable="true">Nome do fundo (Classe)</span></li></ul>
+      <button class="add-btn" onclick="addBulletItem('prev-atual')" style="margin-top:8px">+ Fundo</button>
+    </div></div>
+    <div class="compare-card"><div class="compare-head gold-head">Proposta ZIIN</div><div class="compare-body">
+      <ul class="blist" id="prev-prop"><li><span contenteditable="true">Nome do fundo (Classe)</span></li></ul>
+      <button class="add-btn" onclick="addBulletItem('prev-prop')" style="margin-top:8px">+ Fundo</button>
+    </div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Estatísticas detalhadas</div>
+  <table class="stat-table"><thead><tr><th>Indicador</th><th>Atual</th><th>Proposta</th></tr></thead>
+  <tbody id="stat-tbody">
+    <tr><td>Meses positivos</td><td contenteditable="true">—</td><td class="gold" contenteditable="true">—</td></tr>
+    <tr><td>Meses negativos</td><td contenteditable="true">—</td><td class="gold" contenteditable="true">0</td></tr>
+    <tr><td>Maior retorno mensal</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td>Menor retorno mensal</td><td contenteditable="true">—%</td><td class="gold" contenteditable="true">+—%</td></tr>
+    <tr><td>Meses acima do CDI</td><td contenteditable="true">—</td><td class="gold" contenteditable="true">—</td></tr>
+    <tr><td>Patrimônio acumulado</td><td contenteditable="true">R$ —</td><td class="gold" contenteditable="true">R$ —</td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('stat-tbody',['Indicador','—','—'])">+ Linha</button>`),
+
+  SEC(`<div class="sec-lbl">Racional da proposta</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">A comparação evidencia melhora em rentabilidade, consistência e controle de risco.</div>
+  <div class="reason-list" id="prev-reason">
+    <div class="reason-item"><div class="reason-num">1</div><div class="reason-text"><strong contenteditable="true">Ausência de meses negativos.</strong> <span contenteditable="true">A proposta apresentou comportamento mais linear, sem nenhum mês de retorno negativo no período.</span></div></div>
+    <div class="reason-item"><div class="reason-num">2</div><div class="reason-text"><strong contenteditable="true">Menor volatilidade.</strong> <span contenteditable="true">A variação dos retornos mensais é significativamente menor, proporcionando maior previsibilidade.</span></div></div>
+    <div class="reason-item"><div class="reason-num">3</div><div class="reason-text"><strong contenteditable="true">Melhora de rentabilidade.</strong> <span contenteditable="true">A proposta entregou rentabilidade anualizada superior com risco menor, melhorando o índice Sharpe.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('prev-reason')">+ Razão</button>`)
+].join(''),
+
+duvida: [
+  SEC(`<div class="sec-lbl">Dúvida apresentada</div>
+  <div class="body-text" contenteditable="true">Descreva aqui a dúvida do cooperado ou do gerente/assessor que motivou esta demanda.</div>`),
+  SEC(`<div class="sec-lbl">Resposta objetiva</div>
+  <div class="body-text" contenteditable="true">Responda de forma direta e clara a pergunta principal, antes de entrar nos detalhes técnicos.</div>`),
+  SEC(`<div class="sec-lbl">Como funciona</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:10px">Explique o produto ou instrumento em questão de forma técnica mas acessível.</div>
+  <ul class="blist" id="como1"><li><span contenteditable="true">Característica principal do produto</span></li><li><span contenteditable="true">Como é feita a remuneração</span></li><li><span contenteditable="true">Tributação aplicável</span></li><li><span contenteditable="true">Prazo e liquidez típicos</span></li></ul>
+  <button class="add-btn" onclick="addBulletItem('como1')">+ Item</button>`),
+  SEC(`<div class="sec-lbl">Quando é mais adequado</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:10px">Descreva as situações e perfis de investidor para os quais este produto faz mais sentido.</div>
+  <ul class="blist" id="quando1"><li><span contenteditable="true">Perfil de risco indicado</span></li><li><span contenteditable="true">Horizonte de investimento recomendado</span></li><li><span contenteditable="true">Objetivo financeiro mais aderente</span></li></ul>
+  <button class="add-btn" onclick="addBulletItem('quando1')">+ Item</button>`),
+  SEC(`<div class="sec-lbl">Riscos e pontos de atenção</div>
+  <div class="reason-list" id="risk1">
+    <div class="reason-item"><div class="reason-num">!</div><div class="reason-text"><strong contenteditable="true">Risco de mercado.</strong> <span contenteditable="true">Descreva o principal risco deste produto para o cooperado.</span></div></div>
+    <div class="reason-item"><div class="reason-num">!</div><div class="reason-text"><strong contenteditable="true">Tributação.</strong> <span contenteditable="true">Destaque os aspectos tributários relevantes para a decisão.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('risk1')">+ Ponto</button>`),
+  SEC(`<div class="sec-lbl">Aplicação ao caso</div>
+  <div class="body-text" contenteditable="true">Explique como esse produto se aplica à situação específica do cooperado, considerando o perfil, patrimônio e objetivos mencionados.</div>`)
+].join('')
+
+}; // end TEMPLATES
+
+/* init */
+renderTemplate('agenda');
+</script>
+</body>
+</html>
