@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZIIN Assessoria — Gerador de Relatório</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#1A1A1A;--dark2:#2E2E2E;--dark3:#3D3D3D;
+  --gold:#C9A84C;--gold-pale:#FBF5E7;
+  --muted:#888;--border:rgba(46,46,46,.14);--border2:rgba(26,26,26,.09);
+  --bg:#F5F5F5;--surface:#fff;
+  --sh-sm:0 1px 6px rgba(0,0,0,.07);--sh:0 2px 16px rgba(0,0,0,.10);
+  --r:6px;--rl:10px;
+  --gp:#0E6B47;--gpb:#EDFAF4;
+  --ap:#8A5E0A;--apb:#FEF8EC;
+  --bp:#2351A3;--bpb:#EDF2FB;
+  --pp:#6B2FA0;--ppb:#F3EDF8;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--dark);font-size:13px;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* ── HEADER ── */
+.shell-header{background:var(--dark);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.28)}
+.hdr-logo{height:24px;width:auto;display:block}
+.hdr-badge{display:flex;align-items:center;gap:7px;padding:5px 13px;border:1px solid rgba(255,255,255,.16);border-radius:99px;font-size:9px;font-weight:700;letter-spacing:.16em;color:rgba(255,255,255,.6);text-transform:uppercase}
+.hdr-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── LAYOUT ── */
+.layout{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:252px 1fr;gap:20px;padding:24px 20px 80px}
+
+/* ── SIDEBAR ── */
+.sidebar{position:sticky;top:80px;height:fit-content;display:flex;flex-direction:column;gap:13px}
+.card{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-sm);border:1px solid var(--border2)}
+.card-head{padding:11px 15px;border-bottom:1px solid var(--border2);font-size:8.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.card-head::before{content:'';width:11px;height:2px;background:var(--gold);border-radius:99px;flex-shrink:0}
+.card-body{padding:13px 15px}
+.tipo-list{display:flex;flex-direction:column;gap:4px}
+.tipo-opt{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);border:1.5px solid transparent;background:transparent;cursor:pointer;transition:all .13s;width:100%;text-align:left;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;color:var(--dark3)}
+.tipo-opt:hover{background:var(--bg);border-color:var(--border)}
+.tipo-opt.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.tipo-opt svg{flex-shrink:0;opacity:.7}
+.tipo-opt.active svg{opacity:1;stroke:#fff}
+.fg{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.fg:last-child{margin-bottom:0}
+.fg label{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.fg input,.fg textarea{font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--r);color:var(--dark);background:var(--bg);transition:border-color .14s,box-shadow .14s;width:100%}
+.fg input:focus,.fg textarea:focus{outline:none;border-color:var(--dark2);box-shadow:0 0 0 3px rgba(46,46,46,.09)}
+.btn-export{width:100%;padding:10px;background:var(--dark);color:#fff;border:none;border-radius:var(--r);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .13s}
+.btn-export:hover{background:var(--dark2)}
+.btn-reset{width:100%;padding:7px;margin-top:5px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-family:'Montserrat',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .13s}
+.btn-reset:hover{background:var(--bg);color:var(--dark)}
+
+/* ── DOC WRAP ── */
+.doc-wrap{min-width:0}
+.doc-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
+.doc-tipo-badge{font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:99px;background:var(--dark);color:#fff}
+.doc-hint{font-size:10px;color:var(--muted)}
+.btn-gold{padding:6px 14px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:none;border-radius:var(--r);background:var(--gold);color:var(--dark);cursor:pointer;transition:opacity .13s;display:inline-flex;align-items:center;gap:6px}
+.btn-gold:hover{opacity:.85}
+
+/* ── DOCUMENT ── */
+.doc{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh);border:1px solid var(--border2);overflow:hidden}
+[contenteditable]{outline:none;border-radius:3px;transition:background .12s,box-shadow .12s}
+[contenteditable]:hover{background:rgba(201,168,76,.07)}
+[contenteditable]:focus{background:rgba(201,168,76,.13);box-shadow:0 0 0 2px rgba(201,168,76,.35)}
+.edit-hint{font-size:9.5px;color:var(--muted);font-style:italic;margin-top:4px}
+
+/* doc header */
+.doc-hdr{background:linear-gradient(135deg,#0d1f30 0%,#1a3a52 60%,#1a3c5e 100%);padding:28px 36px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:3px solid var(--gold)}
+.doc-hdr-logo{height:26px;width:auto;display:block;margin-bottom:12px}
+.doc-hdr-accent{width:36px;height:2px;background:var(--gold);border-radius:1px;margin-bottom:12px}
+.doc-title{font-size:22px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:3px}
+.doc-sub{font-size:11.5px;color:rgba(255,255,255,.42);font-weight:500}
+.doc-hdr-right{text-align:right;flex-shrink:0}
+.hdr-label{font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-bottom:5px}
+.hdr-val{font-size:12px;font-weight:600;color:rgba(255,255,255,.7)}
+
+/* coop bar */
+.coop-bar{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border2)}
+.coop-cell{padding:14px 20px}
+.coop-cell:first-child{border-right:1px solid var(--border2)}
+.coop-cell .cl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.coop-cell .cv{font-size:14px;font-weight:700;color:var(--dark)}
+.coop-cell.dark-cell{background:var(--dark)}
+.coop-cell.dark-cell .cl{color:rgba(255,255,255,.4)}
+.coop-cell.dark-cell .cv{color:#fff}
+
+/* doc body */
+.doc-body{padding:28px 36px}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dark2);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:8px}
+.body-text{font-size:12.5px;line-height:1.85;color:var(--dark3);padding:2px}
+
+/* ── DRAG SECTIONS ── */
+.sec{margin-bottom:22px;position:relative;border-radius:var(--r)}
+.sec:last-child{margin-bottom:0}
+.sec-actions{position:absolute;top:2px;right:0;display:flex;gap:4px;opacity:0;transition:opacity .15s;z-index:10}
+.sec:hover .sec-actions{opacity:1}
+.drag-handle{cursor:grab;padding:3px 6px;color:var(--muted);border-radius:var(--r);border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center}
+.drag-handle:active{cursor:grabbing}
+.drag-handle svg{pointer-events:none}
+.sec-del{padding:3px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;font-family:'Montserrat',sans-serif;border:1px solid #f0c0c0;border-radius:var(--r);background:#fff5f5;color:#c0392b;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:4px}
+.sec-del:hover{background:#fde8e8}
+.sec.sortable-ghost{opacity:.35;background:var(--gold-pale);border:2px dashed var(--gold)}
+.sec.sortable-chosen{box-shadow:0 4px 20px rgba(0,0,0,.15)}
+
+/* ── METRICS ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:9px}
+.metric-card{background:var(--bg);border-radius:var(--r);border-top:2px solid var(--border2);padding:11px 13px}
+.metric-card.gold{border-top-color:var(--gold)}
+.m-lbl{font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.m-val{font-size:17px;font-weight:800;color:var(--dark);line-height:1.1}
+.m-val.gold{color:var(--gold)}
+.m-sub{font-size:10px;color:var(--muted);margin-top:3px;font-weight:500}
+
+/* ── TABLES ── */
+.perf-table{width:100%;border-collapse:collapse}
+.perf-table th{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1.5px solid var(--border);text-align:left}
+.perf-table td{padding:8px 10px;border-bottom:1px solid var(--border2);font-size:12px;color:var(--dark)}
+.perf-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--bg)}
+.perf-table .gold-cell{color:var(--gold);font-weight:700}
+.stat-table{width:100%;border-collapse:collapse}
+.stat-table th{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1.5px solid var(--border);text-align:left}
+.stat-table th:not(:first-child){text-align:right}
+.stat-table td{padding:7px 10px;border-bottom:1px solid var(--border2);font-size:12px;color:var(--dark)}
+.stat-table td:not(:first-child){text-align:right;font-weight:600}
+.stat-table tr:last-child td{border-bottom:none}
+.stat-table .gold{color:var(--gold)}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700}
+.pill-pos{background:var(--gpb);color:var(--gp)}
+.pill-inf{background:var(--apb);color:var(--ap)}
+.pill-pre{background:var(--bpb);color:var(--bp)}
+.pill-mm{background:var(--ppb);color:var(--pp)}
+
+/* ── FUND CARDS ── */
+.fund-card{border:1px solid var(--border2);border-radius:var(--rl);overflow:hidden;margin-bottom:11px;box-shadow:var(--sh-sm)}
+.fund-card:last-child{margin-bottom:0}
+.fund-head{padding:11px 15px 9px;border-bottom:1px solid var(--border2);background:var(--bg);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.fund-name{font-size:12.5px;font-weight:700;color:var(--dark);line-height:1.3}
+.fund-type{font-size:10px;color:var(--muted);margin-top:2px;font-weight:500}
+.fund-tags{display:flex;flex-wrap:wrap;gap:4px;flex-shrink:0;margin-top:2px}
+.tag{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:99px}
+.tag-liq{background:var(--gpb);color:var(--gp)}
+.tag-val{background:var(--gold-pale);color:#7A5500}
+.fund-metrics{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border2)}
+.fm{padding:8px 11px;border-right:1px solid var(--border2);text-align:center}
+.fm:last-child{border-right:none}
+.fm-val{font-size:12.5px;font-weight:700;color:var(--dark)}
+.fm-lbl{font-size:8.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.fund-rationale{padding:10px 15px;font-size:12px;line-height:1.8;color:var(--dark3)}
+.fund-rationale strong{color:var(--dark);font-weight:700}
+
+/* ── LIQUIDITY ── */
+.liq-row{display:flex;align-items:center;gap:11px;margin-bottom:8px}
+.liq-lbl{font-size:11px;font-weight:600;color:var(--dark3);width:86px;flex-shrink:0}
+.liq-bar-wrap{flex:1;height:6px;background:var(--border2);border-radius:99px;overflow:hidden}
+.liq-bar{height:100%;border-radius:99px;transition:width .3s ease}
+.liq-pct-input{font-size:11.5px;font-weight:700;color:var(--dark);width:46px;text-align:right;flex-shrink:0;background:transparent;border:none;border-bottom:1px dashed var(--border);font-family:'Montserrat',sans-serif;padding:1px 2px}
+.liq-pct-input:focus{outline:none;border-color:var(--gold)}
+.liq-val{font-size:10.5px;font-weight:500;color:var(--muted);width:88px;text-align:right;flex-shrink:0}
+
+/* ── REASONS / STEPS ── */
+.reason-list{display:flex;flex-direction:column;gap:10px}
+.reason-item{display:flex;gap:10px;align-items:flex-start}
+.reason-num{font-size:9.5px;font-weight:800;color:var(--dark);width:21px;height:21px;border-radius:50%;border:2px solid var(--dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.reason-text{flex:1;font-size:12.5px;line-height:1.8;color:var(--dark3)}
+.reason-text strong{color:var(--dark);font-weight:700}
+.steps-list{list-style:none;counter-reset:step;display:flex;flex-direction:column;gap:11px}
+.step-item{display:flex;gap:11px;align-items:flex-start;counter-increment:step}
+.step-item::before{content:counter(step,"01");font-size:9.5px;font-weight:800;color:var(--gold);width:25px;height:25px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-variant-numeric:tabular-nums}
+.step-body{flex:1;font-size:12.5px;line-height:1.8;color:var(--dark3)}
+.step-body strong{display:block;color:var(--dark);font-weight:700;margin-bottom:2px}
+
+/* ── COMPARE ── */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare-card{border:1px solid var(--border2);border-radius:var(--rl);overflow:hidden}
+.compare-head{padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border2)}
+.compare-head.gold-head{background:var(--dark);color:var(--gold)}
+.compare-body{padding:13px 14px}
+.compare-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;position:relative;gap:8px}
+.compare-row:last-child{border-bottom:none;font-weight:700}
+.compare-row .lbl{color:var(--muted);font-size:11px;flex:1;min-width:0}
+.compare-row .val{font-weight:700;color:var(--dark);text-align:right;flex-shrink:0;min-width:60px}
+.compare-row .val.up{color:var(--gp)}
+.compare-row .val.down{color:#c0392b}
+.compare-row:hover .row-del{opacity:1}
+.row-del{opacity:0;cursor:pointer;padding:1px 5px;font-size:9px;font-weight:700;border:1px solid #f0c0c0;border-radius:3px;background:#fff5f5;color:#c0392b;transition:opacity .13s;flex-shrink:0;margin-left:4px;line-height:1}
+.row-del:hover{background:#fde8e8}
+.phase-item{border-left:3px solid var(--gold);padding-left:13px;position:relative}
+.phase-item:hover .row-del{opacity:1}
+.perf-table tr{position:relative}
+.perf-table tr:hover .row-del{opacity:1}
+.blist{list-style:none;display:flex;flex-direction:column;gap:6px;padding:3px 0}
+.blist li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.7;color:var(--dark3)}
+.blist li span{flex:1}
+.blist li::before{content:'•';color:var(--gold);font-weight:700;margin-top:1px;flex-shrink:0}
+.phase-list{display:flex;flex-direction:column;gap:13px}
+.phase-item{border-left:3px solid var(--gold);padding-left:13px}
+.phase-title{font-size:11px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.phase-desc{font-size:12px;line-height:1.75;color:var(--dark3)}
+
+/* ── ADD BTNS ── */
+.auto-cell{color:var(--muted);font-style:italic;font-size:11px}
+.auto-cell[contenteditable]:hover{background:transparent!important;cursor:default}
+.auto-cell[contenteditable]:focus{background:transparent!important;box-shadow:none!important;cursor:default}
+.add-btn{margin-top:8px;padding:4px 11px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .12s;display:inline-flex;align-items:center;gap:5px}
+.add-btn:hover{background:var(--bg);border-color:var(--dark2);color:var(--dark)}
+
+/* ── ADD FIELD BAR ── */
+.add-field-bar{margin-top:14px;padding-top:12px;border-top:1.5px dashed var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.add-field-bar-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ── FIELD TYPE PICKER MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadein .15s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border-radius:var(--rl);box-shadow:0 8px 40px rgba(0,0,0,.2);padding:24px;width:480px;max-width:94vw}
+.modal-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dark);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-title::before{content:'';width:12px;height:2px;background:var(--gold);border-radius:99px}
+.field-types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ft-opt{padding:12px 14px;border:1.5px solid var(--border2);border-radius:var(--rl);cursor:pointer;transition:all .13s;display:flex;align-items:flex-start;gap:10px}
+.ft-opt:hover{border-color:var(--gold);background:var(--gold-pale)}
+.ft-opt.selected{border-color:var(--dark);background:var(--dark)}
+.ft-opt.selected .ft-name{color:#fff}
+.ft-opt.selected .ft-desc{color:rgba(255,255,255,.5)}
+.ft-opt.selected svg{stroke:#fff}
+.ft-icon{flex-shrink:0;margin-top:1px}
+.ft-name{font-size:11.5px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.ft-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.modal-cancel{padding:7px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:1px solid var(--border);border-radius:var(--r);background:transparent;color:var(--muted);cursor:pointer}
+.modal-cancel:hover{color:var(--dark)}
+.modal-confirm{padding:7px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:none;border-radius:var(--r);background:var(--dark);color:#fff;cursor:pointer}
+.modal-confirm:hover{background:var(--dark2)}
+
+/* ── FREE FIELD TYPES ── */
+.free-texto .sec-lbl{color:var(--dark2)}
+.free-metrics .free-inner{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:9px}
+.free-metric-item{background:var(--bg);border-radius:var(--r);border-top:2px solid var(--gold);padding:11px 13px}
+.free-tabela .free-inner table{width:100%;border-collapse:collapse}
+.free-tabela .free-inner th{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1.5px solid var(--border);text-align:left}
+.free-tabela .free-inner td{padding:8px 10px;border-bottom:1px solid var(--border2);font-size:12px;color:var(--dark)}
+.free-lista .free-inner ul{list-style:none;display:flex;flex-direction:column;gap:6px;padding:3px 0}
+.free-lista .free-inner li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.7;color:var(--dark3)}
+.free-lista .free-inner li::before{content:'•';color:var(--gold);font-weight:700;margin-top:1px}
+.free-nota{background:var(--gold-pale);border-left:4px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:13px 16px}
+.free-nota .free-inner{font-size:12.5px;line-height:1.8;color:var(--dark3)}
+
+/* ── DOC FOOTER ── */
+.doc-footer{border-top:1px solid var(--border2);padding:11px 36px;display:flex;justify-content:space-between;align-items:center;background:var(--bg)}
+.doc-footer span{font-size:9px;color:var(--muted);font-weight:500}
+
+/* ── TABS ── */
+.main-tabs{display:flex;align-items:center;gap:2px;padding:0 36px;background:var(--dark);border-top:1px solid rgba(255,255,255,.08)}
+.main-tab{padding:10px 18px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Montserrat',sans-serif}
+.main-tab:hover{color:rgba(255,255,255,.75)}
+.main-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── IMPORT TAB ── */
+.import-wrap{max-width:900px;margin:0 auto;padding:32px 24px 80px}
+.import-hero{text-align:center;padding:40px 20px 32px;border-bottom:1px solid var(--border2);margin-bottom:32px}
+.import-hero h2{font-size:22px;font-weight:700;color:var(--dark);margin-bottom:8px}
+.import-hero p{font-size:12.5px;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.7}
+.drop-zone{border:2px dashed var(--border);border-radius:var(--rl);padding:48px 32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);position:relative}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--gold);background:var(--gold-pale)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{width:48px;height:48px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.drop-title{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.drop-sub{font-size:11px;color:var(--muted)}
+.drop-types{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.drop-type-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+
+.import-status{margin-top:20px;padding:12px 16px;border-radius:var(--r);font-size:12px;font-weight:600;display:none;align-items:center;gap:8px}
+.import-status.loading{display:flex;background:#f0f4ff;color:#1a3a8f;border:1px solid #c7d7f5}
+.import-status.success{display:flex;background:var(--gpb);color:var(--gp);border:1px solid rgba(14,107,71,.2)}
+.import-status.error{display:flex;background:#fdeaea;color:#c0392b;border:1px solid #f5c0c0}
+
+.extracted-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rl);margin-top:28px;overflow:hidden;display:none}
+.extracted-card.visible{display:block}
+.ec-header{padding:14px 20px;background:var(--dark);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ec-title{font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.ec-type-badge{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:var(--gold);color:var(--dark)}
+.ec-actions{display:flex;gap:8px}
+.ec-body{padding:20px}
+
+.ec-section{margin-bottom:22px}
+.ec-section:last-child{margin-bottom:0}
+.ec-section-title{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:7px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:7px}
+
+.ec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.ec-metric{background:var(--bg);border-radius:var(--r);border-top:2px solid var(--border2);padding:10px 12px}
+.ec-metric.highlight{border-top-color:var(--gold)}
+.ec-m-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.ec-m-val{font-size:15px;font-weight:800;color:var(--dark)}
+.ec-m-val.gold{color:var(--gold)}
+
+.ec-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* deletable table columns */
+.col-del-wrap{position:relative;display:inline-block;width:100%}
+.col-del-btn{display:none;position:absolute;top:0;right:0;z-index:30;padding:1px 5px;font-size:8px;font-weight:700;border:none;border-radius:3px;background:#c0392b;color:#fff;cursor:pointer;line-height:1.6;font-family:'Montserrat',sans-serif}
+.ind-table thead th:hover .col-del-btn{display:inline-block}
+
+/* deletable rows on indicator tables */
+.ind-table tbody tr{position:relative}
+.ind-table tbody tr:hover .row-del{opacity:1}
+.ind-table{width:100%;border-collapse:collapse}
+.ind-table th{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:7px 10px;border-bottom:1.5px solid var(--border);text-align:left;position:relative}
+.ind-table td{padding:8px 10px;border-bottom:1px solid var(--border2);font-size:12px;color:var(--dark)}
+.ind-table tr:last-child td{border-bottom:none}
+
+/* tipo selector in import card */
+.tipo-selector-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border2);background:var(--bg);flex-wrap:wrap}
+.tipo-selector-bar label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tipo-selector-bar select{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;border:1px solid var(--border2);border-radius:var(--r);color:var(--dark);background:var(--surface);cursor:pointer}
+.tipo-selector-bar select:focus{outline:none;border-color:var(--gold)}
+.ec-compare-col{border:1px solid var(--border2);border-radius:var(--rl);overflow:hidden}
+.ec-compare-head{padding:8px 12px;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border2)}
+.ec-compare-head.gold{background:var(--dark);color:var(--gold)}
+.ec-compare-body{padding:10px 12px}
+.ec-compare-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);font-size:11.5px}
+.ec-compare-row:last-child{border-bottom:none;font-weight:700}
+.ec-compare-row .k{color:var(--muted);font-size:10.5px}
+.ec-compare-row .v{font-weight:600;color:var(--dark)}
+.ec-compare-row .v.up{color:var(--gp)}
+.ec-compare-row .v.dn{color:#c0392b}
+
+.ec-fund-table{width:100%;border-collapse:collapse}
+.ec-fund-table th{font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1.5px solid var(--border);text-align:left}
+.ec-fund-table td{padding:7px 8px;border-bottom:1px solid var(--border2);font-size:11.5px;color:var(--dark)}
+.ec-fund-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--bg)}
+
+.btn-use{padding:7px 16px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:none;border-radius:var(--r);background:var(--gold);color:var(--dark);cursor:pointer;transition:opacity .13s;display:inline-flex;align-items:center;gap:6px}
+.btn-use:hover{opacity:.85}
+.btn-clear-imp{padding:7px 14px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;border:1px solid var(--border);border-radius:var(--r);background:transparent;color:var(--muted);cursor:pointer}
+.btn-clear-imp:hover{color:var(--dark)}
+
+/* ── PRINT ── */
+@media print{
+  .shell-header,.main-tabs,.sidebar,.doc-bar,.edit-hint,.add-btn,.sec-actions,.add-field-bar,.modal-overlay{display:none!important}
+  .layout{display:block;padding:0;margin:0;max-width:100%}
+  .doc-wrap{display:block}
+  .doc{border:none;border-radius:0;box-shadow:none}
+  body{background:#fff;font-size:11.5px}
+  [contenteditable]:hover,[contenteditable]:focus{background:transparent!important;box-shadow:none!important}
+  .doc-body{padding:22px 36px}
+  .doc-hdr{padding:18px 36px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .fund-card,.sec,.compare-card{break-inside:avoid;page-break-inside:avoid}
+  @page{margin:14mm 12mm;size:A4}
+}
+
+@media(max-width:740px){
+  .layout{grid-template-columns:1fr;padding:14px 12px 60px}
+  .sidebar{position:static}
+  .fund-metrics,.compare-grid{grid-template-columns:1fr}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .doc-hdr{flex-direction:column;gap:10px}
+  .doc-hdr-right{text-align:left}
+  .doc-body{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<header class="shell-header">
+  <img class="hdr-logo" src="data:image/png;base64,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" alt="ZIIN"/>
+  <div class="hdr-badge"><span class="hdr-dot"></span>Uso interno</div>
+</header>
+<nav class="main-tabs">
+  <button class="main-tab active" onclick="switchTab('gerador',this)">Gerador de retorno</button>
+  <button class="main-tab" onclick="switchTab('importar',this)">
+    <svg style="display:inline;vertical-align:-3px;margin-right:5px" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Importar relatório PDF
+  </button>
+</nav>
+
+<div id="tab-gerador" class="tab-panel active">
+<div class="layout">
+  <aside class="sidebar">
+
+    <div class="card">
+      <div class="card-head">Tipo de demanda</div>
+      <div class="card-body">
+        <div class="tipo-list">
+          <button class="tipo-opt active" data-tipo="agenda" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Retorno de agenda
+          </button>
+          <button class="tipo-opt" data-tipo="carteira" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Elaboração de carteira
+          </button>
+          <button class="tipo-opt" data-tipo="revisao" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Revisão de carteira
+          </button>
+          <button class="tipo-opt" data-tipo="comparativo" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Comparativo de carteiras
+          </button>
+          <button class="tipo-opt" data-tipo="previdencia" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Comparativo VGBL
+          </button>
+          <button class="tipo-opt" data-tipo="duvida" onclick="setTipo(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Dúvida sobre produto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">Dados do relatório</div>
+      <div class="card-body">
+        <div class="fg"><label>Título</label><input type="text" id="f-titulo" placeholder="Ex: Relatório de Agenda" oninput="sync('f-titulo','d-titulo')"/></div>
+        <div class="fg"><label>Capital / Patrimônio</label><input type="text" id="f-capital" placeholder="Ex: R$ 160.000,00" oninput="sync('f-capital','d-capital')"/></div>
+        <div class="fg"><label>Investidor / Perfil</label><input type="text" id="f-coop" placeholder="Ex: Perfil Sofisticado" oninput="sync('f-coop','d-coop')"/></div>
+        <div class="fg"><label>Data / Período</label><input type="text" id="f-data" placeholder="Ex: Março 2026" oninput="sync('f-data','d-data')"/></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <button class="btn-export" onclick="window.print()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar PDF
+        </button>
+        <button class="btn-reset" onclick="confirmaLimpar()">Limpar documento</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <div class="doc-wrap">
+    <div class="doc-bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="doc-tipo-badge" id="badge-tipo">Retorno de agenda</span>
+        <span class="doc-hint">Clique para editar · Arraste para reordenar</span>
+      </div>
+      <button class="btn-gold" onclick="window.print()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar PDF
+      </button>
+    </div>
+
+    <div class="doc" id="documento">
+      <div class="doc-hdr">
+        <div>
+          <img class="doc-hdr-logo" src="data:image/png;base64,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" alt="ZIIN"/>
+          <div class="doc-hdr-accent"></div>
+          <div class="doc-title" id="d-titulo" contenteditable="true">Relatório de Agenda</div>
+          <div class="doc-sub" id="d-capital" contenteditable="true">Capital disponível: R$ —</div>
+        </div>
+        <div class="doc-hdr-right">
+          <div class="hdr-label">ZIIN Assessoria</div>
+          <div class="hdr-val" id="d-data" contenteditable="true">—</div>
+        </div>
+      </div>
+
+      <div class="coop-bar" id="coop-bar" style="display:none">
+        <div class="coop-cell"><div class="cl">Investidor</div><div class="cv" id="d-coop" contenteditable="true">—</div></div>
+        <div class="coop-cell dark-cell"><div class="cl">Patrimônio para alocação</div><div class="cv" id="d-coop-capital" contenteditable="true">R$ —</div></div>
+      </div>
+
+      <div class="doc-body" id="doc-body"></div>
+
+      <div class="doc-footer">
+        <span>Fundos de investimento não contam com garantia do administrador do fundo, do gestor da carteira, de qualquer mecanismo de seguro ou, ainda, do FGC. A rentabilidade obtida no passado não representa garantia de rentabilidade futura. É recomendada a leitura cuidadosa do prospecto e regulamento do fundo de investimento. Os investidores devem estar preparados para aceitar os riscos inerentes aos diversos mercados.</span>
+        <span id="footer-date"></span>
+      </div>
+    </div>
+  </div>
+</div><!-- /layout -->
+</div><!-- /tab-gerador -->
+
+<!-- ═══ IMPORT TAB ═══ -->
+<div id="tab-importar" class="tab-panel">
+<div class="import-wrap">
+
+  <div class="import-hero">
+    <h2>Importar relatório PDF</h2>
+    <p>Arraste ou selecione um PDF gerado pela plataforma ZIIN. Os dados serão extraídos automaticamente e organizados para edição — sem precisar digitar nada.</p>
+  </div>
+
+  <div class="drop-zone" id="drop-zone">
+    <input type="file" accept=".pdf" id="pdf-input" onchange="handleFile(this.files[0])"/>
+    <div class="drop-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    <div class="drop-title">Arraste o PDF aqui ou clique para selecionar</div>
+    <div class="drop-sub">O arquivo fica apenas no seu navegador — nenhum dado é enviado a servidores</div>
+    <div class="drop-types" style="margin-top:14px">
+      <span class="drop-type-badge">Relatório da proposta</span>
+      <span class="drop-type-badge">Comparação entre carteiras</span>
+    </div>
+  </div>
+
+  <div class="import-status" id="import-status"></div>
+
+  <div class="extracted-card" id="extracted-card">
+    <div class="ec-header">
+      <div class="ec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Dados extraídos
+        <span class="ec-type-badge" id="ec-type-badge">—</span>
+      </div>
+      <div class="ec-actions">
+        <button class="btn-clear-imp" onclick="clearImport()">Limpar</button>
+      </div>
+    </div>
+    <div class="ec-body" id="ec-body">
+      <!-- populated by JS -->
+    </div>
+    <div class="tipo-selector-bar" id="tipo-selector-bar" style="display:none">
+      <label>Usar dados no tipo:</label>
+      <select id="import-tipo-select">
+        <option value="auto">Detectado automaticamente</option>
+        <option value="agenda">Retorno de agenda</option>
+        <option value="carteira">Elaboração de carteira</option>
+        <option value="revisao">Revisão de carteira</option>
+        <option value="comparativo">Comparativo de carteiras</option>
+        <option value="previdencia">Comparativo previdência VGBL</option>
+        <option value="duvida">Dúvida sobre produto</option>
+      </select>
+      <button class="btn-use" onclick="useExtractedData()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        Usar no gerador
+      </button>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-importar -->
+
+<!-- FIELD TYPE PICKER MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Escolha o tipo de campo</div>
+    <div class="field-types" id="field-types-grid"></div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-confirm" onclick="confirmAddField()">Adicionar campo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LOGO_B64 = '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';
+
+/* ═══ TIPOS ═══ */
+const TIPO_LABELS = {
+  agenda:'Retorno de agenda',
+  carteira:'Carteira proposta',
+  revisao:'Revisão de carteira',
+  comparativo:'Comparativo de carteiras',
+  previdencia:'Comparativo previdência VGBL',
+  duvida:'Dúvida sobre produto / instrumento'
+};
+let currentTipo = 'agenda';
+
+function setTipo(btn) {
+  document.querySelectorAll('.tipo-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentTipo = btn.dataset.tipo;
+  document.getElementById('badge-tipo').textContent = TIPO_LABELS[currentTipo];
+  renderTemplate(currentTipo);
+  updateCoopBar();
+  resetFields();
+}
+
+function updateCoopBar() {
+  document.getElementById('coop-bar').style.display =
+    ['carteira','previdencia','revisao'].includes(currentTipo) ? 'grid' : 'none';
+}
+
+function resetFields() {
+  ['f-titulo','f-capital','f-coop','f-data'].forEach(id => { const e = document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('d-titulo').textContent = TIPO_LABELS[currentTipo];
+  document.getElementById('d-capital').textContent = 'Capital disponível: R$ —';
+  document.getElementById('d-data').textContent = '—';
+  document.getElementById('d-coop').textContent = '—';
+  document.getElementById('d-coop-capital').textContent = 'R$ —';
+}
+
+function sync(from, to) {
+  const val = document.getElementById(from).value;
+  const el = document.getElementById(to);
+  if (!el) return;
+  if (to === 'd-capital') { el.textContent = val ? 'Capital disponível: ' + val : 'Capital disponível: R$ —'; document.getElementById('d-coop-capital').textContent = val || 'R$ —'; }
+  else el.textContent = val || (to==='d-titulo' ? TIPO_LABELS[currentTipo] : '—');
+}
+
+document.getElementById('footer-date').textContent =
+  new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+
+/* ═══ RENDER TEMPLATE ═══ */
+function renderTemplate(tipo) {
+  const body = document.getElementById('doc-body');
+  body.innerHTML = TEMPLATES[tipo] || TEMPLATES.agenda;
+  // inject drag handle + delete into every .sec
+  body.querySelectorAll('.sec').forEach(injectSecActions);
+  // sortable
+  initSortable(body);
+  // reactive liq inputs
+  body.querySelectorAll('.liq-pct-input').forEach(attachLiqInput);
+  // add-field bar at bottom
+  const bar = document.createElement('div');
+  bar.className = 'add-field-bar';
+  bar.innerHTML = `<span class="add-field-bar-label">Adicionar</span><button class="add-btn" onclick="openModal()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Campo livre</button>`;
+  body.appendChild(bar);
+  setTimeout(initAutoCalc, 50);
+  setTimeout(initTableControls, 60);
+}
+
+function injectSecActions(sec) {
+  if (sec.querySelector('.sec-actions')) return;
+  const actions = document.createElement('div');
+  actions.className = 'sec-actions';
+  actions.innerHTML = `<div class="drag-handle" title="Arrastar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div><button class="sec-del" onclick="deleteSec(this)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Remover</button>`;
+  sec.prepend(actions);
+}
+
+function initSortable(container) {
+  if (container._sortable) container._sortable.destroy();
+  container._sortable = Sortable.create(container, {
+    animation: 180,
+    handle: '.drag-handle',
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    filter: '.add-field-bar',
+  });
+}
+
+function deleteSec(btn) {
+  const sec = btn.closest('.sec');
+  if (sec && confirm('Remover esta seção?')) sec.remove();
+}
+
+/* ═══ REACTIVE LIQUIDITY BARS ═══ */
+function attachLiqInput(input) {
+  input.addEventListener('input', () => {
+    const row = input.closest('.liq-row');
+    const bar = row && row.querySelector('.liq-bar');
+    if (!bar) return;
+    const raw = input.value.replace('%','').trim();
+    const pct = Math.min(100, Math.max(0, parseFloat(raw) || 0));
+    bar.style.width = pct + '%';
+  });
+}
+
+/* ═══ ADD HELPERS ═══ */
+function addFundCard(cid) {
+  const c = document.getElementById(cid); if (!c) return;
+  const d = document.createElement('div'); d.className = 'fund-card';
+  d.innerHTML = `<div class="fund-head"><div><div class="fund-name" contenteditable="true">Nome do fundo</div><div class="fund-type" contenteditable="true">Classe | Subtipo</div></div><div class="fund-tags"><span class="tag tag-liq" contenteditable="true">D+0</span><span class="tag tag-val" contenteditable="true">R$ — (—%)</span></div></div><div class="fund-metrics"><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Rent. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">% CDI</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Vol. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Participação</div></div></div><div class="fund-rationale"><strong contenteditable="true">Por que está aqui: </strong><span contenteditable="true">Descreva o racional deste ativo na carteira.</span></div>`;
+  c.appendChild(d); d.querySelector('.fund-name').focus();
+}
+
+function addTableRow(tid, cols) {
+  const tb = document.getElementById(tid); if (!tb) return;
+  const last = tb.querySelector('tr:last-child');
+  const tr = document.createElement('tr');
+  tr.innerHTML = cols.map(c => `<td contenteditable="true">${c}</td>`).join('');
+  tb.insertBefore(tr, last);
+  if (tb.dataset.auto) calcTable(tb);
+}
+
+function addAllocRow(tid) {
+  const tb = document.getElementById(tid); if (!tb) return;
+  const last = tb.querySelector('tr:last-child');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><span class="pill pill-pos" contenteditable="true">Classe</span></td><td contenteditable="true">—%</td><td contenteditable="true">R$ —</td>`;
+  tb.insertBefore(tr, last);
+  calcTable(tb);
+}
+
+function addCompareRow(bodyId, cls) {
+  const body = document.getElementById(bodyId); if (!body) return;
+  const row = document.createElement('div');
+  row.className = 'compare-row';
+  row.innerHTML = `<span class="lbl" contenteditable="true">Indicador</span><span class="val ${cls||''}" contenteditable="true">—</span><button class="row-del" onclick="this.parentElement.remove()" title="Remover">✕</button>`;
+  body.appendChild(row);
+  row.querySelector('.lbl').focus();
+}
+
+function addBulletRowDel(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const li = document.createElement('li');
+  li.innerHTML = `<span contenteditable="true">Novo item</span><button class="row-del" onclick="this.closest('li').remove()" title="Remover">✕</button>`;
+  list.appendChild(li);
+  li.querySelector('span').focus();
+}
+
+function addLiqRow(cid, color) {
+  const c = document.getElementById(cid); if (!c) return;
+  const colors = ['#1A1A1A','#C9A84C','#aaa','#555'];
+  color = color || colors[c.querySelectorAll('.liq-row').length % colors.length];
+  const r = document.createElement('div'); r.className = 'liq-row';
+  r.innerHTML = `<div class="liq-lbl" contenteditable="true">D+—</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:10%;background:${color}"></div></div><input class="liq-pct-input" type="text" value="10%" /><div class="liq-val" contenteditable="true">R$ —</div>`;
+  c.appendChild(r);
+  attachLiqInput(r.querySelector('.liq-pct-input'));
+}
+
+function addReasonItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const n = list.querySelectorAll('.reason-item').length + 1;
+  const d = document.createElement('div'); d.className = 'reason-item';
+  d.innerHTML = `<div class="reason-num">${n}</div><div class="reason-text"><strong contenteditable="true">Título.</strong> <span contenteditable="true">Desenvolva a justificativa.</span></div>`;
+  list.appendChild(d); d.querySelector('strong').focus();
+}
+
+function addStepItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const li = document.createElement('li'); li.className = 'step-item';
+  li.innerHTML = `<div class="step-body"><strong contenteditable="true">Próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento.</span></div>`;
+  list.appendChild(li); li.querySelector('strong').focus();
+}
+
+function addBulletItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const li = document.createElement('li'); li.innerHTML = `<span contenteditable="true">Novo item</span>`;
+  list.appendChild(li); li.querySelector('span').focus();
+}
+
+function addPhaseItem(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const d = document.createElement('div'); d.className = 'phase-item';
+  d.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="phase-title" contenteditable="true">Fase — Título</div><button class="row-del" onclick="this.closest('.phase-item').remove()" style="flex-shrink:0;margin-top:1px">✕</button></div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">Descrição do item</span></li></ul></div>`;
+  list.appendChild(d);
+}
+
+function addPhaseItemDel(lid) { addPhaseItem(lid); }
+
+function addBulletItemDel(lid) {
+  const list = document.getElementById(lid); if (!list) return;
+  const li = document.createElement('li');
+  li.innerHTML = `<span contenteditable="true">Novo item</span><button class="row-del" onclick="this.closest('li').remove()">✕</button>`;
+  list.appendChild(li); li.querySelector('span').focus();
+}
+
+function addStatRow(tid) {
+  const tb = document.getElementById(tid); if (!tb) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td contenteditable="true">Indicador</td><td contenteditable="true">—</td><td class="gold" contenteditable="true">—</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td>`;
+  tb.appendChild(tr); tr.querySelector('td').focus();
+}
+
+function addPerfRow(tid) {
+  const tb = document.getElementById(tid); if (!tb) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td contenteditable="true">Indicador</td><td contenteditable="true">—</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td>`;
+  tb.appendChild(tr); tr.querySelector('td').focus();
+}
+
+function confirmaLimpar() {
+  if (!confirm('Limpar o documento atual?')) return;
+  setTipo(document.querySelector('.tipo-opt.active'));
+}
+
+/* ═══ FIELD TYPE MODAL ═══ */
+const FIELD_TYPES = [
+  { id:'texto',    icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>', name:'Texto livre', desc:'Parágrafo editável com título' },
+  { id:'nota',     icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', name:'Destaque / Nota', desc:'Bloco dourado para informação em evidência' },
+  { id:'lista',    icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>', name:'Lista de itens', desc:'Bullets editáveis com pontos dourados' },
+  { id:'metricas', icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>', name:'Cards de métricas', desc:'Grade de indicadores numéricos' },
+  { id:'tabela',   icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>', name:'Tabela', desc:'Tabela de duas colunas editável' },
+  { id:'passos',   icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>', name:'Próximos passos', desc:'Lista numerada com estilo dourado' },
+];
+
+let selectedFieldType = 'texto';
+
+function openModal() {
+  selectedFieldType = 'texto';
+  const grid = document.getElementById('field-types-grid');
+  grid.innerHTML = FIELD_TYPES.map(ft => `
+    <div class="ft-opt ${ft.id==='texto'?'selected':''}" data-ft="${ft.id}" onclick="selectFieldType(this)">
+      <div class="ft-icon">${ft.icon}</div>
+      <div><div class="ft-name">${ft.name}</div><div class="ft-desc">${ft.desc}</div></div>
+    </div>`).join('');
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function selectFieldType(el) {
+  document.querySelectorAll('.ft-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedFieldType = el.dataset.ft;
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal'))
+    document.getElementById('modal').style.display = 'none';
+}
+
+function confirmAddField() {
+  document.getElementById('modal').style.display = 'none';
+  insertFreeField(selectedFieldType);
+}
+
+function insertFreeField(type) {
+  const body = document.getElementById('doc-body');
+  const addBar = body.querySelector('.add-field-bar');
+  const sec = document.createElement('div');
+  sec.className = 'sec free-' + type;
+  const uid = 'ff' + Date.now();
+
+  const BUILDS = {
+    texto: `<div class="sec-lbl" contenteditable="true">Título da seção</div><div class="body-text" contenteditable="true">Escreva aqui o conteúdo deste campo. Use para qualquer informação adicional relevante ao retorno.</div>`,
+    nota: `<div style="background:var(--gold-pale);border-left:4px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:14px 16px"><div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ap);margin-bottom:6px" contenteditable="true">Destaque</div><div class="body-text" contenteditable="true">Informação relevante a ser destacada para o investidor ou gerente.</div></div>`,
+    lista: `<div class="sec-lbl" contenteditable="true">Título da seção</div><ul class="blist" id="${uid}"><li><span contenteditable="true">Primeiro item</span></li><li><span contenteditable="true">Segundo item</span></li></ul><button class="add-btn" onclick="addBulletItem('${uid}')">+ Item</button>`,
+    metricas: `<div class="sec-lbl" contenteditable="true">Indicadores</div><div class="metrics-grid"><div class="metric-card gold"><div class="m-lbl" contenteditable="true">Indicador 1</div><div class="m-val gold" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Descrição</div></div><div class="metric-card"><div class="m-lbl" contenteditable="true">Indicador 2</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Descrição</div></div><div class="metric-card"><div class="m-lbl" contenteditable="true">Indicador 3</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Descrição</div></div></div>`,
+    tabela: `<div class="sec-lbl" contenteditable="true">Título da tabela</div><table class="perf-table ind-table"><thead><tr><th contenteditable="true">Coluna 1</th><th contenteditable="true">Coluna 2</th><th contenteditable="true">Coluna 3</th></tr></thead><tbody id="${uid}"><tr><td contenteditable="true">Item</td><td contenteditable="true">—</td><td contenteditable="true">—</td></tr><tr><td contenteditable="true">Item</td><td contenteditable="true">—</td><td contenteditable="true">—</td></tr><tr><td><strong>Total</strong></td><td contenteditable="true"><strong>—</strong></td><td contenteditable="true"><strong>—</strong></td></tr></tbody></table><button class="add-btn" onclick="addTableRow('${uid}',['Item','—','—'])">+ Linha</button>`,
+    passos: `<div class="sec-lbl" contenteditable="true">Próximos passos</div><ol class="steps-list" id="${uid}"><li class="step-item"><div class="step-body"><strong contenteditable="true">Primeiro passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado.</span></div></li><li class="step-item"><div class="step-body"><strong contenteditable="true">Segundo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado.</span></div></li></ol><button class="add-btn" onclick="addStepItem('${uid}')">+ Passo</button>`,
+  };
+
+  sec.innerHTML = BUILDS[type] || BUILDS.texto;
+  injectSecActions(sec);
+  body.insertBefore(sec, addBar);
+  sec.scrollIntoView({behavior:'smooth', block:'nearest'});
+  const firstEdit = sec.querySelector('[contenteditable]');
+  if (firstEdit) setTimeout(() => firstEdit.focus(), 50);
+}
+
+/* ═══ TEMPLATES ═══ */
+const SEC = (content) => `<div class="sec">${content}</div>`;
+
+const TEMPLATES = {
+
+agenda: [
+  SEC(`<div class="sec-lbl">Contexto da reunião</div>
+  <div class="body-text" contenteditable="true">Na última semana realizamos uma reunião com foco em entender seus objetivos, necessidades e horizonte de investimento para os recursos disponíveis para alocação. O principal ponto levantado foi a necessidade de liquidez para uma parte relevante do capital. Com isso em mente, estruturamos uma carteira inicial que equilibra rentabilidade competitiva, segurança e acesso rápido aos recursos, respeitando o momento atual.</div>
+  <div class="edit-hint">↑ Edite livremente</div>`),
+
+  SEC(`<div class="sec-lbl">Resumo da carteira</div>
+  <div class="metrics-grid">
+    <div class="metric-card gold"><div class="m-lbl">Valor investido</div><div class="m-val gold" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Capital inicial alocado</div></div>
+    <div class="metric-card"><div class="m-lbl">Rentabilidade anual est.</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">—% do CDI</div></div>
+    <div class="metric-card"><div class="m-lbl">Patrimônio est. / 12m</div><div class="m-val" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Ganho estimado</div></div>
+    <div class="metric-card"><div class="m-lbl">Volatilidade anual</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">Oscilação da carteira</div></div>
+    <div class="metric-card"><div class="m-lbl">Índice Sharpe</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Retorno ajustado ao risco</div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Racional da alocação</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira foi montada priorizando segurança e liquidez. Dado que há necessidade de acesso rápido a parte do capital, concentramos a maior parte em fundos com resgate imediato ou em até 1 dia útil.</div>
+  <table class="perf-table ind-table"><thead><tr><th>Classe de ativo</th><th>Participação</th><th>Volume</th></tr></thead>
+  <tbody id="alloc-tbody" data-auto="alloc">
+    <tr><td><span class="pill pill-pos" contenteditable="true">Pós-fixado</span></td><td contenteditable="true">95%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td><span class="pill pill-inf" contenteditable="true">Inflação (IPCA+)</span></td><td contenteditable="true">5%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td><strong>Total</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addAllocRow('alloc-tbody')">+ Linha</button>`),
+
+  SEC(`<div class="sec-lbl">Descrição dos ativos</div>
+  <div id="funds-container">
+    <div class="fund-card"><div class="fund-head"><div><div class="fund-name" contenteditable="true">Nome do fundo</div><div class="fund-type" contenteditable="true">Pós-fixado | Crédito Privado</div></div><div class="fund-tags"><span class="tag tag-liq" contenteditable="true">D+0</span><span class="tag tag-val" contenteditable="true">R$ — (—%)</span></div></div><div class="fund-metrics"><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Rent. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">% CDI</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Vol. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Participação</div></div></div><div class="fund-rationale"><strong contenteditable="true">Por que está aqui: </strong><span contenteditable="true">Descreva o racional de inclusão deste ativo na carteira.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addFundCard('funds-container')">+ Adicionar ativo</button>`),
+
+  SEC(`<div class="sec-lbl">Perfil de liquidez</div>
+  <div id="liq1">
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+0 / D+1</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:65%;background:#1A1A1A"></div></div><input class="liq-pct-input" type="text" value="65%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+2</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:5%;background:#C9A84C"></div></div><input class="liq-pct-input" type="text" value="5%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+6 / D+7</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:30%;background:#aaa"></div></div><input class="liq-pct-input" type="text" value="30%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+  </div>
+  <button class="add-btn" onclick="addLiqRow('liq1')">+ Faixa</button>`),
+
+  SEC(`<div class="sec-lbl">Por que essa alocação faz sentido agora</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">Apesar do perfil declarado, o momento atual justifica a abordagem adotada. Há razões principais para essa decisão:</div>
+  <div class="reason-list" id="reason1">
+    <div class="reason-item"><div class="reason-num">1</div><div class="reason-text"><strong contenteditable="true">Necessidade de liquidez real.</strong> <span contenteditable="true">Você sinalizou que precisará acessar parte do capital. Uma carteira com ativos ilíquidos criaria fricção exatamente quando você mais precisa de acesso.</span></div></div>
+    <div class="reason-item"><div class="reason-num">2</div><div class="reason-text"><strong contenteditable="true">Capital ainda em transição.</strong> <span contenteditable="true">Faz sentido aguardar a consolidação do patrimônio para montar uma carteira definitiva com visão completa do total.</span></div></div>
+    <div class="reason-item"><div class="reason-num">3</div><div class="reason-text"><strong contenteditable="true">Rentabilidade já competitiva.</strong> <span contenteditable="true">Mesmo sendo conservadora, essa carteira entrega retorno acima do CDI com excelente relação risco/retorno.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('reason1')">+ Razão</button>`),
+
+  SEC(`<div class="sec-lbl">Próximos passos</div>
+  <ol class="steps-list" id="steps1">
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Título do próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado, responsabilidades e prazo esperado.</span></div></li>
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Título do próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado.</span></div></li>
+  </ol>
+  <button class="add-btn" onclick="addStepItem('steps1')">+ Passo</button>`)
+].join(''),
+
+carteira: [
+  SEC(`<div class="sec-lbl">Contexto macroeconômico</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:10px">O cenário econômico brasileiro é marcado por uma política monetária restritiva, com a taxa Selic em patamar historicamente elevado, que remunera bem os ativos de renda fixa e cria um ambiente favorável para estratégias conservadoras e moderadas.</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">Os juros reais ex-ante seguem em território significativamente positivo, criando condições excepcionais para captura de prêmio em renda fixa de qualidade.</div>
+  <div style="margin-top:4px"><div style="font-size:11px;font-weight:700;color:var(--dark);margin-bottom:7px">Premissas levantadas na reunião</div>
+  <ul class="blist" id="premissas1">
+    <li><span contenteditable="true">Objetivo: acumulação patrimonial, sem objetivo de resgate definido</span></li>
+    <li><span contenteditable="true">Horizonte: longo prazo, com apetite ao risco condizente</span></li>
+    <li><span contenteditable="true">Valor inicial disponível: R$ —</span></li>
+    <li><span contenteditable="true">Próximos passos: complementar a carteira com LCA, LCI e fundos multimercado nos aportes futuros</span></li>
+  </ul>
+  <button class="add-btn" onclick="addBulletItem('premissas1')">+ Item</button></div>`),
+
+  SEC(`<div class="sec-lbl">Composição da carteira inicial</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira foi montada com foco em fundos de renda fixa pós-fixados, com crédito privado como estratégia de geração de alfa sobre o CDI. A alocação está distribuída em fundos complementares entre si, com diferentes gestores e perfis de crédito.</div>
+  <table class="perf-table ind-table"><thead><tr><th>Fundo</th><th>Rent. 12m</th><th>% CDI</th><th>Liquidez</th><th>Alocação</th><th>Valor (R$)</th></tr></thead>
+  <tbody id="comp-tbody" data-auto="comp">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">—%</td><td class="gold-cell" contenteditable="true">—%</td><td contenteditable="true">D+—</td><td contenteditable="true">—%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">—%</td><td class="gold-cell" contenteditable="true">—%</td><td contenteditable="true">D+—</td><td contenteditable="true">—%</td><td contenteditable="true">R$ —</td></tr>
+    <tr><td><strong>Total</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td class="gold-cell auto-cell" contenteditable="true"><strong>—</strong></td><td>—</td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('comp-tbody',['Nome','—%','—%','D+—','—%','R$ —'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">Racional de cada produto</div>
+  <div id="rat-container">
+    <div class="fund-card"><div class="fund-head"><div><div class="fund-name" contenteditable="true">Nome do fundo</div><div class="fund-type" contenteditable="true">Classe | Subtipo</div></div><div class="fund-tags"><span class="tag tag-liq" contenteditable="true">D+1</span><span class="tag tag-val" contenteditable="true">—% · R$ —</span></div></div><div class="fund-metrics"><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Rent. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">% CDI</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Vol. 12m</div></div><div class="fm"><div class="fm-val" contenteditable="true">—%</div><div class="fm-lbl">Participação</div></div></div><div class="fund-rationale"><div class="body-text" contenteditable="true" style="margin-bottom:6px">Descreva o papel deste fundo na carteira.</div><ul class="blist"><li><span contenteditable="true">Rentabilidade 12m: —% (—% do CDI)</span></li><li><span contenteditable="true">Volatilidade 12m: —%</span></li><li><span contenteditable="true">Liquidez: D+—</span></li></ul></div></div>
+  </div>
+  <button class="add-btn" onclick="addFundCard('rat-container')">+ Produto</button>`),
+
+  SEC(`<div class="sec-lbl">Desempenho da carteira</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A simulação demonstra consistência e superação do CDI no período analisado.</div>
+  <table class="stat-table ind-table"><thead><tr><th>Indicador</th><th>Resultado</th><th style="width:22px"></th></tr></thead>
+  <tbody id="perf-tbody">
+    <tr><td contenteditable="true">Rentabilidade anualizada estimada</td><td class="gold" contenteditable="true">—%</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Rentabilidade acumulada 12m</td><td contenteditable="true">—%</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">CDI no período</td><td contenteditable="true">—%</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Superação do CDI</td><td contenteditable="true">+— p.p.</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">% do CDI entregue</td><td contenteditable="true">—%</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Volatilidade anualizada</td><td contenteditable="true">—%</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Índice Sharpe</td><td contenteditable="true">—</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Patrimônio projetado (12m)</td><td contenteditable="true">R$ —</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Meses positivos</td><td contenteditable="true">— de 12</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addPerfRow('perf-tbody')">+ Indicador</button>`),
+
+  SEC(`<div class="sec-lbl">Gestão de liquidez</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A distribuição por liquidez foi desenhada de forma intencional, considerando que em uma carteira de acumulação de longo prazo não é necessário manter todo o patrimônio em disponibilidade imediata.</div>
+  <div id="liq2">
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+1</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:40%;background:#1A1A1A"></div></div><input class="liq-pct-input" type="text" value="40%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+6 / D+7</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:60%;background:#C9A84C"></div></div><input class="liq-pct-input" type="text" value="60%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+  </div>
+  <button class="add-btn" onclick="addLiqRow('liq2')">+ Faixa</button>`),
+
+  SEC(`<div class="sec-lbl">Visão de evolução da carteira</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira inicial é apenas o ponto de partida. A estratégia prevê evolução gradual da alocação à medida que o patrimônio cresce.</div>
+  <div class="phase-list" id="phases1">
+    <div class="phase-item"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="phase-title" contenteditable="true">Fase 1 — Atual: Base Pós-Fixada</div><button class="row-del" onclick="this.closest('.phase-item').remove()" style="flex-shrink:0;margin-top:1px">✕</button></div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">100% em fundos de renda fixa pós-fixados com crédito privado</span></li><li><span contenteditable="true">Foco: preservação de capital, superação do CDI</span></li></ul></div></div>
+    <div class="phase-item"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="phase-title" contenteditable="true">Fase 2 — Próximos aportes: Diversificação em Renda Fixa</div><button class="row-del" onclick="this.closest('.phase-item').remove()" style="flex-shrink:0;margin-top:1px">✕</button></div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">Inclusão de LCA e LCI: isenção de IR para PF</span></li></ul></div></div>
+    <div class="phase-item"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="phase-title" contenteditable="true">Fase 3 — Patrimônio em crescimento: Multimercado e Renda Variável</div><button class="row-del" onclick="this.closest('.phase-item').remove()" style="flex-shrink:0;margin-top:1px">✕</button></div><div class="phase-desc"><ul class="blist"><li><span contenteditable="true">Fundos multimercado macro e fundos de ações ou ETFs</span></li></ul></div></div>
+  </div>
+  <button class="add-btn" onclick="addPhaseItemDel('phases1')">+ Fase</button>`)
+].join(''),
+
+revisao: [
+  SEC(`<div class="sec-lbl">Contexto da revisão</div>
+  <div class="body-text" contenteditable="true">A revisão periódica da carteira tem como objetivo verificar a aderência dos investimentos ao perfil, objetivos e momento do investidor, avaliar o desempenho dos ativos e propor ajustes quando necessário.</div>
+  <div class="edit-hint">↑ Edite livremente</div>`),
+
+  SEC(`<div class="sec-lbl">Composição atual da carteira</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">A carteira atual apresenta o seguinte perfil de alocação por classe de ativo e estratégia.</div>
+  <table class="perf-table ind-table"><thead><tr><th>Fundo / Ativo</th><th>Classe</th><th>Alocação</th><th>Rent. 12m</th><th>% CDI</th><th>Vol. 12m</th></tr></thead>
+  <tbody id="rev-comp" data-auto="rev">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Inflação</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('rev-comp',['Nome','Classe','—%','—%','—%','—%'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">Desempenho da carteira</div>
+  <div class="metrics-grid">
+    <div class="metric-card gold"><div class="m-lbl">Patrimônio atual</div><div class="m-val gold" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Saldo em carteira</div></div>
+    <div class="metric-card"><div class="m-lbl">Rentabilidade 12m</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">—% do CDI</div></div>
+    <div class="metric-card"><div class="m-lbl">Patrimônio inicial</div><div class="m-val" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Capital aportado</div></div>
+    <div class="metric-card"><div class="m-lbl">Valorização</div><div class="m-val" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Ganho no período</div></div>
+    <div class="metric-card"><div class="m-lbl">Volatilidade anual</div><div class="m-val" contenteditable="true">—%</div><div class="m-sub" contenteditable="true">Oscilação da carteira</div></div>
+    <div class="metric-card"><div class="m-lbl">Índice Sharpe</div><div class="m-val" contenteditable="true">—</div><div class="m-sub" contenteditable="true">Retorno ajustado ao risco</div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Análise da alocação atual</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">As alocações percentuais por estratégia estão aderentes ao que entendemos como adequado para o momento, tanto do ponto de vista de risco quanto de eficiência da carteira.</div>
+  <div class="reason-list" id="rev-reason">
+    <div class="reason-item"><div class="reason-num">✓</div><div class="reason-text"><strong contenteditable="true">Ponto positivo da carteira.</strong> <span contenteditable="true">Descreva o que está funcionando bem na alocação atual.</span></div></div>
+    <div class="reason-item"><div class="reason-num">✓</div><div class="reason-text"><strong contenteditable="true">Ponto positivo da carteira.</strong> <span contenteditable="true">Descreva outro aspecto positivo da estrutura atual.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('rev-reason')">+ Item</button>`),
+
+  SEC(`<div class="sec-lbl">Ajustes e direcionamentos</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">Com base na análise atual e no momento do investidor, sugerimos os seguintes ajustes.</div>
+  <div id="rev-funds">
+    <div class="fund-card"><div class="fund-head"><div><div class="fund-name" contenteditable="true">Ativo / movimento sugerido</div><div class="fund-type" contenteditable="true">Ação: Aporte / Resgate / Manutenção</div></div><div class="fund-tags"><span class="tag tag-val" contenteditable="true">R$ —</span></div></div><div class="fund-rationale"><strong contenteditable="true">Racional: </strong><span contenteditable="true">Explique por que esse ajuste faz sentido agora para a carteira do investidor.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addFundCard('rev-funds')">+ Ajuste</button>`),
+
+  SEC(`<div class="sec-lbl">Perfil de liquidez atual</div>
+  <div id="rev-liq">
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+0 / D+1</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:50%;background:#1A1A1A"></div></div><input class="liq-pct-input" type="text" value="50%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+    <div class="liq-row"><div class="liq-lbl" contenteditable="true">D+6 / D+7</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:50%;background:#C9A84C"></div></div><input class="liq-pct-input" type="text" value="50%"/><div class="liq-val" contenteditable="true">R$ —</div></div>
+  </div>
+  <button class="add-btn" onclick="addLiqRow('rev-liq')">+ Faixa</button>`),
+
+  SEC(`<div class="sec-lbl">Próximos passos</div>
+  <ol class="steps-list" id="rev-steps">
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Próximo passo</strong><span contenteditable="true">Detalhe o encaminhamento acordado, responsabilidades e prazo esperado.</span></div></li>
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Acompanhamento periódico</strong><span contenteditable="true">Revisão periódica para ajustar alocações conforme o cenário e os objetivos do investidor evoluam.</span></div></li>
+  </ol>
+  <button class="add-btn" onclick="addStepItem('rev-steps')">+ Passo</button>`)
+].join(''),
+
+comparativo: [
+  SEC(`<div class="sec-lbl">Análise da carteira atual</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">A carteira atual apresenta perfil conservador, com alocação focada em renda fixa. A composição evidencia boa diversificação dentro do pós-fixado.</div>
+  <table class="perf-table ind-table"><thead><tr><th>Fundo / Ativo</th><th>Classe</th><th>Alocação</th><th>Rent. 12m</th><th>% CDI</th></tr></thead>
+  <tbody id="atual-tbody" data-auto="single">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Multimercado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('atual-tbody',['Nome','Classe','—%','—%','—%'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">Comparativo de indicadores</div>
+  <div class="compare-grid">
+    <div class="compare-card"><div class="compare-head">Carteira atual</div><div class="compare-body">
+      <div class="compare-row"><span class="lbl">Rentabilidade anualizada</span><span class="val" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">% CDI</span><span class="val" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Volatilidade</span><span class="val down" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Índice Sharpe</span><span class="val" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses positivos</span><span class="val" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses negativos</span><span class="val down" contenteditable="true">—</span></div>
+    </div></div>
+    <div class="compare-card"><div class="compare-head gold-head">Proposta ZIIN</div><div class="compare-body">
+      <div class="compare-row"><span class="lbl">Rentabilidade anualizada</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">% CDI</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Volatilidade</span><span class="val up" contenteditable="true">—%</span></div>
+      <div class="compare-row"><span class="lbl">Índice Sharpe</span><span class="val up" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses positivos</span><span class="val up" contenteditable="true">—</span></div>
+      <div class="compare-row"><span class="lbl">Meses negativos</span><span class="val up" contenteditable="true">—</span></div>
+    </div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Carteira proposta ZIIN</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:13px">O direcionamento proposto tem como objetivo aumentar a eficiência da carteira, mantendo o perfil de risco adequado.</div>
+  <table class="perf-table ind-table"><thead><tr><th>Fundo / Ativo</th><th>Classe</th><th>Alocação</th><th>Rent. 12m</th><th>% CDI</th></tr></thead>
+  <tbody id="prop-tbody" data-auto="single">
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td contenteditable="true">Nome do fundo</td><td contenteditable="true">Pós-fixado</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td><td contenteditable="true" class="auto-cell"><strong>—</strong></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addTableRow('prop-tbody',['Nome','Classe','—%','—%','—%'])">+ Fundo</button>`),
+
+  SEC(`<div class="sec-lbl">Racional da proposta</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">A comparação evidencia melhora estrutural da carteira, com aumento de rentabilidade, redução de volatilidade e maior consistência em relação ao CDI.</div>
+  <div class="reason-list" id="comp-reason">
+    <div class="reason-item"><div class="reason-num">1</div><div class="reason-text"><strong contenteditable="true">Redução de volatilidade.</strong> <span contenteditable="true">A carteira proposta apresenta oscilação significativamente menor, proporcionando maior previsibilidade.</span></div></div>
+    <div class="reason-item"><div class="reason-num">2</div><div class="reason-text"><strong contenteditable="true">Aumento de rentabilidade.</strong> <span contenteditable="true">A nova composição entrega rentabilidade acima do CDI de forma consistente.</span></div></div>
+    <div class="reason-item"><div class="reason-num">3</div><div class="reason-text"><strong contenteditable="true">Maior aderência ao perfil.</strong> <span contenteditable="true">Os produtos propostos são mais adequados ao objetivo e horizonte de investimento do investidor.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('comp-reason')">+ Razão</button>`),
+
+  SEC(`<div class="sec-lbl">Próximos passos</div>
+  <ol class="steps-list" id="comp-steps">
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Portabilidade / migração dos recursos</strong><span contenteditable="true">Detalhe o procedimento de transferência e prazo esperado.</span></div></li>
+    <li class="step-item"><div class="step-body"><strong contenteditable="true">Acompanhamento mensal</strong><span contenteditable="true">Revisão periódica da carteira para ajustar alocações conforme o cenário evolua.</span></div></li>
+  </ol>
+  <button class="add-btn" onclick="addStepItem('comp-steps')">+ Passo</button>`)
+].join(''),
+
+previdencia: [
+  SEC(`<div class="sec-lbl">Período e parâmetros da análise</div>
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="m-lbl">Período analisado</div><div class="m-val" style="font-size:13px;font-weight:700" contenteditable="true">— meses</div><div class="m-sub" contenteditable="true">Backtest</div></div>
+    <div class="metric-card gold"><div class="m-lbl">Valor investido</div><div class="m-val gold" contenteditable="true">R$ —</div><div class="m-sub" contenteditable="true">Ambas as carteiras</div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Comparativo de indicadores</div>
+  <div class="compare-grid">
+    <div class="compare-card"><div class="compare-head" contenteditable="true">Previdência atual</div><div class="compare-body" id="prev-ind-atual">
+      <div class="compare-row"><span class="lbl" contenteditable="true">Rentabilidade anualizada</span><span class="val" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">% CDI</span><span class="val" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Volatilidade</span><span class="val down" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Índice Sharpe</span><span class="val" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Rentabilidade acumulada</span><span class="val" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Meses negativos</span><span class="val down" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Maior queda mensal</span><span class="val down" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+    </div>
+    <button class="add-btn" onclick="addCompareRow('prev-ind-atual')" style="margin:6px 8px 8px">+ Indicador</button>
+    </div>
+    <div class="compare-card"><div class="compare-head gold-head" contenteditable="true">Proposta ZIIN</div><div class="compare-body" id="prev-ind-prop">
+      <div class="compare-row"><span class="lbl" contenteditable="true">Rentabilidade anualizada</span><span class="val up" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">% CDI</span><span class="val up" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Volatilidade</span><span class="val up" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Índice Sharpe</span><span class="val up" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Rentabilidade acumulada</span><span class="val up" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Meses negativos</span><span class="val up" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="compare-row"><span class="lbl" contenteditable="true">Menor retorno mensal</span><span class="val up" contenteditable="true">—%</span><button class="row-del" onclick="this.parentElement.remove()">✕</button></div>
+    </div>
+    <button class="add-btn" onclick="addCompareRow('prev-ind-prop','up')" style="margin:6px 8px 8px">+ Indicador</button>
+    </div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Composição dos fundos</div>
+  <div class="compare-grid">
+    <div class="compare-card"><div class="compare-head" contenteditable="true">Previdência atual</div><div class="compare-body">
+      <ul class="blist" id="prev-atual">
+        <li><span contenteditable="true">Nome do fundo (Classe)</span><button class="row-del" onclick="this.closest('li').remove()">✕</button></li>
+        <li><span contenteditable="true">Nome do fundo (Classe)</span><button class="row-del" onclick="this.closest('li').remove()">✕</button></li>
+      </ul>
+      <button class="add-btn" onclick="addBulletItemDel('prev-atual')" style="margin-top:8px">+ Fundo</button>
+    </div></div>
+    <div class="compare-card"><div class="compare-head gold-head" contenteditable="true">Proposta ZIIN</div><div class="compare-body">
+      <ul class="blist" id="prev-prop">
+        <li><span contenteditable="true">Nome do fundo (Classe)</span><button class="row-del" onclick="this.closest('li').remove()">✕</button></li>
+      </ul>
+      <button class="add-btn" onclick="addBulletItemDel('prev-prop')" style="margin-top:8px">+ Fundo</button>
+    </div></div>
+  </div>`),
+
+  SEC(`<div class="sec-lbl">Estatísticas detalhadas</div>
+  <table class="stat-table ind-table"><thead><tr><th>Indicador</th><th>Atual</th><th>Proposta</th><th style="width:22px"></th></tr></thead>
+  <tbody id="stat-tbody">
+    <tr><td contenteditable="true">Meses positivos</td><td contenteditable="true">—</td><td class="gold" contenteditable="true">—</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Meses negativos</td><td contenteditable="true">—</td><td class="gold" contenteditable="true">0</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Maior retorno mensal</td><td contenteditable="true">—%</td><td contenteditable="true">—%</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Menor retorno mensal</td><td contenteditable="true">—%</td><td class="gold" contenteditable="true">+—%</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Meses acima do CDI</td><td contenteditable="true">—</td><td class="gold" contenteditable="true">—</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+    <tr><td contenteditable="true">Patrimônio acumulado</td><td contenteditable="true">R$ —</td><td class="gold" contenteditable="true">R$ —</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td></tr>
+  </tbody></table>
+  <button class="add-btn" onclick="addStatRow('stat-tbody')">+ Linha</button>`),
+
+  SEC(`<div class="sec-lbl">Racional da proposta</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:12px">A comparação evidencia melhora em rentabilidade, consistência e controle de risco.</div>
+  <div class="reason-list" id="prev-reason">
+    <div class="reason-item"><div class="reason-num">1</div><div class="reason-text"><strong contenteditable="true">Ausência de meses negativos.</strong> <span contenteditable="true">A proposta apresentou comportamento mais linear, sem nenhum mês de retorno negativo no período.</span></div></div>
+    <div class="reason-item"><div class="reason-num">2</div><div class="reason-text"><strong contenteditable="true">Menor volatilidade.</strong> <span contenteditable="true">A variação dos retornos mensais é significativamente menor, proporcionando maior previsibilidade.</span></div></div>
+    <div class="reason-item"><div class="reason-num">3</div><div class="reason-text"><strong contenteditable="true">Melhora de rentabilidade.</strong> <span contenteditable="true">A proposta entregou rentabilidade anualizada superior com risco menor, melhorando o índice Sharpe.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('prev-reason')">+ Razão</button>`)
+].join(''),
+
+duvida: [
+  SEC(`<div class="sec-lbl">Dúvida apresentada</div>
+  <div class="body-text" contenteditable="true">Descreva aqui a dúvida do investidor ou do gerente/assessor que motivou esta demanda.</div>`),
+  SEC(`<div class="sec-lbl">Resposta objetiva</div>
+  <div class="body-text" contenteditable="true">Responda de forma direta e clara a pergunta principal, antes de entrar nos detalhes técnicos.</div>`),
+  SEC(`<div class="sec-lbl">Como funciona</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:10px">Explique o produto ou instrumento em questão de forma técnica mas acessível.</div>
+  <ul class="blist" id="como1"><li><span contenteditable="true">Característica principal do produto</span></li><li><span contenteditable="true">Como é feita a remuneração</span></li><li><span contenteditable="true">Tributação aplicável</span></li><li><span contenteditable="true">Prazo e liquidez típicos</span></li></ul>
+  <button class="add-btn" onclick="addBulletItem('como1')">+ Item</button>`),
+  SEC(`<div class="sec-lbl">Quando é mais adequado</div>
+  <div class="body-text" contenteditable="true" style="margin-bottom:10px">Descreva as situações e perfis de investidor para os quais este produto faz mais sentido.</div>
+  <ul class="blist" id="quando1"><li><span contenteditable="true">Perfil de risco indicado</span></li><li><span contenteditable="true">Horizonte de investimento recomendado</span></li><li><span contenteditable="true">Objetivo financeiro mais aderente</span></li></ul>
+  <button class="add-btn" onclick="addBulletItem('quando1')">+ Item</button>`),
+  SEC(`<div class="sec-lbl">Riscos e pontos de atenção</div>
+  <div class="reason-list" id="risk1">
+    <div class="reason-item"><div class="reason-num">!</div><div class="reason-text"><strong contenteditable="true">Risco de mercado.</strong> <span contenteditable="true">Descreva o principal risco deste produto para o investidor.</span></div></div>
+    <div class="reason-item"><div class="reason-num">!</div><div class="reason-text"><strong contenteditable="true">Tributação.</strong> <span contenteditable="true">Destaque os aspectos tributários relevantes para a decisão.</span></div></div>
+  </div>
+  <button class="add-btn" onclick="addReasonItem('risk1')">+ Ponto</button>`),
+  SEC(`<div class="sec-lbl">Aplicação ao caso</div>
+  <div class="body-text" contenteditable="true">Explique como esse produto se aplica à situação específica do investidor, considerando o perfil, patrimônio e objetivos mencionados.</div>`)
+].join('')
+
+}; // end TEMPLATES
+
+
+/* ═══ AUTO-CALC ENGINE ═══
+   Observes all contenteditable cells and recalculates totals/averages
+   on every input event. Works for any table tagged data-auto=*.
+═══════════════════════════════════════════════════════════════════ */
+
+function parseNum(str) {
+  if (!str) return null;
+  const s = str.replace(/R\$\s*/g,'').replace(/\./g,'').replace(',','.').replace('%','').trim();
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+function fmtPct(n) { return n.toFixed(2).replace('.',',') + '%'; }
+function fmtMoney(n) {
+  return 'R$ ' + n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtNum(n,dec=2) { return n.toFixed(dec).replace('.',','); }
+
+function calcTable(tbody) {
+  const mode = tbody.dataset.auto;
+  const rows = Array.from(tbody.querySelectorAll('tr:not(:last-child)'));
+  const totalRow = tbody.querySelector('tr:last-child');
+  if (!totalRow || rows.length === 0) return;
+  // Use ALL tds (not just contenteditable) for correct positional indexing
+  const allTds = (tr) => Array.from(tr.querySelectorAll('td'));
+  // Use only editable tds for writing to total row
+  const editTds = (tr) => Array.from(tr.querySelectorAll('td.auto-cell'));
+
+  if (mode === 'alloc') {
+    // ALL tds: td[0]=classe(pill), td[1]=pct%, td[2]=valorR$
+    let sumPct=0, sumVol=0, cP=0, cV=0;
+    rows.forEach(r => {
+      const t = allTds(r);
+      const pct = parseNum(t[1]?.textContent);
+      const vol = parseNum(t[2]?.textContent);
+      if (pct!==null){sumPct+=pct;cP++;}
+      if (vol!==null){sumVol+=vol;cV++;}
+    });
+    const tot = editTds(totalRow);
+    if (tot[0]&&cP) tot[0].textContent = fmtPct(sumPct);
+    if (tot[1]&&cV) tot[1].textContent = fmtMoney(sumVol);
+  }
+
+  else if (mode === 'comp') {
+    // ALL tds: td[0]=fundo, td[1]=rent12m%, td[2]=%cdi%, td[3]=liq(not editable), td[4]=aloc%, td[5]=valorR$
+    let sumAloc=0, sumVol=0, wRent=0, wCdi=0, totalW=0, cA=0, cV=0;
+    rows.forEach(r => {
+      const t = allTds(r);
+      const rent = parseNum(t[1]?.textContent);
+      const cdi  = parseNum(t[2]?.textContent);
+      const aloc = parseNum(t[4]?.textContent);
+      const vol  = parseNum(t[5]?.textContent);
+      if (aloc!==null){sumAloc+=aloc;cA++;}
+      if (vol !==null){sumVol +=vol; cV++;}
+      if (rent!==null&&aloc!==null){wRent+=rent*aloc; totalW+=aloc;}
+      if (cdi !==null&&aloc!==null){wCdi +=cdi *aloc;}
+    });
+    const tot = editTds(totalRow);
+    // auto-cell order: rent(0), cdi(1), aloc(2), valor(3)
+    if (tot[0]&&totalW>0) tot[0].textContent = fmtPct(wRent/totalW);
+    if (tot[1]&&totalW>0) tot[1].textContent = fmtPct(wCdi /totalW);
+    if (tot[2]&&cA)       tot[2].textContent = fmtPct(sumAloc);
+    if (tot[3]&&cV)       tot[3].textContent = fmtMoney(sumVol);
+  }
+
+  else if (mode === 'single') {
+    // ALL tds: td[0]=fundo, td[1]=classe(not editable), td[2]=aloc%, td[3]=rent12m%, td[4]=%cdi%
+    let sumAloc=0, sumRent=0, sumCdi=0, cA=0, cR=0, cC=0;
+    rows.forEach(r => {
+      const t = allTds(r);
+      const aloc = parseNum(t[2]?.textContent);
+      const rent = parseNum(t[3]?.textContent);
+      const cdi  = parseNum(t[4]?.textContent);
+      if (aloc!==null){sumAloc+=aloc;cA++;}
+      if (rent!==null){sumRent+=rent;cR++;}
+      if (cdi !==null){sumCdi +=cdi; cC++;}
+    });
+    const tot = editTds(totalRow);
+    // auto-cell order: aloc(0), rent(1), cdi(2)
+    if (tot[0]&&cA) tot[0].textContent = fmtPct(sumAloc);
+    if (tot[1]&&cR) tot[1].textContent = fmtPct(sumRent/cR);
+    if (tot[2]&&cC) tot[2].textContent = fmtPct(sumCdi /cC);
+  }
+
+  else if (mode === 'rev') {
+    let sumAloc=0, sumRent=0, sumCdi=0, sumVol=0, cA=0, cR=0, cC=0, cV=0;
+    rows.forEach(r => {
+      const t = allTds(r);
+      const aloc = parseNum(t[2]?.textContent);
+      const rent = parseNum(t[3]?.textContent);
+      const cdi  = parseNum(t[4]?.textContent);
+      const vol  = parseNum(t[5]?.textContent);
+      if (aloc!==null){sumAloc+=aloc;cA++;}
+      if (rent!==null){sumRent+=rent;cR++;}
+      if (cdi !==null){sumCdi +=cdi; cC++;}
+      if (vol !==null){sumVol +=vol; cV++;}
+    });
+    const tot = editTds(totalRow);
+    if (tot[0]&&cA) tot[0].textContent = fmtPct(sumAloc);
+    if (tot[1]&&cR) tot[1].textContent = fmtPct(sumRent/cR);
+    if (tot[2]&&cC) tot[2].textContent = fmtPct(sumCdi /cC);
+    if (tot[3]&&cV) tot[3].textContent = fmtPct(sumVol /cV);
+  }
+  else if (mode === 'generic') {
+    // Generic: for each numeric column, auto-detect sum vs avg
+    // Sum if column looks like money or allocation (%), avg if looks like rate/performance
+    const colCount = rows[0] ? allTds(rows[0]).length : 0;
+    const sums=[], counts=[], anyVal=[];
+    for(let c=0;c<colCount;c++){sums.push(0);counts.push(0);anyVal.push(false);}
+    rows.forEach(r=>{
+      allTds(r).forEach((td,c)=>{
+        const n=parseNum(td.textContent);
+        if(n!==null){sums[c]+=n;counts[c]++;anyVal[c]=true;}
+      });
+    });
+    editTds(totalRow).forEach((td,i)=>{
+      // find which column this auto-cell corresponds to
+      const cellIdx = Array.from(totalRow.querySelectorAll('td')).indexOf(td);
+      if(cellIdx<0||!anyVal[cellIdx]) return;
+      const raw = rows[0] ? allTds(rows[0])[cellIdx]?.textContent || '' : '';
+      // money cells: sum; percentage cells that look like rates: avg
+      const isMoney = /R\$/.test(rows[0]?allTds(rows[0])[cellIdx]?.textContent:'');
+      const isAloc = cellIdx===1||cellIdx===2; // typically aloc column
+      if(isMoney) td.textContent = fmtMoney(sums[cellIdx]);
+      else if(isAloc) td.textContent = fmtPct(sums[cellIdx]);
+      else td.textContent = fmtPct(sums[cellIdx]/counts[cellIdx]);
+    });
+  }
+}
+
+function delRowAndCalc(btn) {
+  const tr = btn.closest('tr');
+  const tb = tr ? tr.closest('tbody') : null;
+  tr && tr.remove();
+  if (tb && tb.dataset.auto) calcTable(tb);
+}
+
+function initAutoCalc() {
+  document.querySelectorAll('tbody[data-auto]').forEach(tbody => {
+    tbody.addEventListener('input', () => calcTable(tbody));
+    calcTable(tbody);
+  });
+  initTableControls();
+}
+
+/* init */
+renderTemplate('agenda');
+
+/* ═══ TAB SWITCHING ═══ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ═══ DROP ZONE ═══ */
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+/* ═══ PDF PARSING ═══ */
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let extractedData = null;
+
+async function handleFile(file) {
+  if (!file || file.type !== 'application/pdf') { showStatus('error','Selecione um arquivo PDF válido.'); return; }
+  showStatus('loading','Lendo o PDF...');
+  document.getElementById('extracted-card').classList.remove('visible');
+  try {
+    const ab = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:ab}).promise;
+    let pages = [];
+    for (let i=1;i<=pdf.numPages;i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      pages.push(content.items.map(s=>s.str).join(' '));
+    }
+    const fullText = pages.join('\n');
+    const data = parsePDF(fullText);
+    if (!data) { showStatus('error','Formato não reconhecido. Use um relatório ZIIN/BTG da plataforma.'); return; }
+    extractedData = data;
+    renderExtracted(data);
+    showStatus('success','Dados extraídos! Revise abaixo e clique em "Usar no gerador".');
+  } catch(e) {
+    showStatus('error','Erro ao processar: '+e.message);
+    console.error(e);
+  }
+}
+
+function showStatus(type,msg) {
+  const el = document.getElementById('import-status');
+  el.className = 'import-status '+type;
+  const icons = {loading:'⏳',success:'✓',error:'✕'};
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+}
+
+/* ─── DETECT & DISPATCH ─── */
+function parsePDF(text) {
+  if (/Compara[çc][aã]o\s+Entre\s+Carteiras/i.test(text)) return parseComparativo(text);
+  if (/Relat[oó]rio\s+da\s+proposta/i.test(text) || /Rentabilidade anualizada estimada\s+[\d,]+%/i.test(text)) return parseProposta(text);
+  return null;
+}
+
+/* ─── HELPERS ─── */
+function pN(s){ if(!s)return null; const n=parseFloat(s.replace(/R\$\s*/g,'').replace(/\./g,'').replace(',','.').replace('%','').trim()); return isNaN(n)?null:n; }
+function gV(text,label){ const m=text.match(new RegExp(label+'\\s+([\\d,\\.\\-]+%?)','i')); return m?m[1].trim():'—'; }
+function gM(text,label){ const m=text.match(new RegExp(label+'\\s+(R\\$\\s*[\\d.,]+)','i')); return m?m[1].replace(/\s+/g,' ').trim():'—'; }
+function g2(text,label){ const m=text.match(new RegExp(label+'\\s+([\\d,\\.\\-]+%?)\\s+([\\d,\\.\\-]+%?)','i')); return m?[m[1],m[2]]:['—','—']; }
+function g2M(text,label){ const m=text.match(new RegExp(label+'\\s+(R\\$\\s*[\\d.,]+)\\s+(R\\$\\s*[\\d.,]+)','i')); return m?[m[1].trim(),m[2].trim()]:['—','—']; }
+
+/* ─── PARSE PROPOSTA (Relatório da Proposta) ─── */
+function parseProposta(text) {
+  const periodoM = text.match(/Per[íi]odo[:\s]+([0-9/]+)\s*[-–]\s*([0-9/]+)/i);
+  const periodo = periodoM ? periodoM[1]+' a '+periodoM[2] : '—';
+  const rent  = gV(text,'Rentabilidade anualizada estimada');
+  const vol   = gV(text,'Volatilidade anualizada estimada');
+  const pat   = gM(text,'Patrimonio acumulado');
+  const valor = gM(text,'Valor da carteira');
+  const sharpe= gV(text,'Sharpe');
+  const cdi   = gV(text,'% CDI');
+
+  // Classes: "Pós-fixado 95% R$ 152.000,00"
+  const classRe = /(Pós-fixado|Inflação|Renda Variável|Multimercado|Prefixado|Retorno Absoluto)\s+([\d,]+%)\s+(R\$\s*[\d.,]+)/gi;
+  const classes = []; let cm;
+  while((cm=classRe.exec(text))!==null){
+    if(!classes.find(c=>c.name===cm[1]))
+      classes.push({name:cm[1],pct:cm[2],val:cm[3].replace(/\s+/g,' ')});
+  }
+
+  // Funds: "NAME rent% cdi% vol% D+N R$ val" — use ALL tds style indexing
+  const fundRe = /([A-Z][A-Z0-9 \*]+?(?:FIRF|FICFI|FIC|FIM|RF|LP|CRPR|CASH)[A-Z0-9 \*]*?)\s+([\d,]+%)\s+([\d,]+%)\s+([\d,]+%)\s+(D\+\d+|-)\s+(R\$\s*[\d.,]+)/gi;
+  const funds = []; let fm;
+  while((fm=fundRe.exec(text))!==null)
+    funds.push({name:fm[1].trim().replace(/\s+/g,' '),rent:fm[2],cdi:fm[3],vol:fm[4],liq:fm[5],val:fm[6].replace(/\s+/g,' ')});
+
+  // Liquidity table: "NAME R$ val D+N"
+  const liqRe = /([A-Z][A-Z0-9 \*]+?(?:FIRF|FICFI|FIC|FIM|RF|LP|CRPR|CASH)[A-Z0-9 \*]*?)\s+(R\$\s*[\d.,]+)\s+(D\+\d+)/gi;
+  const liqItems = []; let lm;
+  while((lm=liqRe.exec(text))!==null)
+    liqItems.push({name:lm[1].trim().replace(/\s+/g,' '),val:lm[2].replace(/\s+/g,' '),liq:lm[3]});
+
+  // Build liquidity groups
+  const liqGroups = {};
+  liqItems.forEach(l=>{
+    const g = l.liq; if(!liqGroups[g]) liqGroups[g]=[]; liqGroups[g].push(l);
+  });
+  // Calculate pct per group from fund values
+  const totalVal = funds.reduce((s,f)=>{const n=pN(f.val); return s+(n||0);},0);
+
+  return {tipo:'proposta',periodo,rent,vol,pat,valor,sharpe,cdi,funds,classes,liqItems,liqGroups,totalVal};
+}
+
+/* ─── PARSE COMPARATIVO (Comparação Entre Carteiras) ─── */
+function parseComparativo(text) {
+  const periodoM = text.match(/Per[íi]odo[:\s]+([0-9/]+)\s*[-–]\s*([0-9/]+)/i);
+  const periodo = periodoM ? periodoM[1]+' a '+periodoM[2] : '—';
+
+  // Cart names: line after "selecionado."
+  let cart1='Carteira Atual', cart2='Proposta ZIIN';
+  const nameLineM = text.match(/selecionado\.\s*\n([^\n]+)/i);
+  if(nameLineM){
+    const line = nameLineM[1].trim();
+    // Try "Previdência X  Previdência Y" (2+ spaces)
+    const parts2 = line.split(/\s{2,}/);
+    if(parts2.length>=2){ cart1=parts2[0].trim(); cart2=parts2[1].trim(); }
+    else {
+      // Try "Name1 Name2" where Name2 starts with capital after space
+      const nm = line.match(/^(.+?)\s{1,3}(Previd[êe]ncia\s.+|[A-Z][a-z].+)$/);
+      if(nm){ cart1=nm[1].trim(); cart2=nm[2].trim(); }
+    }
+  }
+
+  const rent  = g2(text,'Rentabilidade anualizada estimada');
+  const vol   = g2(text,'Volatilidade anualizada estimada');
+  const pat   = g2M(text,'Patrimonio acumulado');
+  const valor = g2M(text,'Valor da carteira');
+  const sharpe= g2(text,'Sharpe');
+  const cdi   = g2(text,'% CDI');
+
+  // VGBL funds: "NAME rent% cdi% vol% D+N R$" OR "NAME month% year% 12m% 24m% period%"
+  const fundRe = /([A-Z][A-Z0-9 \*]+?(?:FIRF|FICFI|FIC|FIM|RF|FOF|FUNDO|PREV|PREMIUM|CONSERVADOR|LANCER|ICATU)[A-Z0-9 /\*]*?)\s+([\d,]+%|0%)\s+([\d,]+%)\s+([\d,]+%)\s+([\d,]+%|D\+\d+|-)\s+([\d,]+%|R\$\s*[\d.,]+)/gi;
+  const allFunds=[]; let fm;
+  while((fm=fundRe.exec(text))!==null){
+    const name = fm[1].trim().replace(/\s+/g,' ');
+    // Skip CDI row
+    if(/^CDI$/i.test(name)) continue;
+    // Detect if it's D+N format (proposta) or period% format (comparativo)
+    const isDPlus = /D\+\d+/.test(fm[5]);
+    allFunds.push({name,rent:fm[3],cdi:fm[4],liq:isDPlus?fm[5]:'—',val:fm[6],raw:fm[0]});
+  }
+
+  // Split by position: funds before/after midpoint of text
+  const midText = text.length/2;
+  const funds1=[],funds2=[];
+  allFunds.forEach(f=>{
+    const pos = text.indexOf(f.name);
+    (pos < midText ? funds1 : funds2).push(f);
+  });
+
+  // Stats table: "23 2 1,67% -0,26% 9 16"
+  const statsRe = /(\d+)\s+(\d+)\s+([\d,]+%)\s+([-\d,]+%)\s+(\d+)\s+(\d+)/g;
+  const stats=[]; let sm;
+  while((sm=statsRe.exec(text))!==null)
+    stats.push({pos:sm[1],neg:sm[2],maior:sm[3],menor:sm[4],acima:sm[5],abaixo:sm[6]});
+
+  return {tipo:'comparativo',periodo,cart1,cart2,rent,vol,pat,valor,sharpe,cdi,funds1,funds2,stats};
+}
+
+/* ─── RENDER EXTRACTED ─── */
+function renderExtracted(d) {
+  const card = document.getElementById('extracted-card');
+  const body = document.getElementById('ec-body');
+  const badge = document.getElementById('ec-type-badge');
+
+  if(d.tipo==='proposta'){
+    badge.textContent = 'Relatório da proposta';
+    const liqRows = Object.entries(d.liqGroups).map(([liq,items])=>{
+      const v = items.reduce((s,i)=>{const n=pN(i.val);return s+(n||0);},0);
+      const pct = d.totalVal>0 ? ((v/d.totalVal)*100).toFixed(1)+'%' : '—';
+      return `<tr><td>${liq}</td><td>${items.map(i=>i.name).join(', ')}</td><td>R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${pct}</td></tr>`;
+    }).join('');
+
+    body.innerHTML = `
+      <div class="ec-section">
+        <div class="ec-section-title">Resumo · Período: ${d.periodo}</div>
+        <div class="ec-grid">
+          <div class="ec-metric highlight"><div class="ec-m-label">Valor da carteira</div><div class="ec-m-val gold">${d.valor}</div></div>
+          <div class="ec-metric"><div class="ec-m-label">Rentabilidade anual</div><div class="ec-m-val">${d.rent}</div></div>
+          <div class="ec-metric"><div class="ec-m-label">Patrimônio acumulado</div><div class="ec-m-val">${d.pat}</div></div>
+          <div class="ec-metric"><div class="ec-m-label">Volatilidade</div><div class="ec-m-val">${d.vol}</div></div>
+          <div class="ec-metric"><div class="ec-m-label">Sharpe</div><div class="ec-m-val">${d.sharpe}</div></div>
+          <div class="ec-metric"><div class="ec-m-label">% CDI</div><div class="ec-m-val">${d.cdi}</div></div>
+        </div>
+      </div>
+      ${d.classes.length?`<div class="ec-section"><div class="ec-section-title">Alocação por classe</div>
+        <table class="ec-fund-table"><thead><tr><th>Classe</th><th>%</th><th>Volume</th></tr></thead>
+        <tbody>${d.classes.map(c=>`<tr><td>${c.name}</td><td>${c.pct}</td><td>${c.val}</td></tr>`).join('')}
+        <tr style="font-weight:700;background:var(--bg)"><td>Total</td><td>100%</td><td>${d.valor}</td></tr></tbody></table></div>`:''}
+      ${d.funds.length?`<div class="ec-section"><div class="ec-section-title">Fundos (${d.funds.length})</div>
+        <table class="ec-fund-table"><thead><tr><th>Fundo</th><th>Rent. 12m</th><th>% CDI</th><th>Vol. 12m</th><th>Liquidez</th><th>Valor</th></tr></thead>
+        <tbody>${d.funds.map(f=>`<tr><td>${f.name}</td><td>${f.rent}</td><td>${f.cdi}</td><td>${f.vol}</td><td>${f.liq}</td><td>${f.val}</td></tr>`).join('')}</tbody></table></div>`:''}
+      ${liqRows?`<div class="ec-section"><div class="ec-section-title">Perfil de liquidez</div>
+        <table class="ec-fund-table"><thead><tr><th>Prazo</th><th>Fundos</th><th>Valor</th><th>%</th></tr></thead>
+        <tbody>${liqRows}</tbody></table></div>`:''}`;
+  } else {
+    badge.textContent = 'Comparativo entre carteiras';
+    const statRows = d.stats.length>=2?`
+      <tr><td>Meses positivos</td><td>${d.stats[0].pos}</td><td>${d.stats[1].pos}</td></tr>
+      <tr><td>Meses negativos</td><td>${d.stats[0].neg}</td><td>${d.stats[1].neg}</td></tr>
+      <tr><td>Maior retorno mensal</td><td>${d.stats[0].maior}</td><td>${d.stats[1].maior}</td></tr>
+      <tr><td>Menor retorno mensal</td><td class="${parseFloat(d.stats[0].menor)<0?'v dn':''}">${d.stats[0].menor}</td><td class="${parseFloat(d.stats[1].menor)>=0?'v up':''}">${d.stats[1].menor}</td></tr>
+      <tr><td>Meses acima do CDI</td><td>${d.stats[0].acima}</td><td>${d.stats[1].acima}</td></tr>
+      <tr><td>Meses abaixo do CDI</td><td>${d.stats[0].abaixo}</td><td>${d.stats[1].abaixo}</td></tr>`:'';
+
+    body.innerHTML = `
+      <div class="ec-section">
+        <div class="ec-section-title">Comparativo · Período: ${d.periodo}</div>
+        <div class="ec-compare">
+          <div class="ec-compare-col"><div class="ec-compare-head">${d.cart1}</div><div class="ec-compare-body">
+            <div class="ec-compare-row"><span class="k">Rentabilidade anual</span><span class="v">${d.rent[0]}</span></div>
+            <div class="ec-compare-row"><span class="k">% CDI</span><span class="v">${d.cdi[0]}</span></div>
+            <div class="ec-compare-row"><span class="k">Volatilidade</span><span class="v dn">${d.vol[0]}</span></div>
+            <div class="ec-compare-row"><span class="k">Sharpe</span><span class="v">${d.sharpe[0]}</span></div>
+            <div class="ec-compare-row"><span class="k">Patrimônio acumulado</span><span class="v">${d.pat[0]}</span></div>
+          </div></div>
+          <div class="ec-compare-col"><div class="ec-compare-head gold">${d.cart2}</div><div class="ec-compare-body">
+            <div class="ec-compare-row"><span class="k">Rentabilidade anual</span><span class="v up">${d.rent[1]}</span></div>
+            <div class="ec-compare-row"><span class="k">% CDI</span><span class="v up">${d.cdi[1]}</span></div>
+            <div class="ec-compare-row"><span class="k">Volatilidade</span><span class="v up">${d.vol[1]}</span></div>
+            <div class="ec-compare-row"><span class="k">Sharpe</span><span class="v up">${d.sharpe[1]}</span></div>
+            <div class="ec-compare-row"><span class="k">Patrimônio acumulado</span><span class="v up">${d.pat[1]}</span></div>
+          </div></div>
+        </div>
+      </div>
+      ${(d.funds1.length||d.funds2.length)?`
+      <div class="ec-section">
+        <div class="ec-section-title">Fundos — ${d.cart1}</div>
+        <table class="ec-fund-table"><thead><tr><th>Fundo</th><th>Rent. 12m</th><th>% CDI</th><th>Vol/Liq</th></tr></thead>
+        <tbody>${(d.funds1.length?d.funds1:[{name:'—',rent:'—',cdi:'—',liq:'—'}]).map(f=>`<tr><td>${f.name}</td><td>${f.rent}</td><td>${f.cdi}</td><td>${f.liq}</td></tr>`).join('')}</tbody></table>
+        <div class="ec-section-title" style="margin-top:14px">Fundos — ${d.cart2}</div>
+        <table class="ec-fund-table"><thead><tr><th>Fundo</th><th>Rent. 12m</th><th>% CDI</th><th>Vol/Liq</th></tr></thead>
+        <tbody>${(d.funds2.length?d.funds2:[{name:'—',rent:'—',cdi:'—',liq:'—'}]).map(f=>`<tr><td>${f.name}</td><td>${f.rent}</td><td>${f.cdi}</td><td>${f.liq}</td></tr>`).join('')}</tbody></table>
+      </div>`:''}
+      ${d.stats.length>=2?`<div class="ec-section">
+        <div class="ec-section-title">Estatísticas</div>
+        <table class="ec-fund-table"><thead><tr><th>Indicador</th><th>${d.cart1}</th><th>${d.cart2}</th></tr></thead>
+        <tbody>${statRows}</tbody></table></div>`:''}`;
+  }
+  // Show tipo selector with detected type pre-selected
+  showTipoSelector(d.tipo);
+  card.classList.add('visible');
+}
+
+/* ─── USE IN GERADOR ─── */
+function useExtractedData() {
+  if(!extractedData) return;
+  const d = extractedData;
+  const selectedTipo = getSelectedTipo();
+
+  // Determine effective tipo based on selector
+  const effectiveTipo = selectedTipo !== 'auto' ? selectedTipo : null;
+
+  if(d.tipo==='proposta' || effectiveTipo==='carteira' || effectiveTipo==='revisao' || effectiveTipo==='agenda'){
+    const targetT = effectiveTipo||'carteira';
+    const btn = document.querySelector(`[data-tipo="${targetT}"]`) || document.querySelector('[data-tipo="carteira"]');
+    switchTab('gerador', document.querySelector('.main-tab'));
+    setTipo(btn);
+    setTimeout(()=>{
+      // Header
+      setFV('f-capital', d.valor, 'd-capital');
+      setFV('f-data', d.periodo, 'd-data');
+      setFV('f-titulo', 'Carteira Proposta', 'd-titulo');
+      // Metrics cards (5 cards: valor, rent, pat, vol, sharpe)
+      const mVals = document.querySelectorAll('#doc-body .m-val');
+      const mSub  = document.querySelectorAll('#doc-body .m-sub');
+      const mv = [d.valor, d.rent, d.pat, d.vol, d.sharpe];
+      const ms = ['Capital inicial alocado', d.cdi+' do CDI', 'Patrimônio acumulado', 'Oscilação da carteira', 'Retorno ajustado ao risco'];
+      mVals.forEach((el,i)=>{ if(mv[i]&&mv[i]!=='—') el.textContent=mv[i]; });
+      mSub.forEach((el,i)=>{ if(ms[i]) el.textContent=ms[i]; });
+      // Alloc table
+      const allocTb = document.getElementById('alloc-tbody');
+      if(allocTb&&d.classes.length){
+        const last = allocTb.querySelector('tr:last-child');
+        allocTb.querySelectorAll('tr:not(:last-child)').forEach(r=>r.remove());
+        d.classes.forEach(c=>{
+          const tr=document.createElement('tr');
+          const pillCls = c.name==='Pós-fixado'?'pill-pos':c.name==='Inflação'?'pill-inf':c.name.includes('Variável')?'pill-pre':'pill-mm';
+          tr.innerHTML=`<td><span class="pill ${pillCls}" contenteditable="true">${c.name}</span></td><td contenteditable="true">${c.pct}</td><td contenteditable="true">${c.val}</td>`;
+          allocTb.insertBefore(tr,last);
+        });
+        calcTable(allocTb);
+      }
+      // Comp table (funds)
+      const compTb = document.getElementById('comp-tbody');
+      if(compTb&&d.funds.length){
+        const last = compTb.querySelector('tr:last-child');
+        compTb.querySelectorAll('tr:not(:last-child)').forEach(r=>r.remove());
+        d.funds.forEach(f=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML=`<td contenteditable="true">${f.name}</td><td contenteditable="true">${f.rent}</td><td class="gold-cell auto-cell" contenteditable="true">${f.cdi}</td><td contenteditable="true">${f.liq}</td><td contenteditable="true">—%</td><td contenteditable="true">${f.val}</td>`;
+          compTb.insertBefore(tr,last);
+        });
+        calcTable(compTb);
+      }
+      // Liq bars
+      const liqC = document.getElementById('liq2');
+      if(liqC&&d.liqItems.length){
+        liqC.innerHTML='';
+        const colors=['#1A1A1A','#C9A84C','#aaa','#555'];
+        Object.entries(d.liqGroups).forEach(([liq,items],i)=>{
+          const v = items.reduce((s,x)=>{const n=pN(x.val);return s+(n||0);},0);
+          const pct = d.totalVal>0 ? Math.round((v/d.totalVal)*100) : 0;
+          const col = colors[i%colors.length];
+          const r = document.createElement('div'); r.className='liq-row';
+          r.innerHTML=`<div class="liq-lbl" contenteditable="true">${liq}</div><div class="liq-bar-wrap"><div class="liq-bar" style="width:${pct}%;background:${col}"></div></div><input class="liq-pct-input" type="text" value="${pct}%"/><div class="liq-val" contenteditable="true">R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>`;
+          liqC.appendChild(r);
+          attachLiqInput(r.querySelector('.liq-pct-input'));
+        });
+      }
+      // Racional fundos — fill rat-container with full fund cards
+      const ratC = document.getElementById('rat-container');
+      if(ratC&&d.funds.length){
+        ratC.innerHTML='';
+        // Calculate total portfolio value for participation %
+        const totalPortVal = d.funds.reduce((s,f)=>{const n=pN(f.val);return s+(n||0);},0);
+        d.funds.forEach(f=>{
+          const partPct = totalPortVal>0&&pN(f.val) ? ((pN(f.val)/totalPortVal)*100).toFixed(0)+'%' : '—%';
+          const fundTypeLbl = f.name.includes('IPCA')||f.name.includes('INFLAÇÃO')?'Inflação | Renda Fixa':
+                              f.name.includes('INCENTIVADO')||f.name.includes('IR')?'Pós-fixado | Crédito Privado | Isento IR':
+                              'Pós-fixado | Crédito Privado';
+          const card=document.createElement('div'); card.className='fund-card';
+          card.innerHTML=`
+            <div class="fund-head">
+              <div>
+                <div class="fund-name" contenteditable="true">${f.name}</div>
+                <div class="fund-type" contenteditable="true">${fundTypeLbl}</div>
+              </div>
+              <div class="fund-tags">
+                <span class="tag tag-liq" contenteditable="true">Liquidez: ${f.liq}</span>
+                <span class="tag tag-val" contenteditable="true">Valor: ${f.val} (${partPct})</span>
+              </div>
+            </div>
+            <div class="fund-metrics">
+              <div class="fm"><div class="fm-val" contenteditable="true">${f.rent}</div><div class="fm-lbl">Rent. 12m</div></div>
+              <div class="fm"><div class="fm-val" contenteditable="true">${f.cdi}</div><div class="fm-lbl">% CDI</div></div>
+              <div class="fm"><div class="fm-val" contenteditable="true">${f.vol}</div><div class="fm-lbl">Vol. 12m</div></div>
+              <div class="fm"><div class="fm-val" contenteditable="true">${partPct}</div><div class="fm-lbl">Participação</div></div>
+            </div>
+            <div class="fund-rationale">
+              <strong contenteditable="true">Por que está aqui: </strong>
+              <span contenteditable="true">Fundo de crédito privado com rentabilidade de ${f.rent} (${f.cdi} do CDI), liquidez ${f.liq} e volatilidade de ${f.vol}. Descreva aqui o racional estratégico de inclusão.</span>
+            </div>`;
+          ratC.appendChild(card);
+        });
+      }
+      // Perf table summary
+      const perfTb = document.getElementById('perf-tbody');
+      if(perfTb){
+        const rows = perfTb.querySelectorAll('tr');
+        if(rows[0]) rows[0].querySelector('td.gold')&&(rows[0].querySelector('td.gold').textContent=d.rent);
+        if(rows[6]) rows[6].querySelector('td[contenteditable]')&&(rows[6].querySelector('td[contenteditable]').textContent=d.sharpe);
+        if(rows[7]) rows[7].querySelector('td[contenteditable]')&&(rows[7].querySelector('td[contenteditable]').textContent=d.pat);
+      }
+      showNotification('✓ Dados importados! Complete o racional e os próximos passos.');
+    },300);
+
+  } else {
+    // COMPARATIVO — detect if VGBL or regular
+    const isVGBL = effectiveTipo==='previdencia' || (effectiveTipo!=='comparativo' && (/Previd[êe]ncia/i.test(d.cart1)||/Previd[êe]ncia/i.test(d.cart2)));
+    const targetTipo = isVGBL ? 'previdencia' : 'comparativo';
+    const btn = document.querySelector(`[data-tipo="${targetTipo}"]`);
+    switchTab('gerador', document.querySelector('.main-tab'));
+    setTipo(btn);
+    setTimeout(()=>{
+      setFV('f-data', d.periodo, 'd-data');
+      setFV('f-titulo', isVGBL?'Comparativo Previdência VGBL':'Comparativo de Carteiras','d-titulo');
+
+      if(isVGBL){
+        // Fill VGBL compare indicator rows
+        ['prev-ind-atual','prev-ind-prop'].forEach((cid,ci)=>{
+          const cont = document.getElementById(cid);
+          if(!cont) return;
+          const rows = cont.querySelectorAll('.compare-row');
+          const vals = ci===0
+            ? [d.rent[0],d.cdi[0],d.vol[0],d.sharpe[0],d.pat[0]]
+            : [d.rent[1],d.cdi[1],d.vol[1],d.sharpe[1],d.pat[1]];
+          rows.forEach((row,i)=>{
+            const v=row.querySelector('.val');
+            if(v&&vals[i]&&vals[i]!=='—') v.textContent=vals[i];
+          });
+          // Update header name
+          const head = cont.previousElementSibling;
+          if(head&&head.classList.contains('compare-head')) head.textContent = ci===0?d.cart1:d.cart2;
+        });
+        // Fill funds lists
+        ['prev-atual','prev-prop'].forEach((lid,ci)=>{
+          const list=document.getElementById(lid);
+          if(!list) return;
+          list.innerHTML='';
+          const fundArr = ci===0?d.funds1:d.funds2;
+          if(fundArr.length){
+            fundArr.forEach(f=>{
+              const li=document.createElement('li');
+              li.innerHTML=`<span contenteditable="true">${f.name}</span><button class="row-del" onclick="this.closest('li').remove()">✕</button>`;
+              list.appendChild(li);
+            });
+          }
+        });
+        // Fill stat table
+        if(d.stats.length>=2){
+          const statTb = document.getElementById('stat-tbody');
+          if(statTb){
+            statTb.querySelectorAll('tr').forEach(r=>r.remove());
+            const labels=['Meses positivos','Meses negativos','Maior retorno mensal','Menor retorno mensal','Meses acima do CDI','Meses abaixo do CDI'];
+            const s0=d.stats[0], s1=d.stats[1];
+            const vals0=[s0.pos,s0.neg,s0.maior,s0.menor,s0.acima,s0.abaixo];
+            const vals1=[s1.pos,s1.neg,s1.maior,s1.menor,s1.acima,s1.abaixo];
+            labels.forEach((lbl,i)=>{
+              const tr=document.createElement('tr');
+              const goldCls=parseFloat(vals1[i])>parseFloat(vals0[i])||i===1?' class="gold"':'';
+              tr.innerHTML=`<td contenteditable="true">${lbl}</td><td contenteditable="true">${vals0[i]}</td><td${goldCls} contenteditable="true">${vals1[i]}</td><td style="width:22px"><button class="row-del" onclick="delRowAndCalc(this)">✕</button></td>`;
+              statTb.appendChild(tr);
+            });
+          }
+        }
+      } else {
+        // Regular comparativo — fill atual/prop tables and compare metrics
+        const atualTb=document.getElementById('atual-tbody');
+        if(atualTb&&d.funds1.length){
+          const last=atualTb.querySelector('tr:last-child');
+          atualTb.querySelectorAll('tr:not(:last-child)').forEach(r=>r.remove());
+          d.funds1.forEach(f=>{
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td contenteditable="true">${f.name}</td><td contenteditable="true">—</td><td contenteditable="true">—%</td><td contenteditable="true">${f.rent}</td><td contenteditable="true">${f.cdi}</td>`;
+            atualTb.insertBefore(tr,last);
+          });
+        }
+        const propTb=document.getElementById('prop-tbody');
+        if(propTb&&d.funds2.length){
+          const last=propTb.querySelector('tr:last-child');
+          propTb.querySelectorAll('tr:not(:last-child)').forEach(r=>r.remove());
+          d.funds2.forEach(f=>{
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td contenteditable="true">${f.name}</td><td contenteditable="true">—</td><td contenteditable="true">—%</td><td contenteditable="true">${f.rent}</td><td contenteditable="true">${f.cdi}</td>`;
+            propTb.insertBefore(tr,last);
+          });
+        }
+        // Fill compare metrics
+        const allCompareRows=document.querySelectorAll('#doc-body .compare-row');
+        const mid=Math.floor(allCompareRows.length/2);
+        const mv0=[d.rent[0],d.cdi[0],d.vol[0],d.sharpe[0],d.pat[0]];
+        const mv1=[d.rent[1],d.cdi[1],d.vol[1],d.sharpe[1],d.pat[1]];
+        allCompareRows.forEach((row,i)=>{
+          const v=row.querySelector('.val'); if(!v) return;
+          if(i<mid){if(mv0[i]&&mv0[i]!=='—')v.textContent=mv0[i];}
+          else{const j=i-mid;if(mv1[j]&&mv1[j]!=='—')v.textContent=mv1[j];}
+        });
+      }
+      showNotification('✓ Dados importados! Complete o racional e os próximos passos.');
+    },300);
+  }
+}
+
+function setFV(inputId,val,targetId){
+  const inp=document.getElementById(inputId);
+  if(inp&&val&&val!=='—'){inp.value=val;sync(inputId,targetId);}
+}
+
+function clearImport(){
+  extractedData=null;
+  document.getElementById('extracted-card').classList.remove('visible');
+  document.getElementById('import-status').className='import-status';
+  document.getElementById('pdf-input').value='';
+}
+
+/* ═══ TABLE COLUMN/ROW DELETE ═══ */
+function delTableCol(btn) {
+  const th = btn.closest('th');
+  if (!th) return;
+  const table = th.closest('table');
+  const idx = Array.from(th.parentElement.children).indexOf(th);
+  if (idx === 0) return; // never delete first (label) column
+  if (!confirm('Remover esta coluna?')) return;
+  table.querySelectorAll('tr').forEach(row => {
+    const cell = row.children[idx];
+    if (cell) cell.remove();
+  });
+}
+
+function addColDeleteToTable(table) {
+  // Add column delete buttons
+  table.querySelectorAll('thead th').forEach((th, i) => {
+    if (i === 0) return; // never delete label column
+    if (th.querySelector('.col-del-btn')) return;
+    // Wrap th content in a div for positioning
+    const wrap = document.createElement('span');
+    wrap.className = 'col-del-wrap';
+    wrap.innerHTML = th.innerHTML;
+    const btn = document.createElement('button');
+    btn.className = 'col-del-btn';
+    btn.textContent = '✕';
+    btn.title = 'Remover coluna';
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); deleteTableColumn(table, i); });
+    wrap.appendChild(btn);
+    th.innerHTML = '';
+    th.appendChild(wrap);
+  });
+  // Add row delete buttons to tbody rows
+  table.querySelectorAll('tbody tr').forEach(tr => {
+    if (tr.querySelector('.row-del')) return;
+    const isTotal = tr.querySelector('.auto-cell');
+    if (isTotal) return; // skip total row
+    // Add hidden delete cell
+    const td = document.createElement('td');
+    td.className = 'row-del-cell';
+    td.style.cssText = 'width:16px;padding:2px 4px;';
+    const btn = document.createElement('button');
+    btn.className = 'row-del';
+    btn.style.opacity = '0';
+    btn.textContent = '✕';
+    btn.addEventListener('click', ()=>{
+      const tbody = tr.closest('tbody');
+      tr.remove();
+      if (tbody && tbody.dataset.auto) calcTable(tbody);
+    });
+    tr.addEventListener('mouseenter', ()=>btn.style.opacity='1');
+    tr.addEventListener('mouseleave', ()=>btn.style.opacity='0');
+    td.appendChild(btn);
+    tr.appendChild(td);
+  });
+  // Add empty header cell for delete column if rows have it
+  const tbody = table.querySelector('tbody');
+  if (tbody && tbody.querySelector('.row-del-cell')) {
+    const thead = table.querySelector('thead tr');
+    if (thead && !thead.querySelector('.th-del')) {
+      const th = document.createElement('th');
+      th.className = 'th-del';
+      th.style.cssText = 'width:16px;';
+      thead.appendChild(th);
+    }
+  }
+}
+
+function deleteTableColumn(table, colIdx) {
+  table.querySelectorAll('tr').forEach(row => {
+    // Adjust for fact that delete button might shift things
+    const cells = row.querySelectorAll('th, td');
+    if (cells[colIdx]) cells[colIdx].remove();
+  });
+}
+
+function initTableControls() {
+  document.querySelectorAll('.ind-table').forEach(addColDeleteToTable);
+}
+
+/* ═══ TIPO SELECTOR IN IMPORT ═══ */
+function showTipoSelector(detectedTipo) {
+  const bar = document.getElementById('tipo-selector-bar');
+  const sel = document.getElementById('import-tipo-select');
+  if (!bar || !sel) return;
+  bar.style.display = 'flex';
+  // Pre-select the detected tipo
+  const map = {
+    'proposta': 'carteira',
+    'comparativo': 'previdencia' // will be overridden by isVGBL logic
+  };
+  sel.value = map[detectedTipo] || 'auto';
+}
+
+function getSelectedTipo() {
+  const sel = document.getElementById('import-tipo-select');
+  return sel ? sel.value : 'auto';
+}
+
+function showNotification(msg) {
+  const n = document.createElement('div');
+  n.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:10px 20px;border-radius:var(--rl);font-size:12px;font-weight:600;font-family:Montserrat,sans-serif;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:fadein .2s ease;border-left:4px solid var(--gold)';
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 3500);
+}
+</script>
+</body>
+</html>
