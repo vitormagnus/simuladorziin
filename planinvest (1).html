@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planinvest · Simulador Patrimonial White Label</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0F0F0F;
+  --ink2:#1C1C1C;
+  --ink3:#2E2E2E;
+  --muted:#888;
+  --muted2:#AAA49C;
+  --gold:#B8922A;
+  --gold2:#D4A843;
+  --gold3:#EAC96A;
+  --goldbg:rgba(184,146,42,.1);
+  --goldborder:rgba(184,146,42,.22);
+  --surface:#F8F5F0;
+  --surface2:#EDE9E2;
+  --surface3:#E4DDD4;
+  --white:#FFFFFF;
+  --border:rgba(15,15,15,.1);
+  --border2:rgba(15,15,15,.06);
+  --green-up:#2E7D32;
+  --red-down:#C62828;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--ink);line-height:1.6;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(248,245,240,.97);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);height:66px;
+  display:flex;align-items:center;padding:0 5%;
+}
+.nav-in{width:100%;max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo-mark{
+  width:34px;height:34px;border-radius:6px;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold2);
+}
+.logo-text{font-family:'Playfair Display',serif;font-weight:600;font-size:18px;color:var(--ink);letter-spacing:-.01em}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.02em;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{
+  background:var(--ink);color:var(--white);
+  padding:9px 22px;border-radius:6px;
+  font-size:13px;font-weight:600;letter-spacing:.03em;
+  text-decoration:none;transition:all .2s;
+}
+.nav-cta:hover{background:var(--ink2)}
+
+/* ── HERO ── */
+.hero{
+  background:var(--surface);
+  padding:110px 5% 80px;
+  position:relative;overflow:hidden;
+}
+.hero-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 520px;gap:72px;align-items:center}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--goldborder);border-radius:99px;
+  padding:5px 16px;background:var(--goldbg);
+  font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:28px;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(38px,4.5vw,60px);font-weight:700;
+  color:var(--ink);line-height:1.1;letter-spacing:-.025em;margin-bottom:22px;
+}
+h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:17px;color:var(--muted);font-weight:300;line-height:1.72;margin-bottom:38px;max-width:480px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{
+  background:var(--ink);color:var(--white);
+  padding:13px 26px;border-radius:7px;
+  font-size:14px;font-weight:600;letter-spacing:.03em;
+  text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{background:var(--ink2);transform:translateY(-1px)}
+.btn-ghost{
+  border:1.5px solid var(--border);color:var(--muted);
+  padding:12px 26px;border-radius:7px;
+  font-size:14px;font-weight:500;
+  text-decoration:none;transition:all .2s;
+}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+
+/* HERO DASHBOARD VISUAL */
+.hero-visual{
+  background:var(--white);
+  border:1px solid var(--border);border-radius:14px;
+  box-shadow:0 8px 40px rgba(0,0,0,.09),0 2px 8px rgba(0,0,0,.06);
+  overflow:hidden;
+}
+.hv-topbar{
+  background:var(--ink);height:48px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+}
+.hv-brand{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--white);display:flex;align-items:center;gap:8px}
+.hv-brand-dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.hv-live{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.hv-live-dot{width:6px;height:6px;border-radius:50%;background:#4CAF50;animation:blink 1.5s infinite}
+.hv-body{padding:18px}
+/* Mini ticker */
+.hv-ticker{
+  display:flex;gap:8px;margin-bottom:14px;overflow:hidden;
+}
+.ticker-item{
+  flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:6px;
+  padding:8px 10px;
+}
+.ticker-name{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.ticker-val{font-size:13px;font-weight:700;color:var(--ink);line-height:1}
+.ticker-chg{font-size:10px;font-weight:600;margin-top:2px}
+.up{color:var(--green-up)}.dn{color:var(--red-down)}
+/* Obj selector strip */
+.hv-obj-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.hv-obj{
+  background:var(--surface);border:1px solid var(--border2);border-radius:6px;
+  padding:8px 6px;text-align:center;cursor:pointer;transition:all .2s;
+}
+.hv-obj.active{background:var(--ink);border-color:var(--ink)}
+.hv-obj-label{font-size:9px;font-weight:600;color:var(--muted);line-height:1.3}
+.hv-obj.active .hv-obj-label{color:rgba(255,255,255,.85)}
+/* Chart zone */
+.hv-chart-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:14px;margin-bottom:12px}
+.hv-chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.hv-chart-title{font-size:11px;font-weight:600;color:var(--ink)}
+.hv-chart-sub{font-size:10px;color:var(--muted)}
+.hv-bars{display:flex;align-items:flex-end;gap:4px;height:80px}
+.hv-bar{flex:1;border-radius:3px 3px 0 0;transition:height .5s ease}
+.hv-bar-label{font-size:8px;color:var(--muted);text-align:center;margin-top:4px}
+/* KPI row */
+.hv-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hv-kpi{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:10px 10px}
+.hv-kpi-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.hv-kpi-val{font-size:15px;font-weight:700;color:var(--ink);line-height:1}
+.hv-kpi.accent .hv-kpi-val{color:var(--gold)}
+/* Allocation donut mini */
+.hv-alloc{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;margin-top:10px}
+.hv-alloc-bars{flex:1;display:flex;flex-direction:column;gap:5px}
+.alloc-row{display:flex;align-items:center;gap:8px}
+.alloc-bar-wrap{flex:1;height:6px;background:rgba(0,0,0,.07);border-radius:3px;overflow:hidden}
+.alloc-bar-fill{height:100%;border-radius:3px}
+.alloc-label{font-size:9px;color:var(--muted);min-width:60px}
+.alloc-pct{font-size:9px;font-weight:700;color:var(--ink);min-width:26px;text-align:right}
+
+/* ── TICKER RIBBON ── */
+.ribbon{
+  background:var(--ink);border-top:1px solid rgba(255,255,255,.07);
+  overflow:hidden;padding:12px 0;
+}
+.ribbon-track{
+  display:flex;gap:0;
+  animation:scroll 30s linear infinite;
+  white-space:nowrap;
+}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ribbon-item{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:0 28px;border-right:1px solid rgba(255,255,255,.08);
+}
+.ri-name{font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.45);text-transform:uppercase}
+.ri-val{font-size:12px;font-weight:600;color:rgba(255,255,255,.75);font-family:'DM Mono',monospace}
+.ri-chg{font-size:11px;font-weight:600}
+
+/* ── SECTIONS ── */
+.sec{padding:96px 5%}
+.sec-in{max-width:1240px;margin:0 auto}
+.sec-tag{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(30px,3.8vw,48px);font-weight:700;
+  color:var(--ink);line-height:1.1;letter-spacing:-.02em;
+}
+h2 em{font-style:italic;color:var(--gold)}
+.sec-sub{font-size:17px;color:var(--muted);font-weight:300;line-height:1.7;max-width:540px}
+
+/* ── METRICS ── */
+.metrics{background:var(--surface);padding:0}
+.metrics-grid{
+  max-width:1240px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:3px solid var(--ink);
+}
+.metric-cell{
+  padding:36px 32px;
+  border-right:1px solid var(--border);
+}
+.metric-cell:last-child{border-right:none}
+.metric-num{
+  font-family:'Playfair Display',serif;
+  font-size:44px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:8px;
+}
+.metric-num span{color:var(--gold)}
+.metric-label{font-size:13px;color:var(--muted);font-weight:400}
+
+/* ── PROBLEM ── */
+.problem{background:var(--white)}
+.prob-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+.prob-left .sec-tag{margin-bottom:14px}
+.prob-left h2{margin-bottom:20px}
+.prob-left p{font-size:16px;color:var(--muted);line-height:1.72;font-weight:300}
+.prob-cards{display:flex;flex-direction:column;gap:16px;margin-top:8px}
+.prob-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px 26px;position:relative;overflow:hidden;
+  transition:box-shadow .25s;
+}
+.prob-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
+.prob-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--surface3);transition:background .25s;
+}
+.prob-card:hover::before{background:var(--gold)}
+.prob-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em;margin-bottom:10px}
+.prob-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:7px}
+.prob-body{font-size:13px;color:var(--muted);line-height:1.65;font-weight:400}
+
+/* ── SOLUTION ── */
+.solution{background:var(--surface)}
+.sol-header{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:56px;align-items:end}
+.sol-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--border)}
+.sol-cell{
+  background:var(--surface);padding:40px 38px;
+  transition:background .2s;cursor:default;
+}
+.sol-cell:hover{background:var(--white)}
+.sol-cell-icon{
+  width:46px;height:46px;border-radius:10px;
+  background:var(--goldbg);border:1px solid var(--goldborder);
+  display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+}
+.sol-cell-icon svg{stroke:var(--gold)}
+.sol-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.sol-body{font-size:14px;color:var(--muted);line-height:1.65;font-weight:300}
+/* Brand showcase */
+.sol-brand-strip{
+  margin-top:2px;background:var(--white);
+  border-top:2px solid var(--ink);
+  display:grid;grid-template-columns:auto 1fr 1fr 1fr;
+  align-items:center;
+}
+.sbs-label{
+  padding:28px 32px;
+  border-right:1px solid var(--border);
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;
+}
+.sbs-item{
+  padding:20px 28px;border-right:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.sbs-item:last-child{border-right:none}
+.sbs-swatch{
+  width:32px;height:32px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;flex-shrink:0;
+}
+.sbs-name{font-size:13px;font-weight:600;color:var(--ink)}
+.sbs-sub{font-size:11px;color:var(--muted)}
+
+/* ── OBJECTIVES ── */
+.objectives{background:var(--white)}
+.obj-header{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:48px;align-items:end}
+.obj-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+}
+.obj-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px 20px;cursor:pointer;transition:all .2s;
+  position:relative;overflow:hidden;
+}
+.obj-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .28s;
+}
+.obj-card:hover::after,.obj-card.on::after{transform:scaleX(1)}
+.obj-card:hover,.obj-card.on{background:var(--white);border-color:rgba(184,146,42,.3);box-shadow:0 4px 18px rgba(0,0,0,.07)}
+.obj-icon{
+  width:38px;height:38px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;transition:all .2s;
+}
+.obj-card:hover .obj-icon,.obj-card.on .obj-icon{background:var(--gold);border-color:var(--gold)}
+.obj-card:hover .obj-icon svg,.obj-card.on .obj-icon svg{stroke:#fff}
+.obj-icon svg{stroke:var(--muted);transition:stroke .2s}
+.obj-num{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;margin-bottom:8px}
+.obj-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.3}
+.obj-desc{font-size:12px;color:var(--muted);line-height:1.5;font-weight:400}
+
+/* ── DEMO ── */
+.demo-sec{background:var(--surface);padding:80px 0 0}
+.demo-head{max-width:1240px;margin:0 auto;padding:0 5% 52px;display:flex;align-items:flex-end;justify-content:space-between;gap:60px}
+.demo-head-right{font-size:15px;color:var(--muted);line-height:1.72;font-weight:300;max-width:420px;flex-shrink:0}
+.demo-frame{border-top:3px solid var(--ink);overflow:hidden}
+.demo-bar{background:var(--white);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px}
+.demo-dots{display:flex;gap:6px}
+.demo-dot{width:11px;height:11px;border-radius:50%}
+.demo-url{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:5px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+iframe.demo{width:100%;height:760px;border:none;display:block}
+
+/* ── HOW ── */
+.how{background:var(--white)}
+.how-header{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:56px;align-items:end}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border)}
+.how-step{
+  background:var(--white);padding:44px 40px;
+  position:relative;
+}
+.step-line{
+  display:flex;align-items:center;gap:14px;margin-bottom:24px;
+}
+.step-num{
+  width:52px;height:52px;border-radius:50%;
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);flex-shrink:0;
+}
+.step-conn{flex:1;height:1px;background:var(--border)}
+.step-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:12px}
+.step-body{font-size:14px;color:var(--muted);line-height:1.65;font-weight:300}
+
+/* ── PORTFOLIO VISUAL SECTION ── */
+.portfolio-sec{background:var(--surface);padding:80px 5%}
+.portfolio-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.portfolio-copy .sec-tag{margin-bottom:14px}
+.portfolio-copy h2{margin-bottom:18px}
+.portfolio-copy p{font-size:16px;color:var(--muted);line-height:1.72;font-weight:300;margin-bottom:32px}
+/* Mini portfolio card */
+.port-card{
+  background:var(--white);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07);
+}
+.port-header{background:var(--ink);padding:18px 22px;display:flex;align-items:center;justify-content:space-between}
+.port-header-left{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--white)}
+.port-header-right{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.06em}
+.port-body{padding:22px}
+.port-total-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.port-total{font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
+.port-growth{font-size:13px;font-weight:600;color:var(--green-up);margin-bottom:22px}
+.port-alloc-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.port-alloc-list{display:flex;flex-direction:column;gap:10px}
+.port-alloc-row{display:flex;align-items:center;gap:10px}
+.pal-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pal-name{font-size:13px;color:var(--ink);font-weight:500;flex:1}
+.pal-pct{font-size:13px;font-weight:700;color:var(--ink)}
+.pal-bar-wrap{width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.pal-bar-fill{height:100%;border-radius:3px}
+.port-sparkline{
+  margin-top:20px;padding-top:18px;border-top:1px solid var(--border);
+  display:flex;align-items:flex-end;gap:4px;height:56px;
+}
+.spark-bar{flex:1;border-radius:2px 2px 0 0}
+.port-footer{
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:14px 22px;display:flex;justify-content:space-between;align-items:center;
+}
+.pf-label{font-size:11px;color:var(--muted)}
+.pf-val{font-size:13px;font-weight:700;color:var(--ink)}
+
+/* ── QUOTE ── */
+.quote-sec{background:var(--ink);padding:72px 5%}
+.quote-in{max-width:860px;margin:0 auto;text-align:center}
+.quote-rule{width:44px;height:3px;background:var(--gold);margin:0 auto 36px;border-radius:2px}
+.quote-text{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(20px,2.8vw,32px);font-weight:400;font-style:italic;
+  color:rgba(255,255,255,.88);line-height:1.48;margin-bottom:28px;
+}
+.quote-text strong{font-style:normal;font-weight:700;color:var(--gold2)}
+.quote-source{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28)}
+
+/* ── PLANS ── */
+.plans{background:var(--surface)}
+.plans-header{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:48px;align-items:end}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.plan-card{
+  background:var(--white);border:1px solid var(--border);border-radius:14px;
+  padding:36px 32px;transition:box-shadow .25s;position:relative;
+}
+.plan-card:hover{box-shadow:0 6px 28px rgba(0,0,0,.09)}
+.plan-card.featured{background:var(--ink);border-color:var(--ink)}
+.plan-badge{
+  position:absolute;top:0;left:28px;
+  background:var(--gold);color:var(--ink);
+  font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 12px;border-radius:0 0 8px 8px;
+}
+.plan-tier{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;margin-top:10px}
+.plan-card.featured .plan-tier{color:rgba(255,255,255,.35)}
+.plan-price{margin-bottom:4px;display:flex;align-items:baseline;gap:4px}
+.plan-cur{font-size:17px;font-weight:600;color:var(--ink3);align-self:flex-start;margin-top:6px}
+.plan-card.featured .plan-cur{color:rgba(255,255,255,.45)}
+.plan-amt{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;color:var(--ink);line-height:1}
+.plan-card.featured .plan-amt{color:var(--gold2)}
+.plan-period{font-size:13px;color:var(--muted);margin-bottom:6px}
+.plan-card.featured .plan-period{color:rgba(255,255,255,.35)}
+.plan-desc{font-size:13px;color:var(--muted);line-height:1.6;font-weight:300;border-top:1px solid var(--border);margin-top:16px;padding-top:18px;margin-bottom:24px}
+.plan-card.featured .plan-desc{color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.1)}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.plan-features li{font-size:13px;color:var(--ink2);display:flex;align-items:baseline;gap:9px}
+.plan-features li::before{content:'✓';font-size:11px;color:var(--gold);font-weight:700;flex-shrink:0}
+.plan-card.featured .plan-features li{color:rgba(255,255,255,.6)}
+.plan-features li.no{color:var(--muted);opacity:.45}
+.plan-features li.no::before{color:var(--muted)}
+.plan-btn{
+  width:100%;padding:13px;border-radius:8px;
+  font-size:13px;font-weight:600;letter-spacing:.04em;
+  text-decoration:none;text-align:center;display:block;transition:all .2s;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;
+}
+.btn-outline{background:transparent;border:1.5px solid var(--ink);color:var(--ink)}
+.btn-outline:hover{background:var(--ink);color:var(--white)}
+.btn-white{background:var(--white);color:var(--ink)}
+.btn-white:hover{background:var(--surface)}
+
+/* ── CONTACT ── */
+.contact{background:var(--white)}
+.contact-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.contact-left h2{margin-bottom:18px}
+.contact-left p{font-size:16px;color:var(--muted);line-height:1.72;font-weight:300;margin-bottom:40px}
+.contact-details{display:flex;flex-direction:column;gap:18px}
+.cd-row{display:flex;align-items:center;gap:14px}
+.cd-icon{width:42px;height:42px;border-radius:8px;background:var(--goldbg);border:1px solid var(--goldborder);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cd-icon svg{stroke:var(--gold)}
+.cd-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.cd-val{font-size:14px;font-weight:600;color:var(--ink)}
+.form{display:flex;flex-direction:column;gap:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.form-in,.form-sel,.form-ta{
+  background:var(--surface);border:1px solid var(--border);border-radius:7px;
+  padding:12px 16px;font-size:14px;color:var(--ink);
+  font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;
+}
+.form-in::placeholder,.form-ta::placeholder{color:rgba(15,15,15,.25)}
+.form-in:focus,.form-sel:focus,.form-ta:focus{border-color:var(--ink);background:var(--white)}
+.form-sel{appearance:none;color:var(--muted);cursor:pointer}
+.form-sel option{color:var(--ink)}
+.form-ta{resize:none;height:96px;line-height:1.5}
+.form-submit{
+  background:var(--ink);color:var(--white);border:none;border-radius:8px;
+  padding:14px;font-size:14px;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;transition:background .2s;font-family:'DM Sans',sans-serif;margin-top:4px;
+}
+.form-submit:hover{background:var(--ink2)}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.07);padding:28px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.foot-logo{display:flex;align-items:center;gap:9px}
+.foot-copy{font-size:11px;color:rgba(255,255,255,.25)}
+.foot-links{display:flex;gap:24px}
+.foot-links a{font-size:11px;color:rgba(255,255,255,.25);text-decoration:none;transition:color .2s}
+.foot-links a:hover{color:rgba(255,255,255,.6)}
+
+/* ── FADE IN ── */
+.fi{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease}
+.fi.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-in">
+    <a href="#" class="logo">
+      <div class="logo-mark">P</div>
+      <span class="logo-text">Planinvest</span>
+    </a>
+    <div class="nav-links">
+      <a href="#solucao">Solução</a>
+      <a href="#modulos">Módulos</a>
+      <a href="#demo">Demo ao Vivo</a>
+      <a href="#planos">Planos</a>
+    </div>
+    <a href="#contato" class="nav-cta">Solicitar Demo →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-in">
+    <div class="fi">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        White Label · Pronto para Uso
+      </div>
+      <h1>O simulador que<br>transforma reuniões<br>em <em>decisões.</em></h1>
+      <p class="hero-sub">Ferramenta de planejamento patrimonial com oito objetivos de vida, motores matemáticos precisos e identidade completamente personalizável para sua instituição.</p>
+      <div class="hero-actions">
+        <a href="#demo" class="btn-primary">Ver Demo ao Vivo ↓</a>
+        <a href="#contato" class="btn-ghost">Falar com a Equipe</a>
+      </div>
+    </div>
+
+    <!-- DASHBOARD MOCKUP -->
+    <div class="hero-visual fi" style="transition-delay:.15s">
+      <div class="hv-topbar">
+        <div class="hv-brand"><div class="hv-brand-dot"></div>Planinvest · Simulador</div>
+        <div class="hv-live"><div class="hv-live-dot"></div>Demo ao vivo</div>
+      </div>
+      <div class="hv-body">
+        <!-- Ticker row -->
+        <div class="hv-ticker">
+          <div class="ticker-item"><div class="ticker-name">IPCA</div><div class="ticker-val">5,53%</div><div class="ticker-chg up">▲ a.a.</div></div>
+          <div class="ticker-item"><div class="ticker-name">Selic</div><div class="ticker-val">13,75%</div><div class="ticker-chg up">▲ a.a.</div></div>
+          <div class="ticker-item"><div class="ticker-name">CDI</div><div class="ticker-val">13,65%</div><div class="ticker-chg up">▲ a.a.</div></div>
+          <div class="ticker-item"><div class="ticker-name">IBOVESPA</div><div class="ticker-val">128.847</div><div class="ticker-chg up">▲ 1,2%</div></div>
+        </div>
+        <!-- Obj selector -->
+        <div class="hv-obj-strip">
+          <div class="hv-obj active"><div class="hv-obj-label">Aposentadoria</div></div>
+          <div class="hv-obj"><div class="hv-obj-label">Imóvel</div></div>
+          <div class="hv-obj"><div class="hv-obj-label">Renda</div></div>
+          <div class="hv-obj"><div class="hv-obj-label">Educação</div></div>
+        </div>
+        <!-- Chart -->
+        <div class="hv-chart-wrap">
+          <div class="hv-chart-head">
+            <div class="hv-chart-title">Patrimônio Projetado · Perfil Moderado</div>
+            <div class="hv-chart-sub">CDI × 0,90</div>
+          </div>
+          <div class="hv-bars" id="heroBars"></div>
+        </div>
+        <!-- KPIs -->
+        <div class="hv-kpis">
+          <div class="hv-kpi accent"><div class="hv-kpi-label">Patrimônio Final</div><div class="hv-kpi-val">R$ 2,8M</div></div>
+          <div class="hv-kpi"><div class="hv-kpi-label">Total Investido</div><div class="hv-kpi-val">R$ 790K</div></div>
+          <div class="hv-kpi"><div class="hv-kpi-label">Rendimentos</div><div class="hv-kpi-val">R$ 2,0M</div></div>
+        </div>
+        <!-- Allocation -->
+        <div class="hv-alloc">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Alocação</div>
+          <div class="hv-alloc-bars">
+            <div class="alloc-row">
+              <div class="alloc-label" style="font-size:9px;color:var(--muted)">Pós-Fixado</div>
+              <div class="alloc-bar-wrap"><div class="alloc-bar-fill" style="width:60%;background:var(--gold)"></div></div>
+              <div class="alloc-pct">60%</div>
+            </div>
+            <div class="alloc-row">
+              <div class="alloc-label" style="font-size:9px;color:var(--muted)">IPCA+</div>
+              <div class="alloc-bar-wrap"><div class="alloc-bar-fill" style="width:30%;background:var(--ink)"></div></div>
+              <div class="alloc-pct">30%</div>
+            </div>
+            <div class="alloc-row">
+              <div class="alloc-label" style="font-size:9px;color:var(--muted)">Renda Variável</div>
+              <div class="alloc-bar-wrap"><div class="alloc-bar-fill" style="width:10%;background:var(--muted)"></div></div>
+              <div class="alloc-pct">10%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER RIBBON -->
+<div class="ribbon">
+  <div class="ribbon-track" id="ribbonTrack"></div>
+</div>
+
+<!-- METRICS -->
+<div class="metrics">
+  <div class="metrics-grid fi">
+    <div class="metric-cell"><div class="metric-num">8</div><div class="metric-label">Objetivos de vida cobertos</div></div>
+    <div class="metric-cell"><div class="metric-num">3</div><div class="metric-label">Perfis de risco: Conservador, Moderado e Arrojado</div></div>
+    <div class="metric-cell"><div class="metric-num">100<span>%</span></div><div class="metric-label">Identidade visual da sua instituição</div></div>
+    <div class="metric-cell"><div class="metric-num">48<span style="font-size:28px">h</span></div><div class="metric-label">Da contratação à primeira reunião</div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="sec problem" id="problema">
+  <div class="sec-in">
+    <div class="prob-layout">
+      <div class="prob-left fi">
+        <div class="sec-tag">O Diagnóstico</div>
+        <h2>O cliente quer ver<br>seu futuro — não<br><em>ouvir sobre taxas.</em></h2>
+        <p style="margin-top:20px">Assessores de alto desempenho sabem: a reunião que converte não é sobre produto. É sobre projeto de vida. Mas poucas instituições têm a ferramenta certa para esse nível de conversa.</p>
+      </div>
+      <div class="prob-cards fi" style="transition-delay:.1s">
+        <div class="prob-card">
+          <div class="prob-num">01 / 03</div>
+          <div class="prob-title">Ferramentas genéricas não criam vínculo</div>
+          <div class="prob-body">Planilhas e simuladores básicos mostram números. Uma boa ferramenta mostra um projeto de vida — e o cliente sente a diferença antes mesmo de o assessor falar.</div>
+        </div>
+        <div class="prob-card">
+          <div class="prob-num">02 / 03</div>
+          <div class="prob-title">Cada reunião começa do zero</div>
+          <div class="prob-body">Sem uma ferramenta estruturada, cada profissional conduz a conversa do seu jeito — com qualidade e resultados imprevisíveis difíceis de escalar.</div>
+        </div>
+        <div class="prob-card">
+          <div class="prob-num">03 / 03</div>
+          <div class="prob-title">Usar ferramenta de terceiro dilui sua marca</div>
+          <div class="prob-body">O cliente associa a qualidade à ferramenta, não à instituição. Com o Planinvest, ele sai da reunião lembrando da sua marca.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="sec solution" id="solucao">
+  <div class="sec-in">
+    <div class="sol-header fi">
+      <div>
+        <div class="sec-tag">A Solução</div>
+        <h2>Sua marca.<br><em>Nossa tecnologia.</em></h2>
+      </div>
+      <p class="sec-sub">Entregamos a ferramenta completa com a identidade visual da sua cooperativa ou assessoria — sem complicação técnica, pronta em 48 horas.</p>
+    </div>
+    <div class="sol-grid fi">
+      <div class="sol-cell">
+        <div class="sol-cell-icon"><svg width="22" height="22" fill="none" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg></div>
+        <div class="sol-title">Personalização total de marca</div>
+        <div class="sol-body">Logo, cores, nome e dados da sua instituição em cada tela. O cliente vê a ferramenta como parte da sua oferta, não como um software externo.</div>
+      </div>
+      <div class="sol-cell">
+        <div class="sol-cell-icon"><svg width="22" height="22" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <div class="sol-title">Motores matemáticos validados</div>
+        <div class="sol-body">Cada objetivo tem modelo próprio com inflação real, retornos por perfil, TSR e análise de renda passiva — resultados confiáveis para apresentar ao cliente.</div>
+      </div>
+      <div class="sol-cell">
+        <div class="sol-cell-icon"><svg width="22" height="22" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <div class="sol-title">Zero curva de aprendizado</div>
+        <div class="sol-body">Sem instalação, sem treinamento técnico. O assessor abre o navegador e já tem uma ferramenta de nível institucional disponível para o cliente.</div>
+      </div>
+      <div class="sol-cell">
+        <div class="sol-cell-icon"><svg width="22" height="22" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="sol-title">Código ofuscado, acesso controlado</div>
+        <div class="sol-body">Roda na intranet da instituição com código protegido. Sem risco de cópia ou replicação — a ferramenta permanece exclusiva da sua equipe.</div>
+      </div>
+    </div>
+    <div class="sol-brand-strip fi">
+      <div class="sbs-label">Exemplos de<br>personalização</div>
+      <div class="sbs-item">
+        <div class="sbs-swatch" style="background:var(--ink);color:var(--gold2);border-radius:6px">P</div>
+        <div><div class="sbs-name">Planinvest</div><div class="sbs-sub">Versão base</div></div>
+      </div>
+      <div class="sbs-item">
+        <div class="sbs-swatch" style="background:#004F9F;color:#fff;border-radius:6px;font-size:9px">UC</div>
+        <div><div class="sbs-name">Unicred Noroeste</div><div class="sbs-sub">Simulador de Patrimônio</div></div>
+      </div>
+      <div class="sbs-item">
+        <div class="sbs-swatch" style="background:#1B5E20;color:#fff;border-radius:6px;font-size:9px">SC</div>
+        <div><div class="sbs-name">Sicredi Pioneira</div><div class="sbs-sub">Planejamento Financeiro</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVES -->
+<section class="sec objectives" id="modulos">
+  <div class="sec-in">
+    <div class="obj-header fi">
+      <div>
+        <div class="sec-tag">Os Módulos</div>
+        <h2>Oito objetivos de vida,<br><em>uma conversa completa.</em></h2>
+      </div>
+      <p class="sec-sub">Cada módulo tem interface, matemática e narrativa próprias. O assessor seleciona o objetivo e a ferramenta adapta o fluxo inteiro em tempo real.</p>
+    </div>
+    <div class="obj-grid fi">
+      <div class="obj-card on">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <div class="obj-num">01</div><div class="obj-name">Aposentadoria</div>
+        <div class="obj-desc">Acumulação, renda dos juros, TSR e múltiplos prazos</div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>
+        <div class="obj-num">02</div><div class="obj-name">Compra de Imóvel</div>
+        <div class="obj-desc">Entrada e financiamento com custo real de espera</div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+        <div class="obj-num">03</div><div class="obj-name">Complemento de Renda</div>
+        <div class="obj-desc">Patrimônio mínimo para renda permanente sem consumir o principal</div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+        <div class="obj-num">04</div><div class="obj-name">Educação dos Filhos</div>
+        <div class="obj-desc">Acumulação com inflação educacional por horizonte</div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+        <div class="obj-num">05</div><div class="obj-name">Abertura de Empresa</div>
+        <div class="obj-desc">Capital de giro, reserva operacional e maturação</div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="obj-num">06</div><div class="obj-name">Reserva Estratégica</div>
+        <div class="obj-desc">Proteção patrimonial e liquidez para imprevistos</div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+        <div class="obj-num">07</div><div class="obj-name">Grande Viagem / Sonho</div>
+        <div class="obj-desc">Experiências especiais e custo do adiamento</div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
+        <div class="obj-num">08</div><div class="obj-name">Sucessão Patrimonial</div>
+        <div class="obj-desc">Transferência eficiente e custo sucessório</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO VISUAL SECTION -->
+<section class="portfolio-sec" id="ferramenta">
+  <div class="portfolio-in">
+    <div class="portfolio-copy fi">
+      <div class="sec-tag">A Experiência</div>
+      <h2>Uma conversa visual,<br>não uma <em>planilha.</em></h2>
+      <p>O cliente vê em tempo real como seus recursos crescem, qual a alocação ideal por perfil e quanto falta para alcançar cada objetivo. A reunião muda de patamar quando o número tem contexto.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--white);border:1px solid var(--border);border-radius:8px">
+          <div style="width:36px;height:36px;border-radius:8px;background:var(--goldbg);border:1px solid var(--goldborder);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--ink)">Projeção por perfil de risco</div><div style="font-size:12px;color:var(--muted)">Conservador · Moderado · Arrojado</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--white);border:1px solid var(--border);border-radius:8px">
+          <div style="width:36px;height:36px;border-radius:8px;background:var(--goldbg);border:1px solid var(--goldborder);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--ink)">Taxa Sustentável de Retirada (TSR)</div><div style="font-size:12px;color:var(--muted)">Análise de renda para aposentadoria e complemento</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--white);border:1px solid var(--border);border-radius:8px">
+          <div style="width:36px;height:36px;border-radius:8px;background:var(--goldbg);border:1px solid var(--goldborder);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--ink)">Gráfico de acumulação patrimonial</div><div style="font-size:12px;color:var(--muted)">Rendimento acumulado vs. capital investido</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="fi" style="transition-delay:.12s">
+      <div class="port-card">
+        <div class="port-header">
+          <div class="port-header-left">Simulação · Aposentadoria</div>
+          <div class="port-header-right">Perfil Moderado</div>
+        </div>
+        <div class="port-body">
+          <div class="port-total-label">Patrimônio Projetado</div>
+          <div class="port-total">R$ 2.847.932</div>
+          <div class="port-growth">▲ +360% sobre capital investido</div>
+          <div class="port-alloc-title">Alocação sugerida</div>
+          <div class="port-alloc-list">
+            <div class="port-alloc-row">
+              <div class="pal-color" style="background:var(--gold)"></div>
+              <div class="pal-name">Pós-Fixado (CDI)</div>
+              <div class="pal-bar-wrap"><div class="pal-bar-fill" style="width:60%;background:var(--gold)"></div></div>
+              <div class="pal-pct">60%</div>
+            </div>
+            <div class="port-alloc-row">
+              <div class="pal-color" style="background:var(--ink)"></div>
+              <div class="pal-name">IPCA+ (NTN-B)</div>
+              <div class="pal-bar-wrap"><div class="pal-bar-fill" style="width:30%;background:var(--ink)"></div></div>
+              <div class="pal-pct">30%</div>
+            </div>
+            <div class="port-alloc-row">
+              <div class="pal-color" style="background:var(--muted)"></div>
+              <div class="pal-name">Renda Variável</div>
+              <div class="pal-bar-wrap"><div class="pal-bar-fill" style="width:10%;background:var(--muted)"></div></div>
+              <div class="pal-pct">10%</div>
+            </div>
+          </div>
+          <div class="port-sparkline" id="portSpark"></div>
+        </div>
+        <div class="port-footer">
+          <div><div class="pf-label">Renda Mensal (juros)</div><div class="pf-val">R$ 19.830/mês</div></div>
+          <div style="text-align:right"><div class="pf-label">Horizonte</div><div class="pf-val">25 anos</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo-sec" id="demo">
+  <div class="demo-head fi">
+    <div>
+      <div class="sec-tag">Demo ao Vivo</div>
+      <h2 style="margin-bottom:0">Esta é a ferramenta real.<br><em>Sem cadastro.</em></h2>
+    </div>
+    <p class="demo-head-right">Selecione um objetivo de vida, ajuste os parâmetros e veja o resultado em tempo real. A mesma ferramenta que será entregue com a sua marca.</p>
+  </div>
+  <div class="demo-frame">
+    <div class="demo-bar">
+      <div class="demo-dots">
+        <div class="demo-dot" style="background:#FF5F57"></div>
+        <div class="demo-dot" style="background:#FFBD2E"></div>
+        <div class="demo-dot" style="background:#28CA41"></div>
+      </div>
+      <div class="demo-url">planinvest.com.br/demo · Simulador Patrimonial — Versão Demonstração</div>
+    </div>
+    <iframe class="demo" src="simulator.html" title="Simulador Patrimonial Planinvest"></iframe>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="sec how" id="como">
+  <div class="sec-in">
+    <div class="how-header fi">
+      <div>
+        <div class="sec-tag">Processo</div>
+        <h2>Da licença à reunião<br><em>em 48 horas.</em></h2>
+      </div>
+      <p class="sec-sub">Nenhum processo burocrático. Você envia os elementos da marca, a equipe entrega a ferramenta pronta — instalada onde for mais conveniente.</p>
+    </div>
+    <div class="how-steps fi">
+      <div class="how-step">
+        <div class="step-line"><div class="step-num">1</div><div class="step-conn"></div></div>
+        <div class="step-title">Contato & Briefing</div>
+        <div class="step-body">Você envia logo, cores e nome da ferramenta. Respondemos com proposta personalizada em até 24 horas.</div>
+      </div>
+      <div class="how-step">
+        <div class="step-line"><div class="step-num">2</div><div class="step-conn"></div></div>
+        <div class="step-title">Personalização & Entrega</div>
+        <div class="step-body">Aplicamos identidade visual, configuramos parâmetros e entregamos o arquivo — ou fazemos o deploy na intranet da instituição.</div>
+      </div>
+      <div class="how-step">
+        <div class="step-line"><div class="step-num">3</div></div>
+        <div class="step-title">Use na Próxima Reunião</div>
+        <div class="step-body">Nenhum treinamento técnico. Sua equipe abre o navegador e já tem uma ferramenta de alto impacto na mesa com o cliente.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="quote-sec">
+  <div class="quote-in fi">
+    <div class="quote-rule"></div>
+    <div class="quote-text">"A reunião mudou de caráter. Antes apresentávamos produtos. Hoje <strong>construímos um projeto de vida junto com o cliente</strong> — e ele mesmo pede para continuar."</div>
+    <div class="quote-source">Assessor de Investimentos · Cooperativa de Crédito · Sul do Brasil</div>
+  </div>
+</div>
+
+<!-- PLANS -->
+<section class="sec plans" id="planos">
+  <div class="sec-in">
+    <div class="plans-header fi">
+      <div>
+        <div class="sec-tag">Planos</div>
+        <h2>Escolha o modelo<br><em>ideal para sua equipe.</em></h2>
+      </div>
+      <p class="sec-sub">Todos os planos incluem a ferramenta completa com os 8 objetivos e suporte na implantação. Sem contrato de adesão no plano Starter.</p>
+    </div>
+    <div class="plans-grid fi">
+      <div class="plan-card">
+        <div class="plan-tier">Starter</div>
+        <div class="plan-price"><span class="plan-cur">R$</span><span class="plan-amt">990</span></div>
+        <div class="plan-period">licença única · uso vitalício</div>
+        <div class="plan-desc">Para equipes pequenas e assessores que querem uma ferramenta profissional com identidade própria, sem recorrência.</div>
+        <ul class="plan-features">
+          <li>Ferramenta completa (8 objetivos)</li>
+          <li>Personalização de logo e cores</li>
+          <li>Arquivo HTML para uso local</li>
+          <li>1 revisão de personalização</li>
+          <li class="no">Deploy em servidor/intranet</li>
+          <li class="no">Atualizações de versão</li>
+        </ul>
+        <a href="#contato" class="plan-btn btn-outline">Solicitar Starter</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-badge">Mais Escolhido</div>
+        <div class="plan-tier">Institucional</div>
+        <div class="plan-price"><span class="plan-cur">R$</span><span class="plan-amt">290</span></div>
+        <div class="plan-period">/mês · mínimo 12 meses</div>
+        <div class="plan-desc">Para cooperativas e assessorias que querem a ferramenta como parte permanente da operação, com suporte e evolução contínua.</div>
+        <ul class="plan-features">
+          <li>Ferramenta completa (8 objetivos)</li>
+          <li>Personalização completa de marca</li>
+          <li>Deploy na intranet institucional</li>
+          <li>Atualizações automáticas</li>
+          <li>Suporte via WhatsApp e e-mail</li>
+          <li class="no">Módulos sob demanda</li>
+        </ul>
+        <a href="#contato" class="plan-btn btn-white">Solicitar Institucional</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-tier">Enterprise</div>
+        <div class="plan-price"><span class="plan-amt" style="font-size:38px">Consulta</span></div>
+        <div class="plan-period">proposta sob medida</div>
+        <div class="plan-desc">Para redes de cooperativas e plataformas com múltiplas agências que precisam de solução integrada e escalável.</div>
+        <ul class="plan-features">
+          <li>Tudo do plano Institucional</li>
+          <li>Múltiplas agências e filiais</li>
+          <li>Integração com sistemas internos</li>
+          <li>Módulos desenvolvidos sob demanda</li>
+          <li>SLA de suporte dedicado</li>
+          <li>Gestão de acesso por assessor</li>
+        </ul>
+        <a href="#contato" class="plan-btn btn-outline">Falar com a Equipe</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec contact" id="contato">
+  <div class="contact-in">
+    <div class="fi">
+      <div class="sec-tag">Contato</div>
+      <h2>Vamos conversar sobre<br><em>a sua operação.</em></h2>
+      <p>Preencha o formulário e nossa equipe responde em até 1 dia útil com uma proposta personalizada para o perfil da sua instituição.</p>
+      <div class="contact-details">
+        <div class="cd-row">
+          <div class="cd-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.02 1.13 2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div><div class="cd-label">WhatsApp</div><div class="cd-val">Resposta em até 2 horas</div></div>
+        </div>
+        <div class="cd-row">
+          <div class="cd-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><div class="cd-label">E-mail</div><div class="cd-val">contato@planinvest.com.br</div></div>
+        </div>
+        <div class="cd-row">
+          <div class="cd-icon"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div><div class="cd-label">Horário</div><div class="cd-val">Segunda a sexta, 9h às 18h</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="form fi" style="transition-delay:.1s">
+      <div class="form-row">
+        <div class="form-field"><label class="form-label">Nome</label><input class="form-in" type="text" placeholder="Seu nome completo"></div>
+        <div class="form-field"><label class="form-label">Cargo</label><input class="form-in" type="text" placeholder="Ex: Gerente de Negócios"></div>
+      </div>
+      <div class="form-field"><label class="form-label">Instituição</label><input class="form-in" type="text" placeholder="Nome da cooperativa ou assessoria"></div>
+      <div class="form-row">
+        <div class="form-field"><label class="form-label">E-mail</label><input class="form-in" type="email" placeholder="seu@email.com"></div>
+        <div class="form-field"><label class="form-label">WhatsApp</label><input class="form-in" type="tel" placeholder="(00) 00000-0000"></div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Plano de Interesse</label>
+        <select class="form-sel form-in">
+          <option value="">Selecione um plano</option>
+          <option>Starter — Licença Única R$ 990</option>
+          <option>Institucional — R$ 290/mês</option>
+          <option>Enterprise — Sob Consulta</option>
+          <option>Ainda não sei, quero conhecer</option>
+        </select>
+      </div>
+      <div class="form-field"><label class="form-label">Mensagem (opcional)</label><textarea class="form-ta" placeholder="Conte sobre sua operação ou dúvidas específicas..."></textarea></div>
+      <button class="form-submit" onclick="handleSub(this)">Solicitar Proposta Personalizada →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-logo">
+    <div class="logo-mark" style="width:28px;height:28px;font-size:14px">P</div>
+    <span style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:rgba(255,255,255,.6)">Planinvest</span>
+  </div>
+  <div class="foot-copy">© 2025 Planinvest · Simulador Patrimonial White Label</div>
+  <div class="foot-links">
+    <a href="#">Termos de Uso</a>
+    <a href="#">Privacidade</a>
+    <a href="#contato">Contato</a>
+  </div>
+</footer>
+
+<script>
+/* Fade-in observer */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');obs.unobserve(e.target)}});
+},{threshold:0.08});
+document.querySelectorAll('.fi').forEach(el=>obs.observe(el));
+
+/* Hero bars */
+(function(){
+  const c = document.getElementById('heroBars'); if(!c)return;
+  const h = [8,12,17,22,28,34,40,48,56,65,74,86,100];
+  const golds = ['rgba(184,146,42,.2)','rgba(184,146,42,.25)','rgba(184,146,42,.3)','rgba(184,146,42,.35)','rgba(184,146,42,.4)','rgba(184,146,42,.48)','rgba(184,146,42,.55)','rgba(184,146,42,.63)','rgba(184,146,42,.7)','rgba(184,146,42,.78)','rgba(184,146,42,.86)','rgba(184,146,42,.93)','rgba(184,146,42,1)'];
+  h.forEach((v,i)=>{
+    const b=document.createElement('div');
+    b.style.cssText=`flex:1;height:${v}%;background:${golds[i]};border-radius:3px 3px 0 0;`;
+    c.appendChild(b);
+  });
+})();
+
+/* Portfolio sparkline */
+(function(){
+  const c = document.getElementById('portSpark'); if(!c)return;
+  const h=[30,35,33,42,48,44,55,62,58,70,80,88,100];
+  h.forEach((v,i)=>{
+    const b=document.createElement('div');
+    b.className='spark-bar';
+    b.style.cssText=`flex:1;height:${v}%;background:${i===h.length-1?'var(--gold)':'rgba(184,146,42,.35)'};border-radius:2px 2px 0 0;`;
+    c.appendChild(b);
+  });
+})();
+
+/* Ticker ribbon */
+(function(){
+  const data=[
+    {n:'SELIC',v:'13,75%',c:'+0,00',u:true},
+    {n:'CDI',v:'13,65%',c:'+0,00',u:true},
+    {n:'IPCA',v:'5,53%',c:'-0,12',u:false},
+    {n:'IBOVESPA',v:'128.847',c:'+1,24%',u:true},
+    {n:'IFIX',v:'3.152',c:'+0,34%',u:true},
+    {n:'USD/BRL',v:'R$ 4,97',c:'+0,18%',u:true},
+    {n:'IMA-B',v:'3.841',c:'+0,28%',u:true},
+    {n:'IMAB5+',v:'4.129',c:'+0,41%',u:true},
+    {n:'CDI Acum.',v:'13,65%',c:'a.a.',u:true},
+  ];
+  const t=document.getElementById('ribbonTrack'); if(!t)return;
+  const make=()=>data.map(d=>`<div class="ribbon-item"><span class="ri-name">${d.n}</span><span class="ri-val">${d.v}</span><span class="ri-chg ${d.u?'up':'dn'}">${d.u?'▲':'▼'} ${d.c}</span></div>`).join('');
+  t.innerHTML=make()+make();
+})();
+
+/* Obj card interaction */
+document.querySelectorAll('.obj-card').forEach(c=>{
+  c.addEventListener('click',function(){
+    document.querySelectorAll('.obj-card').forEach(x=>x.classList.remove('on'));
+    this.classList.add('on');
+  });
+});
+
+/* Form submit */
+function handleSub(btn){
+  btn.textContent='✓ Solicitação enviada — responderemos em breve.';
+  btn.style.background='#2E7D32';btn.disabled=true;
+}
+</script>
+</body>
+</html>
