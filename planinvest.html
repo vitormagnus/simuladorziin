@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planinvest · Simulador Patrimonial White Label</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111010;
+  --ink2:#2A2825;
+  --ink3:#4A4744;
+  --muted:#7A7673;
+  --pale:#F9F7F4;
+  --cream:#F2EDE6;
+  --sand:#E8E1D8;
+  --gold:#B8922A;
+  --gold2:#D4A843;
+  --goldbg:rgba(184,146,42,.08);
+  --goldborder:rgba(184,146,42,.2);
+  --white:#FFFFFF;
+  --border:rgba(17,16,16,.1);
+  --border2:rgba(17,16,16,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--white);color:var(--ink);line-height:1.5;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  height:64px;display:flex;align-items:center;padding:0 5%;
+}
+.nav-in{width:100%;max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{
+  width:32px;height:32px;border:1.5px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Libre Baskerville',serif;font-size:16px;font-weight:700;color:var(--ink);
+}
+.logo-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.nav-menu{display:flex;align-items:center;gap:36px}
+.nav-menu a{font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;letter-spacing:.02em;transition:color .2s}
+.nav-menu a:hover{color:var(--ink)}
+.nav-cta{
+  border:1.5px solid var(--ink);
+  padding:9px 22px;
+  font-size:13px;font-weight:700;color:var(--ink);
+  text-decoration:none;letter-spacing:.04em;
+  transition:all .2s;
+}
+.nav-cta:hover{background:var(--ink);color:var(--white)}
+
+/* ── HERO ── */
+.hero{
+  padding:130px 5% 0;
+  background:var(--white);
+  position:relative;overflow:hidden;
+}
+.hero-in{max-width:1200px;margin:0 auto}
+.hero-top{
+  display:grid;grid-template-columns:1fr 400px;gap:60px;align-items:end;
+  padding-bottom:56px;border-bottom:1px solid var(--border);
+}
+.hero-eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.hero-tag{
+  font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);border:1px solid var(--goldborder);padding:5px 12px;background:var(--goldbg);
+}
+.hero-year{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.06em}
+h1{
+  font-family:'Libre Baskerville',serif;
+  font-size:clamp(42px,5.5vw,72px);font-weight:700;
+  line-height:1.05;letter-spacing:-.025em;color:var(--ink);
+}
+h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{
+  font-size:16px;font-weight:400;color:var(--muted);line-height:1.7;
+  margin-bottom:32px;
+}
+.hero-btns{display:flex;flex-direction:column;gap:10px}
+.btn-dark{
+  background:var(--ink);color:var(--white);
+  padding:14px 24px;font-size:13px;font-weight:700;
+  letter-spacing:.06em;text-decoration:none;text-align:center;
+  transition:background .2s;display:block;
+}
+.btn-dark:hover{background:var(--ink2)}
+.btn-line{
+  border:1px solid var(--border);color:var(--muted);
+  padding:13px 24px;font-size:13px;font-weight:600;
+  letter-spacing:.04em;text-decoration:none;text-align:center;
+  transition:all .2s;display:block;
+}
+.btn-line:hover{border-color:var(--ink);color:var(--ink)}
+
+.hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border)}
+.hero-metric{padding:28px 32px 28px 0;border-right:1px solid var(--border)}
+.hero-metric:last-child{border-right:none}
+.hm-num{
+  font-family:'Libre Baskerville',serif;
+  font-size:40px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:6px;
+}
+.hm-label{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.03em}
+
+.hero-visual-wrap{
+  display:grid;grid-template-columns:1fr 300px;gap:40px;
+  padding:56px 0 80px;
+}
+.hfl-item{
+  display:flex;align-items:baseline;gap:20px;
+  padding:18px 0;border-bottom:1px solid var(--border2);transition:all .2s;cursor:default;
+}
+.hfl-item:hover .hfl-name{color:var(--gold)}
+.hfl-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:24px}
+.hfl-name{font-size:15px;font-weight:600;color:var(--ink);flex:1;transition:color .2s}
+.hfl-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--pale);padding:3px 8px;white-space:nowrap}
+.hero-aside{display:flex;flex-direction:column;gap:14px}
+.aside-card{background:var(--pale);border:1px solid var(--border);padding:20px 22px}
+.aside-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.aside-val{font-family:'Libre Baskerville',serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
+.aside-sub{font-size:12px;color:var(--muted)}
+.aside-card.gold{background:var(--goldbg);border-color:var(--goldborder)}
+.aside-card.gold .aside-val{color:var(--gold)}
+
+/* ── SECTION BASE ── */
+.sec{padding:96px 5%}
+.sec-in{max-width:1200px;margin:0 auto}
+.sec-hdr{
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;
+  margin-bottom:56px;padding-bottom:40px;border-bottom:1px solid var(--border);
+}
+.sec-tag{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+h2{font-family:'Libre Baskerville',serif;font-size:clamp(28px,3.5vw,44px);font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--ink)}
+h2 em{font-style:italic;color:var(--gold)}
+.sec-desc{font-size:16px;color:var(--muted);line-height:1.7;font-weight:400}
+
+/* ── PROBLEM ── */
+.problem{background:var(--pale)}
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.prob-card{background:var(--pale);padding:40px 36px}
+.prob-n{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.08em;margin-bottom:28px;display:block}
+.prob-title{font-size:17px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:12px}
+.prob-body{font-size:14px;color:var(--muted);line-height:1.7;font-weight:400}
+
+/* ── SOLUTION ── */
+.solution{background:var(--white)}
+.sol-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.sol-cell{background:var(--white);padding:44px 40px;transition:background .2s}
+.sol-cell:hover{background:var(--pale)}
+.sol-icon{
+  width:46px;height:46px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;margin-bottom:22px;
+  transition:background .2s,border-color .2s;
+}
+.sol-cell:hover .sol-icon{background:var(--ink);border-color:var(--ink)}
+.sol-cell:hover .sol-icon svg{stroke:var(--white)}
+.sol-icon svg{stroke:var(--ink3);transition:stroke .2s}
+.sol-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.sol-body{font-size:14px;color:var(--muted);line-height:1.65;font-weight:400}
+.sol-brands{
+  border-top:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+}
+.brand-col{padding:32px 36px;border-right:1px solid var(--border)}
+.brand-col:last-child{border-right:none}
+.brand-from{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.brand-from::after{content:'';flex:1;height:1px;background:var(--border)}
+.brand-pill{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--border);padding:8px 14px;margin-bottom:8px;cursor:default}
+.b-swatch{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0}
+.b-name{font-size:13px;font-weight:700;color:var(--ink)}
+.b-sub{font-size:11px;color:var(--muted)}
+
+/* ── OBJECTIVES ── */
+.objectives{background:var(--cream)}
+.obj-table{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(17,16,16,.12)}
+.obj-cell{background:var(--cream);padding:30px 26px;cursor:pointer;transition:background .2s;position:relative}
+.obj-cell::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.obj-cell:hover::after,.obj-cell.on::after{transform:scaleX(1)}
+.obj-cell:hover,.obj-cell.on{background:var(--white)}
+.obj-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;margin-bottom:18px;display:block}
+.obj-name{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:7px}
+.obj-desc{font-size:12px;color:var(--muted);line-height:1.55;font-weight:400}
+
+/* ── DEMO ── */
+.demo-sec{background:var(--white);padding:0}
+.demo-hdr{padding:80px 5% 56px;border-bottom:4px solid var(--ink)}
+.demo-hdr-in{max-width:1200px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:60px}
+.demo-frame-outer{border-left:4px solid var(--ink);border-right:4px solid var(--ink);border-bottom:4px solid var(--ink)}
+.demo-bar{background:var(--pale);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px}
+.demo-dots{display:flex;gap:6px}
+.demo-dot{width:11px;height:11px;border-radius:50%}
+.demo-addr{flex:1;background:var(--white);border:1px solid var(--border);padding:5px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.demo-iframe{width:100%;height:760px;border:none;display:block}
+
+/* ── HOW ── */
+.how{background:var(--pale)}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.how-step{background:var(--pale);padding:48px 40px}
+.step-n{font-family:'Libre Baskerville',serif;font-size:72px;font-weight:700;color:rgba(17,16,16,.06);line-height:1;margin-bottom:22px}
+.step-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.step-body{font-size:14px;color:var(--muted);line-height:1.65;font-weight:400}
+
+/* ── PULL QUOTE ── */
+.pullquote{background:var(--ink);padding:80px 5%}
+.pq-in{max-width:900px;margin:0 auto;text-align:center}
+.pq-rule{width:48px;height:3px;background:var(--gold);margin:0 auto 40px}
+.pq-text{
+  font-family:'Libre Baskerville',serif;
+  font-size:clamp(22px,3vw,34px);font-weight:400;font-style:italic;
+  color:rgba(255,255,255,.9);line-height:1.45;margin-bottom:32px;
+}
+.pq-text strong{font-style:normal;font-weight:700;color:var(--gold2)}
+.pq-source{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+
+/* ── PLANS ── */
+.plans{background:var(--white)}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.plan-card{background:var(--white);padding:40px 36px;position:relative;transition:background .2s}
+.plan-card:hover{background:var(--pale)}
+.plan-card.featured{background:var(--ink)}
+.plan-card.featured:hover{background:var(--ink2)}
+.feat-mark{position:absolute;top:0;left:36px;background:var(--gold);font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);padding:5px 12px}
+.plan-name{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;margin-top:8px}
+.plan-card.featured .plan-name{color:rgba(255,255,255,.4)}
+.plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+.plan-cur{font-size:18px;font-weight:700;color:var(--ink3);align-self:flex-start;margin-top:8px}
+.plan-card.featured .plan-cur{color:rgba(255,255,255,.4)}
+.plan-amt{font-family:'Libre Baskerville',serif;font-size:52px;font-weight:700;color:var(--ink);line-height:1}
+.plan-card.featured .plan-amt{color:var(--gold2)}
+.plan-per{font-size:13px;color:var(--muted);margin-bottom:6px}
+.plan-card.featured .plan-per{color:rgba(255,255,255,.35)}
+.plan-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:28px;border-top:1px solid var(--border);padding-top:18px;font-weight:400}
+.plan-card.featured .plan-desc{color:rgba(255,255,255,.45);border-color:rgba(255,255,255,.1)}
+.plan-items{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.plan-items li{font-size:13px;color:var(--ink2);display:flex;align-items:baseline;gap:10px;font-weight:400}
+.plan-items li::before{content:'→';font-size:11px;color:var(--gold);flex-shrink:0;font-weight:700}
+.plan-card.featured .plan-items li{color:rgba(255,255,255,.6)}
+.plan-items li.off{opacity:.35}
+.plan-btn{
+  width:100%;padding:13px;font-size:13px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;text-decoration:none;
+  text-align:center;display:block;transition:all .2s;
+  cursor:pointer;border:none;font-family:'Syne',sans-serif;
+}
+.btn-border{background:transparent;border:1.5px solid var(--ink);color:var(--ink)}
+.btn-border:hover{background:var(--ink);color:var(--white)}
+.btn-inv{background:var(--white);color:var(--ink);border:none}
+.btn-inv:hover{background:var(--cream)}
+
+/* ── CONTACT ── */
+.contact{background:var(--pale)}
+.contact-in{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.contact-left p{font-size:15px;color:var(--muted);line-height:1.7;font-weight:400;margin:20px 0 40px}
+.cd-list{display:flex;flex-direction:column;gap:18px}
+.cd-item{display:flex;align-items:center;gap:14px}
+.cd-box{width:40px;height:40px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cd-box svg{stroke:var(--ink3)}
+.cd-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.cd-val{font-size:14px;font-weight:600;color:var(--ink)}
+.contact-form{display:flex;flex-direction:column;gap:13px}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cf-field{display:flex;flex-direction:column;gap:5px}
+.cf-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.cf-in,.cf-sel,.cf-ta{
+  background:var(--white);border:1px solid var(--border);
+  padding:12px 16px;font-size:14px;color:var(--ink);
+  font-family:'Syne',sans-serif;outline:none;transition:border-color .2s;border-radius:0;
+}
+.cf-in::placeholder,.cf-ta::placeholder{color:rgba(17,16,16,.25)}
+.cf-in:focus,.cf-sel:focus,.cf-ta:focus{border-color:var(--ink)}
+.cf-sel{appearance:none;color:var(--muted);cursor:pointer}
+.cf-sel option{color:var(--ink)}
+.cf-ta{resize:none;height:94px;line-height:1.5}
+.cf-submit{
+  background:var(--ink);color:var(--white);border:none;
+  padding:15px;font-size:13px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s;font-family:'Syne',sans-serif;margin-top:4px;
+}
+.cf-submit:hover{background:var(--ink2)}
+
+/* ── FOOTER ── */
+footer{background:var(--white);border-top:1px solid var(--border);padding:28px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.foot-left{display:flex;align-items:center;gap:10px}
+.foot-copy{font-size:11px;color:var(--muted)}
+.foot-links{display:flex;gap:28px}
+.foot-links a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.04em;transition:color .2s}
+.foot-links a:hover{color:var(--ink)}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="#" class="logo">
+      <div class="logo-mark">P</div>
+      <span class="logo-name">Planinvest</span>
+    </a>
+    <div class="nav-menu">
+      <a href="#solucao">Solução</a>
+      <a href="#modulos">Módulos</a>
+      <a href="#demo">Demo</a>
+      <a href="#planos">Planos</a>
+    </div>
+    <a href="#contato" class="nav-cta">Solicitar Proposta</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-in">
+    <div class="hero-top">
+      <div>
+        <div class="hero-eyebrow">
+          <div class="hero-tag">White Label · Pronto para Uso</div>
+          <span class="hero-year">Versão 2025</span>
+        </div>
+        <h1>O simulador que<br>coloca o cliente<br>no centro da<br><em>conversa.</em></h1>
+      </div>
+      <div>
+        <p class="hero-sub">Ferramenta de planejamento patrimonial com oito objetivos de vida, motores matemáticos precisos e identidade completamente personalizável para sua instituição.</p>
+        <div class="hero-btns">
+          <a href="#demo" class="btn-dark">Ver Demo ao Vivo ↓</a>
+          <a href="#contato" class="btn-line">Solicitar Proposta</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-metrics reveal">
+      <div class="hero-metric"><div class="hm-num">8</div><div class="hm-label">Objetivos de vida cobertos</div></div>
+      <div class="hero-metric"><div class="hm-num">3</div><div class="hm-label">Perfis de risco configuráveis</div></div>
+      <div class="hero-metric"><div class="hm-num">100%</div><div class="hm-label">Identidade visual sua</div></div>
+      <div class="hero-metric"><div class="hm-num">48h</div><div class="hm-label">Da contratação à primeira reunião</div></div>
+    </div>
+
+    <div class="hero-visual-wrap">
+      <div class="reveal">
+        <div class="hfl-item"><span class="hfl-num">01</span><span class="hfl-name">Aposentadoria</span><span class="hfl-tag">Renda · TSR · Acumulação</span></div>
+        <div class="hfl-item"><span class="hfl-num">02</span><span class="hfl-name">Compra de Imóvel</span><span class="hfl-tag">Entrada · Financiamento</span></div>
+        <div class="hfl-item"><span class="hfl-num">03</span><span class="hfl-name">Complemento de Renda</span><span class="hfl-tag">Juros · Patrimônio Mínimo</span></div>
+        <div class="hfl-item"><span class="hfl-num">04</span><span class="hfl-name">Educação dos Filhos</span><span class="hfl-tag">Inflação Educacional</span></div>
+        <div class="hfl-item"><span class="hfl-num">05</span><span class="hfl-name">Abertura de Empresa</span><span class="hfl-tag">Capital · Reserva Operacional</span></div>
+        <div class="hfl-item"><span class="hfl-num">06</span><span class="hfl-name">Reserva Estratégica</span><span class="hfl-tag">Proteção · Liquidez</span></div>
+        <div class="hfl-item"><span class="hfl-num">07</span><span class="hfl-name">Grande Viagem / Sonho</span><span class="hfl-tag">Meta · Custo de Oportunidade</span></div>
+        <div class="hfl-item" style="border-bottom:none"><span class="hfl-num">08</span><span class="hfl-name">Sucessão Patrimonial</span><span class="hfl-tag">Herança · Inventário</span></div>
+      </div>
+      <div class="hero-aside reveal" style="transition-delay:.12s">
+        <div class="aside-card">
+          <div class="aside-label">Tempo de Implantação</div>
+          <div class="aside-val">48h</div>
+          <div class="aside-sub">Da contratação à primeira reunião</div>
+        </div>
+        <div class="aside-card gold">
+          <div class="aside-label">Retorno Estimado</div>
+          <div class="aside-val">+1 contrato</div>
+          <div class="aside-sub">Para cobrir o investimento mensal</div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-label">Proteção do Código</div>
+          <div class="aside-val">Ofuscado</div>
+          <div class="aside-sub">Sem risco de cópia ou replicação</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="sec problem" id="problema">
+  <div class="sec-in">
+    <div class="sec-hdr reveal">
+      <div>
+        <div class="sec-tag">O Diagnóstico</div>
+        <h2>O cliente quer ver seu<br>futuro — não ouvir<br><em>sobre taxas.</em></h2>
+      </div>
+      <p class="sec-desc">Assessores de alto desempenho sabem que a reunião que converte não é sobre produto. É sobre projeto de vida. Mas poucas instituições têm a ferramenta certa para essa conversa.</p>
+    </div>
+    <div class="prob-grid reveal">
+      <div class="prob-card">
+        <span class="prob-n">01 / 03</span>
+        <div class="prob-title">Ferramentas genéricas não geram vínculo emocional</div>
+        <div class="prob-body">Planilhas e simuladores básicos mostram números. Uma boa ferramenta mostra um projeto de vida — e o cliente sente a diferença antes mesmo de o assessor falar.</div>
+      </div>
+      <div class="prob-card">
+        <span class="prob-n">02 / 03</span>
+        <div class="prob-title">Cada reunião começa do zero, sem padrão de qualidade</div>
+        <div class="prob-body">Sem uma ferramenta estruturada, cada profissional conduz a conversa do seu jeito — com resultados imprevisíveis e difíceis de escalar dentro da instituição.</div>
+      </div>
+      <div class="prob-card">
+        <span class="prob-n">03 / 03</span>
+        <div class="prob-title">Usar ferramenta de terceiro dilui sua marca</div>
+        <div class="prob-body">O cliente associa a qualidade à ferramenta, não à instituição. Com o Planinvest, ele sai da reunião lembrando da sua marca, não de um software externo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="sec solution" id="solucao">
+  <div class="sec-in">
+    <div class="sec-hdr reveal">
+      <div>
+        <div class="sec-tag">A Solução</div>
+        <h2>Sua marca.<br><em>Nossa tecnologia.</em></h2>
+      </div>
+      <p class="sec-desc">Entregamos a ferramenta completa com a identidade visual da sua cooperativa ou assessoria — pronta para entrar em uso em 48 horas, sem complicação técnica.</p>
+    </div>
+    <div class="sol-grid reveal">
+      <div class="sol-cell">
+        <div class="sol-icon"><svg width="22" height="22" fill="none" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><path d="M9 9h6M9 12h6M9 15h4"/></svg></div>
+        <div class="sol-title">Personalização total de marca</div>
+        <div class="sol-body">Logo, cores, nome e dados da sua instituição em cada tela. O cliente vê a ferramenta como parte da sua oferta de valor — não como um serviço externo.</div>
+      </div>
+      <div class="sol-cell">
+        <div class="sol-icon"><svg width="22" height="22" fill="none" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <div class="sol-title">Motores matemáticos validados</div>
+        <div class="sol-body">Cada objetivo tem modelo próprio com inflação real, retornos por perfil, TSR e análise de renda passiva — resultados em que o assessor pode confiar na frente do cliente.</div>
+      </div>
+      <div class="sol-cell">
+        <div class="sol-icon"><svg width="22" height="22" fill="none" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <div class="sol-title">Zero curva de aprendizado</div>
+        <div class="sol-body">Sem instalação, sem treinamento técnico. O assessor abre o navegador e já tem uma ferramenta de nível institucional disponível para o cliente.</div>
+      </div>
+      <div class="sol-cell">
+        <div class="sol-icon"><svg width="22" height="22" fill="none" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="sol-title">Código ofuscado, acesso controlado</div>
+        <div class="sol-body">Roda na intranet da instituição com código ofuscado. Sem risco de cópia, replicação ou vazamento — a ferramenta permanece exclusiva da sua equipe.</div>
+      </div>
+    </div>
+    <div class="sol-brands reveal">
+      <div class="brand-col">
+        <div class="brand-from">Versão base</div>
+        <div class="brand-pill">
+          <div class="b-swatch" style="background:var(--ink);color:var(--white)">P</div>
+          <div><div class="b-name">Planinvest</div><div class="b-sub">Simulador Patrimonial</div></div>
+        </div>
+      </div>
+      <div class="brand-col">
+        <div class="brand-from">Exemplo cooperativa</div>
+        <div class="brand-pill">
+          <div class="b-swatch" style="background:#004F9F;color:#fff">UC</div>
+          <div><div class="b-name">Unicred Noroeste</div><div class="b-sub">Simulador de Patrimônio</div></div>
+        </div>
+        <br>
+        <div class="brand-pill">
+          <div class="b-swatch" style="background:#1B5E20;color:#fff">SC</div>
+          <div><div class="b-name">Sicredi Pioneira</div><div class="b-sub">Planejamento Financeiro</div></div>
+        </div>
+      </div>
+      <div class="brand-col">
+        <div class="brand-from">Exemplo assessoria</div>
+        <div class="brand-pill">
+          <div class="b-swatch" style="background:#BF360C;color:#fff">XP</div>
+          <div><div class="b-name">XP Assessores</div><div class="b-sub">Consultor Patrimonial</div></div>
+        </div>
+        <br>
+        <div class="brand-pill">
+          <div class="b-swatch" style="background:#4A148C;color:#fff">AA</div>
+          <div><div class="b-name">AAI Partners</div><div class="b-sub">Simulador de Objetivos</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVES -->
+<section class="sec objectives" id="modulos">
+  <div class="sec-in">
+    <div class="sec-hdr reveal">
+      <div>
+        <div class="sec-tag">Os Módulos</div>
+        <h2>Oito objetivos de vida,<br><em>uma conversa completa.</em></h2>
+      </div>
+      <p class="sec-desc">Cada módulo tem interface, matemática e narrativa próprias. O assessor seleciona o objetivo e a ferramenta adapta o fluxo inteiro em tempo real.</p>
+    </div>
+    <div class="obj-table reveal">
+      <div class="obj-cell on"><span class="obj-n">01</span><div class="obj-name">Aposentadoria</div><div class="obj-desc">Acumulação, renda dos juros, TSR e comparativo de múltiplos prazos</div></div>
+      <div class="obj-cell"><span class="obj-n">02</span><div class="obj-name">Compra de Imóvel</div><div class="obj-desc">Simulação de entrada e financiamento com custo real de adiar a decisão</div></div>
+      <div class="obj-cell"><span class="obj-n">03</span><div class="obj-name">Complemento de Renda</div><div class="obj-desc">Patrimônio mínimo para gerar renda permanente sem consumir o principal</div></div>
+      <div class="obj-cell"><span class="obj-n">04</span><div class="obj-name">Educação dos Filhos</div><div class="obj-desc">Acumulação com inflação educacional e horizonte personalizado por filho</div></div>
+      <div class="obj-cell"><span class="obj-n">05</span><div class="obj-name">Abertura de Empresa</div><div class="obj-desc">Capital de giro, reserva operacional e análise do horizonte de maturação</div></div>
+      <div class="obj-cell"><span class="obj-n">06</span><div class="obj-name">Reserva Estratégica</div><div class="obj-desc">Proteção patrimonial e liquidez estruturada para imprevistos de longo prazo</div></div>
+      <div class="obj-cell"><span class="obj-n">07</span><div class="obj-name">Grande Viagem / Sonho</div><div class="obj-desc">Planejamento de experiências especiais e custo financeiro do adiamento</div></div>
+      <div class="obj-cell"><span class="obj-n">08</span><div class="obj-name">Sucessão Patrimonial</div><div class="obj-desc">Transferência eficiente de riqueza com análise de custo sucessório</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<div class="demo-sec" id="demo">
+  <div class="demo-hdr">
+    <div class="demo-hdr-in">
+      <div>
+        <div class="sec-tag">Demo ao Vivo</div>
+        <h2 style="margin-bottom:0">Esta é a ferramenta real.<br><em>Sem cadastro, agora.</em></h2>
+      </div>
+      <p style="font-size:15px;color:var(--muted);line-height:1.7;max-width:400px;font-weight:400;flex-shrink:0">Selecione um objetivo de vida, ajuste os parâmetros e veja o resultado em tempo real. A mesma ferramenta que será entregue com a sua marca.</p>
+    </div>
+  </div>
+  <div class="demo-frame-outer">
+    <div class="demo-bar">
+      <div class="demo-dots">
+        <div class="demo-dot" style="background:#FF5F57"></div>
+        <div class="demo-dot" style="background:#FFBD2E"></div>
+        <div class="demo-dot" style="background:#28CA41"></div>
+      </div>
+      <div class="demo-addr">planinvest.com.br/demo · Simulador Patrimonial — Versão Demonstração</div>
+    </div>
+    <iframe class="demo-iframe" src="simulator.html" title="Simulador Patrimonial Planinvest"></iframe>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="sec how" id="como">
+  <div class="sec-in">
+    <div class="sec-hdr reveal">
+      <div>
+        <div class="sec-tag">Processo</div>
+        <h2>Da contratação à<br>primeira reunião<br><em>em 48 horas.</em></h2>
+      </div>
+      <p class="sec-desc">Nenhum processo burocrático. Você envia os elementos da marca, a equipe entrega a ferramenta pronta — instalada onde for mais conveniente para a sua operação.</p>
+    </div>
+    <div class="how-steps reveal">
+      <div class="how-step"><div class="step-n">01</div><div class="step-title">Contato & Briefing</div><div class="step-body">Você nos envia logo, paleta de cores, nome da ferramenta e dados de contato. Respondemos com proposta personalizada em até 24 horas.</div></div>
+      <div class="how-step"><div class="step-n">02</div><div class="step-title">Personalização & Entrega</div><div class="step-body">Aplicamos a identidade visual, configuramos os parâmetros e entregamos o arquivo — ou fazemos o deploy direto na intranet da sua instituição.</div></div>
+      <div class="how-step"><div class="step-n">03</div><div class="step-title">Use na Próxima Reunião</div><div class="step-body">Nenhum treinamento técnico necessário. Sua equipe abre o navegador e já tem uma ferramenta de nível institucional disponível para o cliente.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PULL QUOTE -->
+<div class="pullquote">
+  <div class="pq-in reveal">
+    <div class="pq-rule"></div>
+    <div class="pq-text">"A reunião mudou de caráter. Antes apresentávamos produtos. Hoje <strong>construímos um projeto de vida junto com o cliente</strong> — e ele mesmo pede para continuar."</div>
+    <div class="pq-source">Assessor de Investimentos · Cooperativa de Crédito · Sul do Brasil</div>
+  </div>
+</div>
+
+<!-- PLANS -->
+<section class="sec plans" id="planos">
+  <div class="sec-in">
+    <div class="sec-hdr reveal">
+      <div>
+        <div class="sec-tag">Planos</div>
+        <h2>Escolha o modelo<br><em>certo para sua equipe.</em></h2>
+      </div>
+      <p class="sec-desc">Todos os planos incluem a ferramenta completa com os 8 objetivos e suporte na implantação. Sem contrato de adesão no plano Starter.</p>
+    </div>
+    <div class="plans-grid reveal">
+      <div class="plan-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><span class="plan-cur">R$</span><span class="plan-amt">990</span></div>
+        <div class="plan-per">licença única · uso vitalício</div>
+        <div class="plan-desc">Para equipes pequenas e assessores que querem uma ferramenta profissional com identidade própria, sem recorrência mensal.</div>
+        <ul class="plan-items">
+          <li>Ferramenta completa (8 objetivos)</li>
+          <li>Personalização de logo e cores</li>
+          <li>Arquivo HTML para uso local</li>
+          <li>1 revisão de personalização</li>
+          <li class="off">Deploy em servidor/intranet</li>
+          <li class="off">Atualizações de versão</li>
+        </ul>
+        <a href="#contato" class="plan-btn btn-border">Solicitar Starter</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="feat-mark">Mais Escolhido</div>
+        <div class="plan-name">Institucional</div>
+        <div class="plan-price"><span class="plan-cur">R$</span><span class="plan-amt">290</span></div>
+        <div class="plan-per">/mês · mínimo 12 meses</div>
+        <div class="plan-desc">Para cooperativas e assessorias que querem a ferramenta como parte permanente da operação, com suporte contínuo e atualizações.</div>
+        <ul class="plan-items">
+          <li>Ferramenta completa (8 objetivos)</li>
+          <li>Personalização completa de marca</li>
+          <li>Deploy na intranet institucional</li>
+          <li>Atualizações automáticas de versão</li>
+          <li>Suporte via WhatsApp e e-mail</li>
+          <li class="off">Módulos desenvolvidos sob demanda</li>
+        </ul>
+        <a href="#contato" class="plan-btn btn-inv">Solicitar Institucional</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price"><span class="plan-amt" style="font-size:38px">Consulta</span></div>
+        <div class="plan-per">proposta sob medida</div>
+        <div class="plan-desc">Para redes de cooperativas, bancos e plataformas com múltiplas agências que precisam de uma solução integrada e escalável.</div>
+        <ul class="plan-items">
+          <li>Tudo do plano Institucional</li>
+          <li>Múltiplas agências e filiais</li>
+          <li>Integração com sistemas internos</li>
+          <li>Módulos desenvolvidos sob demanda</li>
+          <li>SLA de suporte dedicado</li>
+          <li>Gestão de acesso por assessor</li>
+        </ul>
+        <a href="#contato" class="plan-btn btn-border">Falar com a Equipe</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec contact" id="contato">
+  <div class="contact-in">
+    <div class="contact-left reveal">
+      <div class="sec-tag">Contato</div>
+      <h2>Vamos conversar<br>sobre a sua<br><em>operação.</em></h2>
+      <p>Preencha o formulário e nossa equipe responde em até 1 dia útil com uma proposta personalizada para o tamanho e perfil da sua instituição.</p>
+      <div class="cd-list">
+        <div class="cd-item">
+          <div class="cd-box"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.02 1.13 2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div><div class="cd-label">WhatsApp</div><div class="cd-val">Resposta em até 2 horas</div></div>
+        </div>
+        <div class="cd-item">
+          <div class="cd-box"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div><div class="cd-label">E-mail</div><div class="cd-val">contato@planinvest.com.br</div></div>
+        </div>
+        <div class="cd-item">
+          <div class="cd-box"><svg width="18" height="18" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div><div class="cd-label">Horário</div><div class="cd-val">Segunda a sexta, 9h às 18h</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form reveal" style="transition-delay:.1s">
+      <div class="cf-row">
+        <div class="cf-field"><label class="cf-label">Nome</label><input class="cf-in" type="text" placeholder="Seu nome completo"></div>
+        <div class="cf-field"><label class="cf-label">Cargo</label><input class="cf-in" type="text" placeholder="Ex: Gerente de Negócios"></div>
+      </div>
+      <div class="cf-field"><label class="cf-label">Instituição</label><input class="cf-in" type="text" placeholder="Nome da cooperativa ou assessoria"></div>
+      <div class="cf-row">
+        <div class="cf-field"><label class="cf-label">E-mail</label><input class="cf-in" type="email" placeholder="seu@email.com"></div>
+        <div class="cf-field"><label class="cf-label">WhatsApp</label><input class="cf-in" type="tel" placeholder="(00) 00000-0000"></div>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label">Plano de Interesse</label>
+        <select class="cf-sel cf-in">
+          <option value="">Selecione um plano</option>
+          <option>Starter — Licença Única R$ 990</option>
+          <option>Institucional — R$ 290/mês</option>
+          <option>Enterprise — Sob Consulta</option>
+          <option>Ainda não sei, quero conhecer</option>
+        </select>
+      </div>
+      <div class="cf-field"><label class="cf-label">Mensagem (opcional)</label><textarea class="cf-ta" placeholder="Conte sobre sua operação ou dúvidas específicas..."></textarea></div>
+      <button class="cf-submit" onclick="handleSub(this)">Solicitar Proposta Personalizada →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-left">
+    <div class="logo-mark" style="width:28px;height:28px;font-size:14px">P</div>
+    <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--ink)">Planinvest</span>
+  </div>
+  <div class="foot-copy">© 2025 Planinvest · Simulador Patrimonial White Label</div>
+  <div class="foot-links">
+    <a href="#">Termos de Uso</a>
+    <a href="#">Privacidade</a>
+    <a href="#contato">Contato</a>
+  </div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target)}});
+},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+document.querySelectorAll('.obj-cell').forEach(c=>{
+  c.addEventListener('click',function(){
+    document.querySelectorAll('.obj-cell').forEach(x=>x.classList.remove('on'));
+    this.classList.add('on');
+  });
+});
+
+function handleSub(btn){
+  btn.textContent='✓ Solicitação enviada — responderemos em breve.';
+  btn.style.background='#2E7D32';btn.disabled=true;
+}
+</script>
+</body>
+</html>
