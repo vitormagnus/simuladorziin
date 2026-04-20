@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nortevo — Planejamento financeiro para quem já tem marca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#111714;--ink-2:#1e2722;--ink-3:#2b3530;
+  --paper:#efeadd;--paper-2:#e6e0cf;--paper-3:#f6f2e9;
+  --brass:#b89256;--brass-2:#d4b37a;--brass-3:#f0d4a0;
+  --rule:#d8d1bf;--mute:#807766;--foam:#f4f0e3;
+  --green:#1a6b3c;--green-2:#22a05a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Geist',sans-serif;font-weight:400;background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.serif{font-family:'Instrument Serif',serif;font-weight:400}
+.mono{font-family:'Geist Mono',monospace}
+
+/* ── GRAIN ── */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.18;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");background-size:200px 200px}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(17,23,20,.85);backdrop-filter:blur(20px);transition:all .3s}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--paper)}
+.nav-logo{width:28px;height:28px}
+.nav-wordmark{font-family:'Instrument Serif',serif;font-size:20px;letter-spacing:-.01em}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.5);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--paper)}
+.nav-pill{padding:9px 20px;background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:background .2s;font-weight:500}
+.nav-pill:hover{background:var(--brass-2)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;grid-template-rows:1fr auto;padding-top:64px;position:relative;overflow:hidden;background:var(--ink)}
+.hero-bg{position:absolute;inset:0;pointer-events:none}
+.hero-grid-lines{position:absolute;inset:0;opacity:.04}
+.hero-glow{position:absolute;top:-20%;right:-10%;width:700px;height:700px;background:radial-gradient(circle,rgba(184,146,86,.18) 0%,transparent 65%);pointer-events:none}
+.hero-glow-2{position:absolute;bottom:-20%;left:-5%;width:500px;height:500px;background:radial-gradient(circle,rgba(26,107,60,.12) 0%,transparent 65%);pointer-events:none}
+
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;padding:80px 48px 60px;max-width:1440px;margin:0 auto;width:100%}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid rgba(184,146,86,.3);border-radius:100px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin-bottom:32px;background:rgba(184,146,86,.06)}
+.hero-badge .dot{width:6px;height:6px;background:var(--brass);border-radius:50%;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(184,146,86,.5)}80%{box-shadow:0 0 0 8px rgba(184,146,86,0)}100%{box-shadow:0 0 0 0 rgba(184,146,86,0)}}
+.hero-h1{font-family:'Instrument Serif',serif;font-size:clamp(56px,5.5vw,88px);line-height:.9;letter-spacing:-.025em;margin-bottom:28px}
+.hero-h1 em{color:var(--brass);font-style:italic}
+.hero-sub{font-size:16px;line-height:1.65;color:rgba(239,234,221,.6);margin-bottom:40px;max-width:460px}
+.hero-actions{display:flex;gap:12px;align-items:center;margin-bottom:56px}
+.btn-cta{padding:14px 28px;background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;display:inline-block;border-radius:2px;transition:all .2s;font-weight:500}
+.btn-cta:hover{background:var(--brass-2);transform:translateY(-1px)}
+.btn-secondary{padding:13px 28px;background:transparent;color:var(--paper);font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.15);border-radius:2px;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-secondary:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden}
+.hero-stat{padding:20px 24px;border-right:1px solid rgba(255,255,255,.08)}
+.hero-stat:last-child{border-right:0}
+.hero-stat-val{font-family:'Instrument Serif',serif;font-size:36px;letter-spacing:-.02em;color:var(--paper);line-height:1}
+.hero-stat-val em{color:var(--brass);font-style:italic}
+.hero-stat-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.4);margin-top:6px}
+
+/* Hero right — mockup */
+.hero-mockup{position:relative}
+.mockup-window{background:#0a0f0c;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;box-shadow:0 60px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);transform:perspective(1000px) rotateY(-4deg) rotateX(2deg);transition:transform .5s ease}
+.mockup-window:hover{transform:perspective(1000px) rotateY(-1deg) rotateX(1deg)}
+.mockup-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#060c09;border-bottom:1px solid rgba(255,255,255,.06)}
+.mockup-dots{display:flex;gap:5px}
+.mockup-dots span{width:10px;height:10px;border-radius:50%;background:#1e2820}
+.mockup-url{flex:1;text-align:center;font-family:'Geist Mono',monospace;font-size:11px;color:#4d6055}
+.mockup-url b{color:#8faa98}
+.mockup-body{display:grid;grid-template-columns:220px 1fr;min-height:480px}
+.mockup-side{background:#080e0b;border-right:1px solid rgba(255,255,255,.05);padding:16px 12px}
+.mockup-brand-row{display:flex;align-items:center;gap:10px;padding:8px 10px 16px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:14px}
+.mockup-brand-logo{width:26px;height:26px;border-radius:5px;background:var(--brass);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:14px;color:#1a1406}
+.mockup-brand-name{font-family:'Instrument Serif',serif;font-size:16px;color:var(--paper);line-height:1}
+.mockup-brand-sub{font-family:'Geist Mono',monospace;font-size:8.5px;color:#4d6055;letter-spacing:.12em;text-transform:uppercase}
+.mockup-nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;font-size:12px;color:#5a7060;cursor:default;margin-bottom:2px}
+.mockup-nav-item.active{background:#111a14;color:#d5dbe5}
+.mockup-nav-item svg{opacity:.6;flex-shrink:0}
+.mockup-nav-item.active svg{opacity:1}
+.mockup-section-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.16em;color:#3a4e3f;text-transform:uppercase;padding:12px 10px 6px;margin-top:4px}
+.mockup-main{padding:24px 28px;background:#0d1410;overflow:hidden}
+.mockup-breadcrumb{font-family:'Geist Mono',monospace;font-size:10px;color:#4d6055;letter-spacing:.12em;margin-bottom:12px}
+.mockup-title{font-family:'Instrument Serif',serif;font-size:32px;color:var(--paper);letter-spacing:-.015em;margin-bottom:6px;line-height:1.1}
+.mockup-subtitle{font-family:'Geist Mono',monospace;font-size:10px;color:#4d6055;letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px}
+.mockup-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.mockup-kpi{background:#0a0f0c;border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:14px}
+.mockup-kpi-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;color:#4d6055;text-transform:uppercase;margin-bottom:8px}
+.mockup-kpi-val{font-family:'Instrument Serif',serif;font-size:24px;color:var(--paper);line-height:1}
+.mockup-kpi-val.brass{color:var(--brass)}
+.mockup-kpi-delta{font-family:'Geist Mono',monospace;font-size:9px;color:#4d9e6a;margin-top:4px}
+.mockup-chart{background:#0a0f0c;border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:16px;margin-bottom:14px}
+.mockup-chart-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;color:#4d6055;text-transform:uppercase;margin-bottom:14px;display:flex;justify-content:space-between}
+.chart-area{height:80px;position:relative;display:flex;align-items:flex-end;gap:0}
+.chart-line{position:absolute;inset:0}
+.chart-badge{position:absolute;right:0;top:4px;font-family:'Geist Mono',monospace;font-size:9px;color:var(--brass);background:rgba(184,146,86,.12);padding:2px 6px;border-radius:2px}
+.mockup-obj-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.04)}
+.mockup-obj-icon{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mockup-obj-name{font-family:'Instrument Serif',serif;font-size:13px;color:var(--paper);flex:1}
+.mockup-obj-sub{font-family:'Geist Mono',monospace;font-size:9px;color:#4d6055;letter-spacing:.08em}
+.mockup-obj-val{font-family:'Geist Mono',monospace;font-size:10px;color:var(--brass)}
+.mockup-tag{position:absolute;top:-10px;right:20px;background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:100px;font-weight:500}
+
+/* Marquee */
+.marquee{border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 0;overflow:hidden;background:rgba(255,255,255,.02)}
+.marquee-track{display:flex;animation:marquee 50s linear infinite;white-space:nowrap;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.3)}
+.marquee-track span{display:inline-flex;align-items:center;gap:28px;padding-right:28px}
+.marquee-track span::after{content:"◦";color:var(--brass)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── SECTIONS ── */
+.section{padding:100px 48px;position:relative;max-width:1440px;margin:0 auto;width:100%}
+.section-wrap{border-top:1px solid rgba(255,255,255,.07)}
+.section-wrap.light{background:var(--paper);border-top:none}
+.section-wrap.light .section{color:var(--ink)}
+.section-wrap.mid{background:#0a0f0c;border-top:1px solid rgba(255,255,255,.06)}
+
+.sec-eyebrow{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.sec-eyebrow::before{content:'';width:32px;height:1px;background:var(--brass);opacity:.5}
+.sec-h2{font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,64px);line-height:.95;letter-spacing:-.025em;margin-bottom:20px}
+.sec-h2 em{color:var(--brass);font-style:italic}
+.sec-body{font-size:16px;line-height:1.65;color:rgba(239,234,221,.6);max-width:520px}
+.section-wrap.light .sec-body{color:rgba(17,23,20,.6)}
+
+/* Value props */
+.value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;margin-top:64px}
+.value-card{background:#111714;padding:40px;transition:background .3s;position:relative;overflow:hidden}
+.value-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(184,146,86,.06) 0%,transparent 60%);opacity:0;transition:opacity .4s}
+.value-card:hover{background:#141c17}
+.value-card:hover::before{opacity:1}
+.value-icon{width:48px;height:48px;border:1px solid rgba(184,146,86,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;background:rgba(184,146,86,.06)}
+.value-title{font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:12px;line-height:1.1}
+.value-body{font-size:14px;color:rgba(239,234,221,.55);line-height:1.65}
+
+/* How it works */
+.steps-visual{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:64px}
+.steps-list{display:flex;flex-direction:column;gap:0}
+.step-item{display:grid;grid-template-columns:48px 1fr;gap:20px;padding:28px 0;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .2s}
+.step-item:last-child{border-bottom:0}
+.step-item.active .step-num{background:var(--brass);color:#1a1406;border-color:var(--brass)}
+.step-item.active .step-title{color:var(--paper)}
+.step-num{width:44px;height:44px;border:1px solid rgba(255,255,255,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:20px;color:rgba(239,234,221,.3);transition:all .3s;flex-shrink:0}
+.step-title{font-family:'Instrument Serif',serif;font-size:22px;color:rgba(239,234,221,.4);margin-bottom:8px;transition:color .3s;line-height:1.1}
+.step-desc{font-size:13.5px;color:rgba(239,234,221,.4);line-height:1.6;display:none}
+.step-item.active .step-desc{display:block;color:rgba(239,234,221,.6)}
+.steps-preview{background:#0a0f0c;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;min-height:400px;position:relative}
+.step-preview-panel{display:none;padding:32px;animation:fadeIn .3s ease}
+.step-preview-panel.visible{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.preview-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:20px}
+.preview-screen{background:#060c09;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:20px;position:relative}
+
+/* Features bento */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:auto auto;gap:12px;margin-top:64px}
+.bento-card{background:#0f1712;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:32px;position:relative;overflow:hidden;transition:border-color .3s,background .3s}
+.bento-card:hover{border-color:rgba(184,146,86,.2);background:#111a14}
+.bento-card .card-eyebrow{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:16px}
+.bento-card .card-title{font-family:'Instrument Serif',serif;font-size:26px;line-height:1.1;margin-bottom:10px}
+.bento-card .card-body{font-size:13.5px;color:rgba(239,234,221,.5);line-height:1.6}
+.bento-1{grid-column:span 7}
+.bento-2{grid-column:span 5}
+.bento-3{grid-column:span 4}
+.bento-4{grid-column:span 4}
+.bento-5{grid-column:span 4}
+.bento-visual{margin-top:20px}
+
+/* Simulation chart */
+.sim-chart{height:120px;position:relative;margin-top:8px}
+.sim-axis{position:absolute;bottom:0;left:0;right:0;height:1px;background:rgba(255,255,255,.08)}
+.sim-label{position:absolute;bottom:-18px;font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25);letter-spacing:.08em}
+
+/* Goals mini */
+.goal-pill{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;margin-bottom:8px}
+.goal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.goal-name{font-size:13px;flex:1;color:rgba(239,234,221,.7)}
+.goal-bar-wrap{width:80px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.goal-bar{height:100%;border-radius:2px;background:var(--brass)}
+.goal-pct{font-family:'Geist Mono',monospace;font-size:9px;color:var(--brass);margin-left:6px}
+
+/* Scenario toggle */
+.scenario-tabs{display:flex;gap:4px;margin-bottom:16px;background:rgba(255,255,255,.05);padding:4px;border-radius:6px;width:fit-content}
+.scen-tab{padding:6px 14px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(239,234,221,.4);border-radius:4px;cursor:pointer;transition:all .2s}
+.scen-tab.active{background:rgba(184,146,86,.15);color:var(--brass)}
+.scenario-val{font-family:'Instrument Serif',serif;font-size:48px;color:var(--paper);letter-spacing:-.02em;line-height:1}
+.scenario-val .unit{font-size:20px;color:var(--mute);font-family:'Geist',sans-serif}
+
+/* PDF mockup */
+.pdf-preview{background:#1a1a14;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:20px;font-size:12px}
+.pdf-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.pdf-logo-area{display:flex;align-items:center;gap:8px}
+.pdf-client-name{font-family:'Instrument Serif',serif;font-size:18px;color:var(--paper)}
+.pdf-meta{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.3);letter-spacing:.1em}
+.pdf-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.pdf-kpi{background:rgba(255,255,255,.04);border-radius:5px;padding:10px;border:1px solid rgba(255,255,255,.06)}
+.pdf-kpi-l{font-family:'Geist Mono',monospace;font-size:8px;color:rgba(239,234,221,.35);letter-spacing:.12em;text-transform:uppercase}
+.pdf-kpi-v{font-family:'Instrument Serif',serif;font-size:20px;color:var(--paper)}
+
+/* Logos section */
+.logos-row{display:flex;align-items:center;justify-content:center;gap:0;border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;margin-top:48px}
+.logo-slot{flex:1;padding:28px;border-right:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;opacity:.35;transition:opacity .3s;cursor:default}
+.logo-slot:last-child{border-right:0}
+.logo-slot:hover{opacity:.7}
+.logo-text{font-family:'Instrument Serif',serif;font-size:20px;color:var(--paper);letter-spacing:-.01em}
+
+/* Testimonials */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:56px}
+.testi-card{background:#0f1712;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:32px;position:relative}
+.testi-stars{display:flex;gap:3px;margin-bottom:20px}
+.testi-stars span{color:var(--brass);font-size:14px}
+.testi-quote{font-family:'Instrument Serif',serif;font-size:19px;line-height:1.3;color:var(--paper);margin-bottom:24px;letter-spacing:-.01em}
+.testi-quote em{color:var(--brass);font-style:italic}
+.testi-attr{display:flex;align-items:center;gap:12px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07)}
+.testi-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:15px;color:var(--ink);flex-shrink:0}
+.testi-name{font-size:13px;font-weight:500;color:var(--paper)}
+.testi-role{font-family:'Geist Mono',monospace;font-size:9.5px;color:rgba(239,234,221,.35);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+
+/* Pricing */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:56px}
+.plan{background:#0f1712;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:40px;position:relative;transition:border-color .3s}
+.plan:hover{border-color:rgba(255,255,255,.15)}
+.plan.featured{background:transparent;border:1px solid var(--brass);position:relative}
+.plan.featured::before{content:'';position:absolute;inset:0;border-radius:11px;background:linear-gradient(135deg,rgba(184,146,86,.08) 0%,transparent 60%)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:4px 14px;border-radius:100px;white-space:nowrap;font-weight:500}
+.plan-tier{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(239,234,221,.35);margin-bottom:16px}
+.plan-name{font-family:'Instrument Serif',serif;font-size:32px;color:var(--paper);margin-bottom:8px}
+.plan-desc{font-size:13px;color:rgba(239,234,221,.45);line-height:1.55;margin-bottom:24px;min-height:40px}
+.plan-price{font-family:'Instrument Serif',serif;font-size:52px;line-height:1;letter-spacing:-.025em;color:var(--paper);margin-bottom:4px}
+.plan.featured .plan-price{color:var(--brass)}
+.plan-cadence{font-family:'Geist Mono',monospace;font-size:9.5px;color:rgba(239,234,221,.3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:28px}
+.plan-divider{height:1px;background:rgba(255,255,255,.07);margin-bottom:24px}
+.plan-features{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.plan-feat{display:flex;align-items:baseline;gap:10px;font-size:13.5px;color:rgba(239,234,221,.65)}
+.plan-feat::before{content:"—";color:var(--brass);font-family:'Geist Mono',monospace;font-size:11px;flex-shrink:0}
+.plan-btn{display:block;width:100%;padding:14px;text-align:center;font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--paper);cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.plan-btn:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.3)}
+.plan.featured .plan-btn{background:var(--brass);color:#1a1406;border-color:var(--brass);font-weight:500}
+.plan.featured .plan-btn:hover{background:var(--brass-2)}
+
+/* FAQ */
+.faq-list{margin-top:56px;border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden}
+.faq-item{border-bottom:1px solid rgba(255,255,255,.07)}
+.faq-item:last-child{border-bottom:0}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:24px 28px;cursor:pointer;transition:background .2s}
+.faq-q:hover{background:rgba(255,255,255,.03)}
+.faq-q-text{font-family:'Instrument Serif',serif;font-size:20px;color:var(--paper)}
+.faq-icon{color:var(--brass);font-size:20px;transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-a{display:none;padding:0 28px 24px;font-size:14.5px;color:rgba(239,234,221,.55);line-height:1.7}
+.faq-item.open .faq-a{display:block}
+
+/* CTA final */
+.cta-final{padding:0 48px 100px;max-width:1440px;margin:0 auto}
+.cta-card{background:#0a0f0c;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:80px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;overflow:hidden}
+.cta-card::before{content:'';position:absolute;top:-50%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(184,146,86,.1) 0%,transparent 60%);pointer-events:none}
+.cta-card::after{content:'';position:absolute;bottom:-50%;left:-5%;width:400px;height:400px;background:radial-gradient(circle,rgba(26,107,60,.08) 0%,transparent 60%);pointer-events:none}
+.cta-h2{font-family:'Instrument Serif',serif;font-size:clamp(44px,4vw,64px);line-height:.95;letter-spacing:-.025em}
+.cta-h2 em{color:var(--brass);font-style:italic}
+.cta-right p{font-size:15.5px;color:rgba(239,234,221,.6);line-height:1.65;margin-bottom:32px}
+.cta-form{display:flex;flex-direction:column;gap:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-input{width:100%;padding:14px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--paper);font-family:'Geist',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.form-input::placeholder{color:rgba(239,234,221,.3)}
+.form-input:focus{border-color:rgba(184,146,86,.4)}
+.form-submit{padding:15px;background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;border:none;cursor:pointer;border-radius:4px;font-weight:500;transition:background .2s}
+.form-submit:hover{background:var(--brass-2)}
+.form-note{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:rgba(239,234,221,.25);text-align:center}
+
+/* Footer */
+footer{border-top:1px solid rgba(255,255,255,.07);padding:56px 48px;display:grid;grid-template-columns:280px 1fr auto;gap:48px;align-items:start;max-width:1440px;margin:0 auto}
+.foot-brand .wm{font-family:'Instrument Serif',serif;font-size:26px;letter-spacing:-.01em;margin-bottom:10px}
+.foot-brand p{font-size:12.5px;color:rgba(239,234,221,.35);line-height:1.6}
+.foot-links{display:flex;gap:64px}
+.foot-col h5{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(239,234,221,.25);margin-bottom:16px}
+.foot-col a{display:block;font-size:13px;color:rgba(239,234,221,.45);text-decoration:none;margin-bottom:10px;transition:color .2s}
+.foot-col a:hover{color:var(--paper)}
+.foot-right{text-align:right;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(239,234,221,.25);text-transform:uppercase;line-height:1.9}
+.foot-right .brass{color:var(--brass)}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.07);padding:20px 48px;display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(239,234,221,.2)}
+
+/* Animations */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+/* Counter animation */
+@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.count-anim{animation:countUp .6s ease forwards}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <svg class="nav-logo" viewBox="0 0 28 28">
+      <g transform="rotate(22 14 14)">
+        <polygon points="14,3 15.8,14 14,14.5 12.2,14" fill="#b89256"/>
+        <polygon points="14,25 15.8,14 14,13.5 12.2,14" fill="#efeadd" opacity=".3"/>
+        <circle cx="14" cy="14" r="2" fill="#0a0f0c"/>
+        <circle cx="14" cy="14" r=".8" fill="#efeadd" opacity=".6"/>
+      </g>
+      <circle cx="14" cy="14" r="12" fill="none" stroke="rgba(239,234,221,.12)" stroke-width=".8"/>
+    </svg>
+    <span class="nav-wordmark">Nortevo</span>
+  </a>
+  <div class="nav-links">
+    <a href="#produto">Produto</a>
+    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#white-label">White-label</a>
+    <a href="#precos">Preços</a>
+    <a href="#demo" class="nav-pill">Demo gratuita →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="position:relative;overflow:hidden;background:var(--ink)">
+<div class="hero-glow"></div>
+<div class="hero-glow-2"></div>
+
+<!-- Grid lines -->
+<svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.04;pointer-events:none" preserveAspectRatio="none">
+  <defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="#efeadd" stroke-width=".5"/></pattern></defs>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+</svg>
+
+<div class="hero" style="min-height:auto;padding-top:64px">
+<div class="hero-inner">
+  <div class="hero-left">
+    <div class="hero-badge reveal"><span class="dot"></span> Plataforma white-label · B2B SaaS</div>
+    <h1 class="hero-h1 reveal reveal-delay-1">
+      O software<br/>
+      que vira<br/>
+      <em>seu</em> software.
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2">Nortevo é a infraestrutura de planejamento financeiro que assessorias, cooperativas e bancos vendem com a própria marca. Você não controla o mercado — <strong style="color:var(--paper)">mas controla a direção do cliente.</strong></p>
+    <div class="hero-actions reveal reveal-delay-3">
+      <a href="#demo" class="btn-cta">Agendar demonstração</a>
+      <a href="#produto" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1"/><polygon points="6.5,5.5 11,8 6.5,10.5" fill="currentColor"/></svg>
+        Ver como funciona
+      </a>
+    </div>
+    <div class="hero-stats reveal">
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="stat1">0</div>
+        <div class="hero-stat-label">Instituições ativas</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="stat2">0</div>
+        <div class="hero-stat-label">Planos gerados</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val"><em>22°</em></div>
+        <div class="hero-stat-label">Azimute da bússola</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mockup -->
+  <div class="hero-mockup reveal reveal-delay-2" style="position:relative">
+    <div class="mockup-tag">Sua marca aqui</div>
+    <div class="mockup-window">
+      <div class="mockup-bar">
+        <div class="mockup-dots"><span></span><span></span><span></span></div>
+        <div class="mockup-url">app.<b>suaempresa</b>.com.br</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-side">
+          <div class="mockup-brand-row">
+            <div class="mockup-brand-logo" id="mockupLogo">A</div>
+            <div>
+              <div class="mockup-brand-name" id="mockupName">Avantis</div>
+              <div class="mockup-brand-sub">Investimentos</div>
+            </div>
+          </div>
+          <div class="mockup-nav-item active">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            Dashboard
+          </div>
+          <div class="mockup-nav-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Clientes
+          </div>
+          <div class="mockup-nav-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="1,10 4,6 7,8 10,3 13,5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Simulador
+          </div>
+          <div class="mockup-nav-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="4.5" y1="5" x2="9.5" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="4.5" y1="10" x2="7" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Relatórios
+          </div>
+          <div class="mockup-section-label">Objetivos</div>
+          <div class="mockup-nav-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.8 3.6L13 5.3l-3 2.9.7 4.1L7 10.3 3.3 12.3l.7-4.1-3-2.9 4.2-.7z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Aposentadoria
+          </div>
+        </div>
+        <div class="mockup-main">
+          <div class="mockup-breadcrumb">Dashboard · Visão geral</div>
+          <div class="mockup-title">Bom dia, Lucas</div>
+          <div class="mockup-subtitle">12 clientes ativos · Semana 16, 2026</div>
+          <div class="mockup-kpis">
+            <div class="mockup-kpi">
+              <div class="mockup-kpi-label">Patrimônio total</div>
+              <div class="mockup-kpi-val brass">R$4.2M</div>
+              <div class="mockup-kpi-delta">↑ +8.4% no ano</div>
+            </div>
+            <div class="mockup-kpi">
+              <div class="mockup-kpi-label">Clientes no plano</div>
+              <div class="mockup-kpi-val">12/15</div>
+              <div class="mockup-kpi-delta">↑ 3 novos</div>
+            </div>
+            <div class="mockup-kpi">
+              <div class="mockup-kpi-label">Meta IPCA+</div>
+              <div class="mockup-kpi-val">6.4%</div>
+              <div class="mockup-kpi-delta">real anual</div>
+            </div>
+          </div>
+          <div class="mockup-chart">
+            <div class="mockup-chart-label">
+              <span>Evolução patrimonial projetada</span>
+              <span style="color:var(--brass)">Cenário base</span>
+            </div>
+            <div class="chart-area">
+              <svg viewBox="0 0 420 80" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+                <defs>
+                  <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#b89256" stop-opacity=".18"/>
+                    <stop offset="100%" stop-color="#b89256" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,75 C40,70 80,62 120,55 C160,48 200,42 240,34 C280,26 320,18 360,12 L420,5 L420,80 L0,80 Z" fill="url(#cg)"/>
+                <path d="M0,75 C40,70 80,62 120,55 C160,48 200,42 240,34 C280,26 320,18 360,12 L420,5" fill="none" stroke="#b89256" stroke-width="1.5"/>
+                <circle cx="420" cy="5" r="3" fill="#b89256"/>
+              </svg>
+              <div class="chart-badge">R$ 8.7M</div>
+            </div>
+          </div>
+          <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#4d6055;margin-bottom:8px">Objetivos em curso</div>
+          <div class="mockup-obj-row">
+            <div class="mockup-obj-icon" style="background:rgba(184,146,86,.15)">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.3.5-2.4 2.3.6 3.2L7 8.5 4 10l.6-3.2L2.2 4.5 5.5 4z" fill="#b89256"/></svg>
+            </div>
+            <div class="mockup-obj-icon" style="display:none"></div>
+            <div style="flex:1">
+              <div class="mockup-obj-name">Aposentadoria</div>
+              <div class="mockup-obj-sub">Prazo: 18 anos · R$12k/mês real</div>
+            </div>
+            <div class="mockup-obj-val">68%</div>
+          </div>
+          <div class="mockup-obj-row">
+            <div class="mockup-obj-icon" style="background:rgba(26,160,90,.12)">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="#22a05a" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div style="flex:1">
+              <div class="mockup-obj-name">Educação filhos</div>
+              <div class="mockup-obj-sub">Prazo: 8 anos · R$3.5k/mês</div>
+            </div>
+            <div class="mockup-obj-val" style="color:#22a05a">42%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Marquee -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Norte intencional</span><span>Plataforma white-label</span><span>B2B SaaS</span><span>Direção, não destino</span><span>Assessorias · Cooperativas · Bancos</span><span>Norte + novo</span><span>22° é identidade, não erro</span><span>Infraestrutura invisível</span>
+    <span>Norte intencional</span><span>Plataforma white-label</span><span>B2B SaaS</span><span>Direção, não destino</span><span>Assessorias · Cooperativas · Bancos</span><span>Norte + novo</span><span>22° é identidade, não erro</span><span>Infraestrutura invisível</span>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- LOGOS / SOCIAL PROOF -->
+<div style="border-top:1px solid rgba(255,255,255,.06);padding:48px;max-width:1440px;margin:0 auto">
+  <p style="text-align:center;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(239,234,221,.25);margin-bottom:36px">Já usado por</p>
+  <div class="logos-row reveal">
+    <div class="logo-slot"><span class="logo-text">Avantis Invest.</span></div>
+    <div class="logo-slot"><span class="logo-text">Cooperativa Serrana</span></div>
+    <div class="logo-slot"><span class="logo-text">Vértice Capital</span></div>
+    <div class="logo-slot"><span class="logo-text">Alto Norte AAI</span></div>
+    <div class="logo-slot"><span class="logo-text">Primus Assessoria</span></div>
+  </div>
+</div>
+
+<!-- VALOR -->
+<div class="section-wrap mid" id="produto">
+<div class="section">
+  <div class="sec-eyebrow reveal">O problema que resolvemos</div>
+  <h2 class="sec-h2 reveal">Cada assessoria merece<br/>uma ferramenta <em>com sua cara</em>.<br/>Poucas têm.</h2>
+  <p class="sec-body reveal" style="margin-bottom:0">Construir do zero leva anos e milhões. Usar ferramentas genéricas enfraquece a marca. Planilhas não escalam. Nortevo é a terceira via — tecnologia de ponta, entregue invisível, com a sua identidade.</p>
+
+  <div class="value-grid reveal">
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" rx="2" stroke="#b89256" stroke-width="1.5"/><rect x="12" y="2" width="8" height="8" rx="2" stroke="#b89256" stroke-width="1.5"/><rect x="2" y="12" width="8" height="8" rx="2" stroke="#b89256" stroke-width="1.5"/><circle cx="16" cy="16" r="4" stroke="#b89256" stroke-width="1.5"/><line x1="16" y1="13.5" x2="16" y2="18.5" stroke="#b89256" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="16" x2="18.5" y2="16" stroke="#b89256" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="value-title">100% white-label</div>
+      <div class="value-body">Seu logo, suas cores, seu domínio. O cliente final nunca vê "Nortevo" — só a sua marca. Cada detalhe da interface reflete a identidade da sua instituição.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="2,16 6,10 10,13 14,6 20,9" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="9" r="2" fill="#b89256"/></svg>
+      </div>
+      <div class="value-title">Fórmulas financeiras precisas</div>
+      <div class="value-body">Equação de Fisher, IR progressivo, anuidade inversa, retorno real. Não é estimativa — é o mesmo cálculo que um CFP faria manualmente, em tempo real.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2l2.4 4.8 5.3.8-3.8 3.7.9 5.2L11 14l-4.8 2.5.9-5.2-3.8-3.7 5.3-.8z" stroke="#b89256" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="value-title">Pronto em dias, não meses</div>
+      <div class="value-body">Configuração do white-label em menos de 48h. Upload do logo, ajuste das cores, domínio customizado. Seu time de assessores usando na próxima reunião.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="5" width="18" height="14" rx="2" stroke="#b89256" stroke-width="1.5"/><path d="M6 5V4a5 5 0 0110 0v1" stroke="#b89256" stroke-width="1.5" stroke-linecap="round"/><circle cx="11" cy="12" r="2" stroke="#b89256" stroke-width="1.5"/><line x1="11" y1="14" x2="11" y2="16" stroke="#b89256" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="value-title">Dados do cliente na sua mão</div>
+      <div class="value-body">Você controla os dados. Cada instituição tem seu ambiente isolado. LGPD por padrão, não como adendo. Exportação total quando precisar.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2C6 2 2 6 2 11s4 9 9 9 9-4 9-9-4-9-9-9z" stroke="#b89256" stroke-width="1.5"/><path d="M11 6v5l3 3" stroke="#b89256" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="value-title">Reunião mais produtiva</div>
+      <div class="value-body">O assessor para de abrir planilhas durante a reunião. O cliente vê seu plano tomar forma em tempo real. A conversa sobe de nível.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 17l4-4 3 3 4-5 3 3" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="3" width="18" height="16" rx="2" stroke="#b89256" stroke-width="1.5"/></svg>
+      </div>
+      <div class="value-title">Relatório PDF com sua marca</div>
+      <div class="value-body">Ao fim da reunião, o cliente leva um relatório profissional, com o logo da sua empresa, os cenários discutidos e o plano de ação. Um documento que fortalece sua marca.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FUNCIONALIDADES BENTO -->
+<div class="section-wrap" id="funcionalidades">
+<div class="section">
+  <div class="sec-eyebrow reveal">Funcionalidades</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end">
+    <h2 class="sec-h2 reveal">Tudo que um assessor<br/>precisa. <em>Nada</em> que<br/>ele não precisa.</h2>
+    <p class="sec-body reveal" style="max-width:420px">Uma plataforma focada no que importa: estruturar objetivos, simular cenários e conduzir uma conversa financeira de qualidade.</p>
+  </div>
+
+  <div class="bento reveal">
+    <!-- Simulador -->
+    <div class="bento-card bento-1">
+      <div class="card-eyebrow">Simulador patrimonial</div>
+      <div class="card-title">Projeção com precisão de CFP</div>
+      <div class="card-body">Monte o patrimônio, configure aportes e retiradas, escolha entre preservar o principal ou usar como renda. Inflação real, IR e expectativa de vida incluídos.</div>
+      <div class="bento-visual">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div>
+            <div style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.3);margin-bottom:6px">Patrimônio em 20 anos</div>
+            <div style="font-family:'Instrument Serif',serif;font-size:44px;color:var(--paper);letter-spacing:-.02em;line-height:1">R$<span id="simVal">8,7</span>M</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.3);margin-bottom:6px">Aporte mensal</div>
+            <div style="font-family:'Instrument Serif',serif;font-size:28px;color:var(--brass);line-height:1">R$4.200</div>
+          </div>
+        </div>
+        <svg viewBox="0 0 600 90" style="width:100%;height:80px">
+          <defs>
+            <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#b89256" stop-opacity=".15"/>
+              <stop offset="100%" stop-color="#b89256" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#22a05a" stop-opacity=".1"/>
+              <stop offset="100%" stop-color="#22a05a" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Optimistic -->
+          <path d="M0,80 C80,72 160,60 240,48 C320,36 400,22 500,8 L600,2 L600,90 L0,90Z" fill="url(#sg2)"/>
+          <path d="M0,80 C80,72 160,60 240,48 C320,36 400,22 500,8 L600,2" fill="none" stroke="#22a05a" stroke-width="1" stroke-dasharray="3 2" opacity=".5"/>
+          <!-- Base -->
+          <path d="M0,82 C80,76 160,66 240,56 C320,46 400,33 500,20 L600,14 L600,90 L0,90Z" fill="url(#sg)"/>
+          <path d="M0,82 C80,76 160,66 240,56 C320,46 400,33 500,20 L600,14" fill="none" stroke="#b89256" stroke-width="2"/>
+          <!-- Pessimistic -->
+          <path d="M0,84 C80,80 160,74 240,68 C320,62 400,54 500,44 L600,38" fill="none" stroke="rgba(239,234,221,.2)" stroke-width="1" stroke-dasharray="2 3"/>
+          <!-- Dots -->
+          <circle cx="600" cy="2" r="3" fill="#22a05a"/>
+          <circle cx="600" cy="14" r="3.5" fill="#b89256"/>
+          <circle cx="600" cy="38" r="2.5" fill="rgba(239,234,221,.3)"/>
+          <!-- Labels -->
+          <text x="606" y="6" font-family="Geist Mono,monospace" font-size="9" fill="#22a05a" letter-spacing=".06em">Otimista</text>
+          <text x="606" y="18" font-family="Geist Mono,monospace" font-size="9" fill="#b89256" letter-spacing=".06em">Base</text>
+          <text x="606" y="42" font-family="Geist Mono,monospace" font-size="9" fill="rgba(239,234,221,.3)" letter-spacing=".06em">Conserv.</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Objetivos -->
+    <div class="bento-card bento-2">
+      <div class="card-eyebrow">Objetivos de vida</div>
+      <div class="card-title">Multi-objetivo em paralelo</div>
+      <div class="card-body" style="margin-bottom:20px">Aposentadoria, educação, imóvel, viagem. Cada objetivo com seu prazo e projeção.</div>
+      <div class="goal-pill">
+        <span class="goal-dot" style="background:#b89256"></span>
+        <span class="goal-name">Aposentadoria</span>
+        <div class="goal-bar-wrap"><div class="goal-bar" style="width:68%"></div></div>
+        <span class="goal-pct">68%</span>
+      </div>
+      <div class="goal-pill">
+        <span class="goal-dot" style="background:#22a05a"></span>
+        <span class="goal-name">Educação</span>
+        <div class="goal-bar-wrap"><div class="goal-bar" style="width:42%;background:#22a05a"></div></div>
+        <span class="goal-pct" style="color:#22a05a">42%</span>
+      </div>
+      <div class="goal-pill">
+        <span class="goal-dot" style="background:#5a9abf"></span>
+        <span class="goal-name">Imóvel próprio</span>
+        <div class="goal-bar-wrap"><div class="goal-bar" style="width:25%;background:#5a9abf"></div></div>
+        <span class="goal-pct" style="color:#5a9abf">25%</span>
+      </div>
+      <div class="goal-pill">
+        <span class="goal-dot" style="background:rgba(239,234,221,.25)"></span>
+        <span class="goal-name">Herança planejada</span>
+        <div class="goal-bar-wrap"><div class="goal-bar" style="width:10%;background:rgba(239,234,221,.25)"></div></div>
+        <span class="goal-pct" style="color:rgba(239,234,221,.35)">10%</span>
+      </div>
+    </div>
+
+    <!-- Cenários -->
+    <div class="bento-card bento-3">
+      <div class="card-eyebrow">Cenários econômicos</div>
+      <div class="card-title">Alterne em 1 clique</div>
+      <div style="margin:16px 0">
+        <div class="scenario-tabs">
+          <div class="scen-tab" onclick="setScen(this,'R$6,2M')">Conserv.</div>
+          <div class="scen-tab active" onclick="setScen(this,'R$8,7M')">Base</div>
+          <div class="scen-tab" onclick="setScen(this,'R$11,4M')">Otimista</div>
+        </div>
+        <div class="scenario-val" id="scenVal">R$8,7<span class="unit">M</span></div>
+        <div style="font-family:'Geist Mono',monospace;font-size:9.5px;color:rgba(239,234,221,.3);letter-spacing:.1em;margin-top:4px">em 20 anos · IPCA+6% ao ano</div>
+      </div>
+    </div>
+
+    <!-- Plano de voo -->
+    <div class="bento-card bento-4">
+      <div class="card-eyebrow">Plano de Voo</div>
+      <div class="card-title">A jornada visual</div>
+      <div style="margin-top:16px">
+        <div style="display:flex;align-items:center;gap:0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px">
+          <div style="flex:2;height:100%;background:#b89256;opacity:.9"></div>
+          <div style="flex:3;height:100%;background:#22a05a;opacity:.7;margin-left:2px"></div>
+          <div style="flex:1;height:100%;background:rgba(239,234,221,.2);margin-left:2px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.3);letter-spacing:.08em">
+          <span>Acumulação</span><span>Transição</span><span>Usufruto</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF -->
+    <div class="bento-card bento-5">
+      <div class="card-eyebrow">Relatório PDF</div>
+      <div class="card-title">Com sua marca</div>
+      <div class="pdf-preview" style="margin-top:14px">
+        <div class="pdf-header">
+          <div class="pdf-logo-area">
+            <div style="width:20px;height:20px;background:var(--brass);border-radius:3px"></div>
+            <div style="font-family:'Instrument Serif',serif;font-size:13px;color:var(--paper)">Avantis</div>
+          </div>
+          <div class="pdf-meta">Plano · Abr 2026</div>
+        </div>
+        <div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--paper);margin-bottom:10px">Carlos Eduardo, 42 anos</div>
+        <div class="pdf-row">
+          <div class="pdf-kpi"><div class="pdf-kpi-l">Patrimônio</div><div class="pdf-kpi-v">R$980k</div></div>
+          <div class="pdf-kpi"><div class="pdf-kpi-l">Meta</div><div class="pdf-kpi-v" style="color:var(--brass)">R$3,2M</div></div>
+          <div class="pdf-kpi"><div class="pdf-kpi-l">Prazo</div><div class="pdf-kpi-v">22 anos</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- WHITE LABEL -->
+<div class="section-wrap" id="white-label" style="border-top:1px solid rgba(255,255,255,.07)">
+<div class="section">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center">
+    <div>
+      <div class="sec-eyebrow reveal">White-label</div>
+      <h2 class="sec-h2 reveal">O Nortevo<br/>some. Sua<br/>marca <em>brilha</em>.</h2>
+      <p class="sec-body reveal" style="margin-bottom:40px">Na reunião com o cliente final, só existe a marca da sua instituição. O Nortevo é a infraestrutura invisível que faz tudo funcionar por baixo.</p>
+      <div style="display:flex;flex-direction:column;gap:14px" class="reveal">
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid rgba(255,255,255,.07);border-radius:8px;background:rgba(255,255,255,.02)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#b89256" stroke-width="1.2"/><path d="M7 10l2 2 4-4" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div style="font-size:14px;color:var(--paper);margin-bottom:2px">Domínio próprio</div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(239,234,221,.35)">app.suaempresa.com.br</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid rgba(255,255,255,.07);border-radius:8px;background:rgba(255,255,255,.02)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#b89256" stroke-width="1.2"/><path d="M7 10l2 2 4-4" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div style="font-size:14px;color:var(--paper);margin-bottom:2px">Logo e cores customizados</div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(239,234,221,.35)">Design tokens configuráveis</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid rgba(255,255,255,.07);border-radius:8px;background:rgba(255,255,255,.02)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#b89256" stroke-width="1.2"/><path d="M7 10l2 2 4-4" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div style="font-size:14px;color:var(--paper);margin-bottom:2px">PDFs com identidade visual</div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(239,234,221,.35)">Relatórios sem menção ao Nortevo</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid rgba(255,255,255,.07);border-radius:8px;background:rgba(255,255,255,.02)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#b89256" stroke-width="1.2"/><path d="M7 10l2 2 4-4" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div style="font-size:14px;color:var(--paper);margin-bottom:2px">Configuração em 48h</div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(239,234,221,.35)">Onboarding assistido incluído</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Mockup switcher -->
+    <div class="reveal" style="position:relative">
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button onclick="switchBrand('avantis','A','#b89256')" class="brand-btn active" style="padding:8px 16px;border-radius:20px;border:1px solid rgba(184,146,86,.4);background:rgba(184,146,86,.1);color:var(--brass);font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Avantis</button>
+        <button onclick="switchBrand('Cooperativa','C','#22a05a')" class="brand-btn" style="padding:8px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(239,234,221,.4);font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Cooperativa</button>
+        <button onclick="switchBrand('Vértice','V','#5a9abf')" class="brand-btn" style="padding:8px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(239,234,221,.4);font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Vértice</button>
+      </div>
+      <div class="mockup-window" style="transform:none">
+        <div class="mockup-bar">
+          <div class="mockup-dots"><span></span><span></span><span></span></div>
+          <div class="mockup-url">app.<b id="wl-domain">avantis</b>.com.br</div>
+        </div>
+        <div style="padding:24px;background:#0d1410">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06)">
+            <div id="wl-logo" style="width:32px;height:32px;border-radius:6px;background:#b89256;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:16px;color:#1a1406">A</div>
+            <div>
+              <div id="wl-name" style="font-family:'Instrument Serif',serif;font-size:18px;color:var(--paper)">Avantis Investimentos</div>
+              <div style="font-family:'Geist Mono',monospace;font-size:9px;color:#4d6055;letter-spacing:.12em;text-transform:uppercase">Plataforma de planejamento</div>
+            </div>
+          </div>
+          <div style="font-family:'Instrument Serif',serif;font-size:28px;color:var(--paper);letter-spacing:-.015em;margin-bottom:16px">Bom dia, Maria Clara</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+            <div style="background:#0a0f0c;border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:14px">
+              <div style="font-family:'Geist Mono',monospace;font-size:9px;color:#4d6055;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">Patrimônio atual</div>
+              <div id="wl-val" style="font-family:'Instrument Serif',serif;font-size:26px;color:#b89256">R$ 1,2M</div>
+            </div>
+            <div style="background:#0a0f0c;border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:14px">
+              <div style="font-family:'Geist Mono',monospace;font-size:9px;color:#4d6055;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">Meta em 20 anos</div>
+              <div style="font-family:'Instrument Serif',serif;font-size:26px;color:var(--paper)">R$ 4,8M</div>
+            </div>
+          </div>
+          <div style="background:#0a0f0c;border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:14px">
+            <div style="font-family:'Geist Mono',monospace;font-size:9px;color:#4d6055;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px">Próxima reunião</div>
+            <div style="font-size:13px;color:var(--paper)">Carlos Eduardo · Revisão trimestral</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#4d6055;margin-top:4px">Quinta, 24 Abr · 14h00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- DEPOIMENTOS -->
+<div class="section-wrap mid">
+<div class="section">
+  <div class="sec-eyebrow reveal">Quem usa</div>
+  <h2 class="sec-h2 reveal">O que assessores<br/>dizem depois de <em>30 dias</em></h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="testi-quote">"Minha reunião de duas horas ficou em <em>45 minutos</em>. O cliente entendeu o plano e saiu convencido a aumentar o aporte."</div>
+      <div class="testi-attr">
+        <div class="testi-av" style="background:#b89256">R</div>
+        <div><div class="testi-name">Ricardo M.</div><div class="testi-role">AAI · São Paulo</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal reveal-delay-1">
+      <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="testi-quote">"Antes eu usava planilha e o cliente via <em>Nenhuma marca minha</em> naquilo. Agora vê o logo da cooperativa e sente que é produto nosso."</div>
+      <div class="testi-attr">
+        <div class="testi-av" style="background:#22a05a">A</div>
+        <div><div class="testi-name">Ana Paula S.</div><div class="testi-role">Gerente · Cooperativa Serrana</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal reveal-delay-2">
+      <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="testi-quote">"Em 3 semanas configuramos e treinamos toda a equipe. O <em>ROI veio na primeira renovação</em> de contrato que o software ajudou a fechar."</div>
+      <div class="testi-attr">
+        <div class="testi-av" style="background:#5a9abf">F</div>
+        <div><div class="testi-name">Fernando L.</div><div class="testi-role">Sócio · Vértice Capital</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PRECOS -->
+<div class="section-wrap" id="precos">
+<div class="section">
+  <div class="sec-eyebrow reveal">Preços</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;margin-bottom:0">
+    <h2 class="sec-h2 reveal">Simples. Sem<br/>cobrança por <em>cliente final</em>.</h2>
+    <p class="sec-body reveal">Licença mensal por instituição. Não cobramos por número de clientes ou por plano gerado. Escale sem surpresa na fatura.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="plan reveal">
+      <div class="plan-tier">Para assessores</div>
+      <div class="plan-name">Solo</div>
+      <div class="plan-desc">Assessor autônomo ou escritório pequeno, até 3 usuários.</div>
+      <div class="plan-price">R$490</div>
+      <div class="plan-cadence">por mês · cobrado anualmente</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feat">Simulador patrimonial completo</div>
+        <div class="plan-feat">Até 3 assessores</div>
+        <div class="plan-feat">Relatórios PDF white-label</div>
+        <div class="plan-feat">Domínio personalizado</div>
+        <div class="plan-feat">Clientes ilimitados</div>
+      </div>
+      <a href="#demo" class="plan-btn">Começar agora</a>
+    </div>
+    <div class="plan featured reveal reveal-delay-1">
+      <div class="plan-badge">Mais escolhido</div>
+      <div class="plan-tier">Para assessorias</div>
+      <div class="plan-name">Escritório</div>
+      <div class="plan-desc">Time de assessores com gestão centralizada e premissas compartilhadas.</div>
+      <div class="plan-price">R$1.490</div>
+      <div class="plan-cadence">por mês · cobrado anualmente</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feat">Tudo do Solo</div>
+        <div class="plan-feat">Até 15 assessores</div>
+        <div class="plan-feat">Premissas econômicas customizadas</div>
+        <div class="plan-feat">Dashboard de gestão</div>
+        <div class="plan-feat">Suporte prioritário</div>
+      </div>
+      <a href="#demo" class="plan-btn">Falar com vendas</a>
+    </div>
+    <div class="plan reveal reveal-delay-2">
+      <div class="plan-tier">Para cooperativas e bancos</div>
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-desc">Licença corporativa com SLA, integrações e implantação assistida.</div>
+      <div class="plan-price" style="font-size:40px;padding-top:6px">Sob consulta</div>
+      <div class="plan-cadence">volume · contrato customizado</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feat">Tudo do Escritório</div>
+        <div class="plan-feat">Usuários ilimitados</div>
+        <div class="plan-feat">API e integrações</div>
+        <div class="plan-feat">Implantação assistida</div>
+        <div class="plan-feat">SLA contratual</div>
+      </div>
+      <a href="#demo" class="plan-btn">Entrar em contato</a>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FAQ -->
+<div class="section-wrap mid">
+<div class="section">
+  <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:80px">
+    <div>
+      <div class="sec-eyebrow reveal">FAQ</div>
+      <h2 class="sec-h2 reveal" style="font-size:clamp(36px,3.5vw,52px)">Perguntas<br/><em>frequentes</em></h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">O cliente final vai ver o nome Nortevo em algum lugar?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">Não. Domínio, logo, cores, nome no relatório PDF, e-mails automáticos — tudo aparece com a identidade da sua instituição. O Nortevo é tecnicamente invisível para quem usa.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Quanto tempo leva para configurar?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">O onboarding padrão leva entre 24h e 48h após assinatura do contrato. Upload de logo, ajuste de cores e configuração de domínio. Nosso time acompanha cada etapa.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Os dados dos meus clientes ficam seguros?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">Cada instituição tem seu ambiente isolado. Os dados não são compartilhados entre clientes. Armazenamento em servidores no Brasil, conformidade com LGPD por padrão. Você pode exportar tudo a qualquer momento.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Posso cancelar quando quiser?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">Nos planos anuais, o cancelamento encerra no fim do ciclo sem multas. Nos planos mensais, basta avisar 30 dias antes. Antes de sair, você pode exportar todos os dados dos clientes em formato aberto.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Os cálculos são auditáveis?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">Sim. Cada projeção mostra as premissas usadas: IPCA, retorno real, IR aplicado, horizonte. Um CFP pode replicar qualquer cálculo manualmente. A documentação das fórmulas é pública.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CTA FINAL -->
+<div style="background:var(--ink);border-top:1px solid rgba(255,255,255,.07)">
+<div class="cta-final" id="demo">
+  <div class="cta-card">
+    <div>
+      <div class="sec-eyebrow" style="color:var(--brass);margin-bottom:24px">Próximo passo</div>
+      <h2 class="cta-h2 reveal">Sua marca.<br/>Nossa infra.<br/>Direção <em>certa</em>.</h2>
+      <p style="margin-top:28px;font-size:15px;color:rgba(239,234,221,.4);line-height:1.6;max-width:360px">Demonstração de 30 minutos. Mostramos a plataforma com a identidade visual da sua instituição — antes de qualquer contrato.</p>
+      <div style="margin-top:28px;display:flex;align-items:center;gap:20px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#b89256" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(239,234,221,.35);letter-spacing:.1em;text-transform:uppercase">Sem compromisso</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#b89256" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(239,234,221,.35);letter-spacing:.1em;text-transform:uppercase">Resposta em 24h</span>
+        </div>
+      </div>
+    </div>
+    <div class="cta-right reveal">
+      <p>Preencha abaixo e nossa equipe entra em contato para agendar a demonstração personalizada.</p>
+      <div class="cta-form">
+        <div class="form-row">
+          <input type="text" class="form-input" placeholder="Seu nome">
+          <input type="text" class="form-input" placeholder="Nome da empresa">
+        </div>
+        <div class="form-row">
+          <input type="email" class="form-input" placeholder="E-mail corporativo">
+          <input type="tel" class="form-input" placeholder="WhatsApp">
+        </div>
+        <select class="form-input" style="cursor:pointer">
+          <option value="" disabled selected>Tipo de instituição</option>
+          <option>Assessoria de investimentos</option>
+          <option>Cooperativa de crédito</option>
+          <option>Banco digital</option>
+          <option>Consultoria financeira</option>
+          <option>Outro</option>
+        </select>
+        <button type="button" class="form-submit">Solicitar demonstração →</button>
+        <p class="form-note">Seus dados não são compartilhados. Resposta em até 24h úteis.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div style="background:var(--ink);border-top:1px solid rgba(255,255,255,.06)">
+<footer>
+  <div class="foot-brand">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <svg width="24" height="24" viewBox="0 0 24 24">
+        <g transform="rotate(22 12 12)">
+          <polygon points="12,3 13.5,12 12,12.5 10.5,12" fill="#b89256"/>
+          <polygon points="12,21 13.5,12 12,11.5 10.5,12" fill="rgba(239,234,221,.2)"/>
+        </g>
+        <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(239,234,221,.1)" stroke-width=".8"/>
+      </svg>
+      <div class="wm">Nortevo</div>
+    </div>
+    <p>Infraestrutura de planejamento financeiro white-label para instituições que já têm marca.</p>
+    <p style="margin-top:12px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(239,234,221,.2)">SP · BR · 2025 · AZ 022°</p>
+  </div>
+  <div class="foot-links">
+    <div class="foot-col">
+      <h5>Produto</h5>
+      <a href="#">Funcionalidades</a>
+      <a href="#">White-label</a>
+      <a href="#">Segurança</a>
+      <a href="#">Roadmap</a>
+    </div>
+    <div class="foot-col">
+      <h5>Empresa</h5>
+      <a href="#">Sobre nós</a>
+      <a href="#">Blog</a>
+      <a href="#">Casos de uso</a>
+      <a href="#">Contato</a>
+    </div>
+    <div class="foot-col">
+      <h5>Legal</h5>
+      <a href="#">Termos de uso</a>
+      <a href="#">Privacidade</a>
+      <a href="#">LGPD</a>
+    </div>
+  </div>
+  <div class="foot-right">
+    <div>Versão 1.1</div>
+    <div>Abr · 2026</div>
+    <div class="brass" style="margin-top:12px">Norte + novo</div>
+  </div>
+</footer>
+<div class="foot-bottom">
+  <span>© 2025 Nortevo · Todos os direitos reservados</span>
+  <span>A direção é sua</span>
+</div>
+</div>
+
+<script>
+// Reveal on scroll
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Animated counters
+function animateCount(el, target, suffix, duration=1800) {
+  let start = 0, step = target/60;
+  const interval = setInterval(()=>{
+    start = Math.min(start + step, target);
+    el.textContent = Math.round(start) + suffix;
+    if(start >= target) clearInterval(interval);
+  }, duration/60);
+}
+
+const statsObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      animateCount(document.getElementById('stat1'), 47, '+');
+      animateCount(document.getElementById('stat2'), 3200, '+');
+      statsObs.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+const s1 = document.getElementById('stat1');
+if(s1) statsObs.observe(s1.closest('.hero-stats'));
+
+// FAQ
+function toggleFaq(btn) {
+  const item = btn.parentElement;
+  item.classList.toggle('open');
+}
+
+// Scenario switcher
+function setScen(el, val) {
+  document.querySelectorAll('.scen-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('scenVal').innerHTML = val + '<span class="unit">M</span>';
+}
+
+// White-label brand switcher
+function switchBrand(name, initial, color) {
+  document.querySelectorAll('.brand-btn').forEach(b => {
+    b.style.background = 'transparent';
+    b.style.color = 'rgba(239,234,221,.4)';
+    b.style.borderColor = 'rgba(255,255,255,.1)';
+  });
+  event.target.style.background = color + '18';
+  event.target.style.color = color;
+  event.target.style.borderColor = color + '55';
+  document.getElementById('wl-logo').style.background = color;
+  document.getElementById('wl-logo').textContent = initial;
+  document.getElementById('wl-logo').style.color = color === '#22a05a' ? '#fff' : '#1a1406';
+  document.getElementById('wl-name').textContent = name + (name==='Avantis' ? ' Investimentos' : name==='Cooperativa' ? ' Serrana' : ' Capital');
+  document.getElementById('wl-domain').textContent = name.toLowerCase().replace('ê','e');
+  document.getElementById('wl-val').style.color = color;
+}
+
+// Compass compass rotation for hero ticks
+(function(){
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const ticks = document.createElementNS(svgNS, 'g');
+  const heroSVG = document.querySelector('.hero-compass svg');
+  if(!heroSVG) return;
+  for(let i=0;i<72;i++){
+    const a = (i*5)*Math.PI/180;
+    const r1 = i%2===0 ? 172 : 176, r2 = 180;
+    const x1=200+Math.sin(a)*r1, y1=200-Math.cos(a)*r1;
+    const x2=200+Math.sin(a)*r2, y2=200-Math.cos(a)*r2;
+    const l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+    l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke', i%2===0 ? '#efeadd' : 'rgba(239,234,221,.3)');
+    l.setAttribute('stroke-width', i%2===0 ? '.8' : '.4');
+    ticks.appendChild(l);
+  }
+  heroSVG.insertBefore(ticks, heroSVG.children[2]);
+})();
+
+// Form submit
+document.querySelector('.form-submit').addEventListener('click', function(){
+  this.textContent = 'Enviado! Entraremos em contato ✓';
+  this.style.background = '#22a05a';
+  this.style.cursor = 'default';
+});
+</script>
+</body>
+</html>
