@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nortevo — O seu investidor vê o futuro. Fica.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#111714;--ink-2:#1e2722;--ink-3:#2b3530;
+  --paper:#efeadd;--paper-2:#e6e0cf;--paper-3:#f6f2e9;
+  --brass:#b89256;--brass-2:#d4b37a;--brass-light:#f5e4c0;
+  --rule:#d8d1bf;--mute:#807766;--foam:#f4f0e3;
+  --green-deep:#0d3d22;--green:#1a6b3c;--green-mid:#22a05a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Geist',sans-serif;background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* Grain */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.15;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:64px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(17,23,20,.9);backdrop-filter:blur(20px)}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--paper)}
+.nav-wordmark{font-family:'Instrument Serif',serif;font-size:20px;letter-spacing:-.01em}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(239,234,221,.4);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--paper)}
+.nav-cta{padding:10px 22px;border:1px solid rgba(184,146,86,.5);color:var(--brass);font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:all .2s}
+.nav-cta:hover{background:var(--brass);color:#1a1406;border-color:var(--brass)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 0;position:relative;overflow:hidden}
+.hero-ambient{position:absolute;inset:0;pointer-events:none}
+.amb-1{position:absolute;top:-30%;right:-5%;width:800px;height:800px;background:radial-gradient(ellipse,rgba(184,146,86,.11) 0%,transparent 60%)}
+.amb-2{position:absolute;bottom:-40%;left:-10%;width:700px;height:700px;background:radial-gradient(ellipse,rgba(13,61,34,.5) 0%,transparent 65%)}
+.hero-grid-bg{position:absolute;inset:0;opacity:.03}
+
+.hero-content{max-width:1280px;margin:0 auto;width:100%;display:grid;grid-template-columns:1.1fr 1fr;gap:80px;align-items:center}
+.hero-eyebrow{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:28px;display:flex;align-items:center;gap:12px;opacity:0;animation:fadeUp .8s .2s forwards}
+.hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--brass)}
+.hero-h1{font-family:'Instrument Serif',serif;font-size:clamp(60px,5.5vw,92px);line-height:.88;letter-spacing:-.03em;margin-bottom:32px;opacity:0;animation:fadeUp .8s .35s forwards}
+.hero-h1 em{color:var(--brass);font-style:italic}
+.hero-desc{font-size:17px;line-height:1.7;color:rgba(239,234,221,.55);max-width:460px;margin-bottom:44px;opacity:0;animation:fadeUp .8s .5s forwards}
+.hero-desc strong{color:var(--paper);font-weight:500}
+.hero-actions{display:flex;gap:14px;margin-bottom:64px;opacity:0;animation:fadeUp .8s .65s forwards}
+.btn-primary{padding:15px 32px;background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-radius:2px;font-weight:500;transition:all .2s;display:inline-block}
+.btn-primary:hover{background:var(--brass-2);transform:translateY(-1px)}
+.btn-ghost{padding:14px 32px;border:1px solid rgba(255,255,255,.14);color:rgba(239,234,221,.7);font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:all .2s;display:inline-block}
+.btn-ghost:hover{border-color:rgba(255,255,255,.3);color:var(--paper)}
+.hero-proof{display:flex;gap:32px;opacity:0;animation:fadeUp .8s .8s forwards}
+.proof-item{display:flex;flex-direction:column;gap:4px}
+.proof-val{font-family:'Instrument Serif',serif;font-size:28px;color:var(--paper);letter-spacing:-.02em;line-height:1}
+.proof-val em{color:var(--brass);font-style:italic}
+.proof-label{font-family:'Geist Mono',monospace;font-size:9.5px;color:rgba(239,234,221,.3);letter-spacing:.16em;text-transform:uppercase}
+.proof-divider{width:1px;background:rgba(255,255,255,.08)}
+
+/* Hero visual — investor plan card */
+.hero-visual{position:relative;opacity:0;animation:fadeUp .9s .4s forwards}
+.plan-card{background:#0d1410;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;box-shadow:0 80px 160px -40px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.04);transform:perspective(900px) rotateY(-5deg) rotateX(2deg);transition:transform .6s ease}
+.plan-card:hover{transform:perspective(900px) rotateY(-2deg) rotateX(1deg)}
+.plan-card-header{padding:28px 28px 20px;border-bottom:1px solid rgba(255,255,255,.06)}
+.plan-card-logo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.plan-logo{display:flex;align-items:center;gap:10px}
+.plan-logo-mark{width:28px;height:28px;border-radius:5px;background:var(--brass);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:14px;color:#1a1406}
+.plan-logo-name{font-family:'Instrument Serif',serif;font-size:16px;color:var(--paper)}
+.plan-card-date{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25);letter-spacing:.14em;text-transform:uppercase}
+.plan-client{font-family:'Instrument Serif',serif;font-size:30px;color:var(--paper);letter-spacing:-.015em;line-height:1.1;margin-bottom:6px}
+.plan-client-sub{font-family:'Geist Mono',monospace;font-size:10px;color:rgba(239,234,221,.3);letter-spacing:.14em;text-transform:uppercase}
+.plan-card-body{padding:20px 28px 28px}
+.plan-kpi-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:20px;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden}
+.plan-kpi{padding:14px;border-right:1px solid rgba(255,255,255,.06)}
+.plan-kpi:last-child{border-right:0}
+.plan-kpi-label{font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(239,234,221,.25);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.plan-kpi-val{font-family:'Instrument Serif',serif;font-size:22px;color:var(--paper);line-height:1}
+.plan-kpi-val.gold{color:var(--brass)}
+.plan-chart-wrap{margin-bottom:16px}
+.plan-chart-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.plan-chart-title{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.25)}
+.plan-chart-legend{display:flex;gap:12px}
+.legend-item{display:flex;align-items:center;gap:5px;font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(239,234,221,.25)}
+.legend-dot{width:6px;height:6px;border-radius:50%}
+.plan-obj-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(255,255,255,.05)}
+.plan-obj-left{display:flex;align-items:center;gap:10px}
+.plan-obj-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.plan-obj-name{font-family:'Instrument Serif',serif;font-size:14px;color:rgba(239,234,221,.8)}
+.plan-obj-meta{font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(239,234,221,.25);margin-top:2px;letter-spacing:.08em}
+.plan-obj-progress{display:flex;align-items:center;gap:8px}
+.plan-progress-bar{width:60px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.plan-progress-fill{height:100%;border-radius:2px}
+.plan-obj-pct{font-family:'Geist Mono',monospace;font-size:9px;color:var(--brass)}
+.plan-card-badge{position:absolute;bottom:-10px;right:24px;background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 14px;border-radius:100px;font-weight:500}
+
+/* Marquee */
+.marquee-strip{border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);padding:15px 0;overflow:hidden;background:rgba(0,0,0,.2);margin-top:72px}
+.marquee-track{display:flex;animation:marquee 55s linear infinite;white-space:nowrap;font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(239,234,221,.22)}
+.marquee-track span{display:inline-flex;align-items:center;gap:28px;padding-right:28px}
+.marquee-track span::after{content:"◦";color:rgba(184,146,86,.5)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PROBLEM ── */
+.problem-section{padding:120px 56px;max-width:1280px;margin:0 auto}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center}
+.problem-left .eyebrow{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.problem-left .eyebrow::before{content:'';width:20px;height:1px;background:var(--brass);opacity:.6}
+.problem-h2{font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,62px);line-height:.95;letter-spacing:-.025em;margin-bottom:28px}
+.problem-h2 em{color:var(--brass);font-style:italic}
+.problem-body{font-size:16px;line-height:1.75;color:rgba(239,234,221,.55)}
+.problem-body strong{color:var(--paper);font-weight:500}
+.problem-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;margin-top:40px}
+.p-stat{background:var(--ink-2);padding:28px;transition:background .3s}
+.p-stat:hover{background:#1a2420}
+.p-stat-num{font-family:'Instrument Serif',serif;font-size:44px;color:var(--paper);letter-spacing:-.02em;line-height:1;margin-bottom:8px}
+.p-stat-num em{color:var(--brass);font-style:italic}
+.p-stat-text{font-size:13px;color:rgba(239,234,221,.4);line-height:1.5}
+.problem-right{display:flex;flex-direction:column;gap:16px}
+.tension-card{padding:28px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.02);transition:border-color .3s,background .3s;cursor:default}
+.tension-card:hover{border-color:rgba(184,146,86,.2);background:rgba(184,146,86,.03)}
+.tension-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border:1px solid rgba(255,255,255,.08)}
+.tension-title{font-family:'Instrument Serif',serif;font-size:20px;margin-bottom:8px;line-height:1.1}
+.tension-body{font-size:13.5px;color:rgba(239,234,221,.45);line-height:1.6}
+
+/* ── SOLUTION ── */
+.solution-wrap{border-top:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,#0a0f0c 0%,var(--ink) 100%)}
+.solution-section{padding:120px 56px;max-width:1280px;margin:0 auto}
+.solution-header{text-align:center;max-width:720px;margin:0 auto 80px}
+.solution-header .eyebrow{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:12px}
+.solution-header .eyebrow::before,.solution-header .eyebrow::after{content:'';flex:1;max-width:40px;height:1px;background:rgba(184,146,86,.3)}
+.solution-h2{font-family:'Instrument Serif',serif;font-size:clamp(44px,4.5vw,70px);line-height:.93;letter-spacing:-.025em;margin-bottom:20px}
+.solution-h2 em{color:var(--brass);font-style:italic}
+.solution-sub{font-size:16px;color:rgba(239,234,221,.5);line-height:1.65}
+
+/* Outcome cards */
+.outcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden}
+.outcome-card{background:#0d1410;padding:44px 36px;position:relative;overflow:hidden;transition:background .4s}
+.outcome-card:hover{background:#111a14}
+.outcome-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(184,146,86,.4),transparent);opacity:0;transition:opacity .4s}
+.outcome-card:hover::before{opacity:1}
+.outcome-num{font-family:'Instrument Serif',serif;font-size:72px;color:rgba(239,234,221,.04);letter-spacing:-.04em;line-height:1;position:absolute;top:20px;right:24px}
+.outcome-icon{width:52px;height:52px;border-radius:12px;background:rgba(184,146,86,.08);border:1px solid rgba(184,146,86,.15);display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.outcome-title{font-family:'Instrument Serif',serif;font-size:26px;line-height:1.1;margin-bottom:14px;letter-spacing:-.01em}
+.outcome-body{font-size:14px;color:rgba(239,234,221,.5);line-height:1.7}
+.outcome-body strong{color:var(--paper);font-weight:500}
+.outcome-tag{display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:5px 12px;border:1px solid rgba(184,146,86,.2);border-radius:100px;font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+
+/* ── INVESTOR EXPERIENCE ── */
+.investor-wrap{border-top:1px solid rgba(255,255,255,.07)}
+.investor-section{padding:120px 56px;max-width:1280px;margin:0 auto}
+.investor-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.investor-left .eyebrow{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.investor-left .eyebrow::before{content:'';width:20px;height:1px;background:rgba(184,146,86,.5)}
+.investor-h2{font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,60px);line-height:.95;letter-spacing:-.025em;margin-bottom:24px}
+.investor-h2 em{color:var(--brass);font-style:italic}
+.investor-body{font-size:15.5px;color:rgba(239,234,221,.55);line-height:1.7;margin-bottom:40px}
+.investor-body strong{color:var(--paper);font-weight:500}
+.journey-steps{display:flex;flex-direction:column;gap:0}
+.journey-step{display:flex;gap:20px;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .2s}
+.journey-step:last-child{border-bottom:0}
+.journey-step.active .j-num{background:var(--brass);color:#1a1406;border-color:var(--brass)}
+.journey-step.active .j-title{color:var(--paper)}
+.journey-step.active .j-desc{color:rgba(239,234,221,.6);display:block}
+.j-num{width:40px;height:40px;border-radius:8px;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:18px;color:rgba(239,234,221,.25);flex-shrink:0;transition:all .3s}
+.j-content{flex:1}
+.j-title{font-family:'Instrument Serif',serif;font-size:20px;color:rgba(239,234,221,.35);margin-bottom:0;transition:color .3s;line-height:1.2}
+.j-desc{font-size:13.5px;color:rgba(239,234,221,.4);line-height:1.6;display:none;margin-top:8px}
+
+/* Investor plan preview */
+.investor-right{position:relative}
+.plan-preview-panels{position:relative;min-height:500px}
+.plan-panel{display:none;position:absolute;inset:0;animation:fadeUp .35s ease}
+.plan-panel.visible{display:block}
+
+/* Plan visual styles */
+.plan-viz{background:#080e0b;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:32px;box-shadow:0 40px 80px -20px rgba(0,0,0,.6)}
+.pv-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.06)}
+.pv-brand{display:flex;align-items:center;gap:10px}
+.pv-logo{width:24px;height:24px;border-radius:4px;background:var(--brass);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:12px;color:#1a1406}
+.pv-name{font-family:'Instrument Serif',serif;font-size:15px;color:var(--paper)}
+.pv-date{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.2);letter-spacing:.12em}
+.pv-client{font-family:'Instrument Serif',serif;font-size:26px;color:var(--paper);letter-spacing:-.015em;margin-bottom:4px}
+.pv-sub{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25);letter-spacing:.14em;text-transform:uppercase}
+
+/* ── PROFESSIONAL VALUE ── */
+.professional-wrap{border-top:1px solid rgba(255,255,255,.07);background:#0a0f0c}
+.professional-section{padding:120px 56px;max-width:1280px;margin:0 auto}
+.professional-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:80px;align-items:center}
+.professional-h2{font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,62px);line-height:.95;letter-spacing:-.025em;margin-bottom:24px}
+.professional-h2 em{color:var(--brass);font-style:italic}
+.professional-body{font-size:15.5px;color:rgba(239,234,221,.5);line-height:1.75;margin-bottom:44px}
+.professional-body strong{color:var(--paper);font-weight:500}
+.compare-table{border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden}
+.compare-head{display:grid;grid-template-columns:1fr 1fr 1fr;background:#080e0b;border-bottom:1px solid rgba(255,255,255,.07)}
+.compare-head div{padding:14px 20px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(239,234,221,.25)}
+.compare-head .col-nortevo{color:var(--brass)}
+.compare-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid rgba(255,255,255,.06)}
+.compare-row:last-child{border-bottom:0}
+.compare-row div{padding:14px 20px;font-size:13px;color:rgba(239,234,221,.55)}
+.compare-row .col-item{color:rgba(239,234,221,.4);font-size:12px}
+.compare-row .col-nortevo{color:var(--paper)}
+.compare-row .col-nortevo .check{color:var(--brass);margin-right:6px}
+.compare-row .col-sem .cross{color:rgba(239,234,221,.2);margin-right:6px}
+.col-nortevo-bg{background:rgba(184,146,86,.04)}
+
+/* Diff items */
+.diff-list{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.diff-item{display:flex;gap:16px;align-items:flex-start;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.diff-item:last-child{border-bottom:0}
+.diff-icon{width:36px;height:36px;border-radius:8px;border:1px solid rgba(184,146,86,.2);background:rgba(184,146,86,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.diff-title{font-family:'Instrument Serif',serif;font-size:18px;margin-bottom:5px}
+.diff-body{font-size:13px;color:rgba(239,234,221,.4);line-height:1.6}
+
+/* ── TESTIMONIALS ── */
+.testi-wrap{border-top:1px solid rgba(255,255,255,.07)}
+.testi-section{padding:120px 56px;max-width:1280px;margin:0 auto}
+.testi-header{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;margin-bottom:56px}
+.testi-h2{font-family:'Instrument Serif',serif;font-size:clamp(40px,4vw,60px);line-height:.95;letter-spacing:-.025em}
+.testi-h2 em{color:var(--brass);font-style:italic}
+.testi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden}
+.testi-card{background:#0d1410;padding:44px;position:relative;transition:background .3s}
+.testi-card:hover{background:#111a14}
+.testi-mark{font-family:'Instrument Serif',serif;font-size:80px;color:rgba(184,146,86,.15);line-height:.8;margin-bottom:12px;display:block}
+.testi-quote{font-family:'Instrument Serif',serif;font-size:20px;line-height:1.35;color:var(--paper);margin-bottom:28px;letter-spacing:-.01em}
+.testi-quote em{color:var(--brass);font-style:italic}
+.testi-attr{display:flex;align-items:center;gap:12px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07)}
+.testi-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:16px;flex-shrink:0}
+.testi-name{font-size:14px;font-weight:500;color:var(--paper)}
+.testi-role{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.3);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+
+/* ── CTA FINAL ── */
+.cta-wrap{border-top:1px solid rgba(255,255,255,.07);background:#080e0b}
+.cta-section{padding:120px 56px;max-width:1280px;margin:0 auto}
+.cta-inner{display:grid;grid-template-columns:1.1fr 1fr;gap:80px;align-items:center}
+.cta-h2{font-family:'Instrument Serif',serif;font-size:clamp(48px,5vw,80px);line-height:.9;letter-spacing:-.03em;margin-bottom:28px}
+.cta-h2 em{color:var(--brass);font-style:italic}
+.cta-sub{font-size:16px;color:rgba(239,234,221,.45);line-height:1.7;margin-bottom:0}
+.cta-form-wrap{background:#0d1410;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:40px}
+.form-title{font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:6px}
+.form-sub{font-size:13px;color:rgba(239,234,221,.35);margin-bottom:28px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em}
+.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.3)}
+.form-input{padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:4px;color:var(--paper);font-family:'Geist',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%}
+.form-input::placeholder{color:rgba(239,234,221,.2)}
+.form-input:focus{border-color:rgba(184,146,86,.35)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-submit{width:100%;padding:15px;background:var(--brass);color:#1a1406;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;border:none;cursor:pointer;border-radius:4px;font-weight:500;margin-top:4px;transition:background .2s}
+.form-submit:hover{background:var(--brass-2)}
+.form-note{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.1em;color:rgba(239,234,221,.2);text-align:center;margin-top:12px}
+.cta-trust{display:flex;flex-direction:column;gap:12px;margin-top:32px}
+.trust-item{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(239,234,221,.4)}
+.trust-icon{color:var(--brass);flex-shrink:0}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid rgba(255,255,255,.06);padding:64px 56px 32px;max-width:1440px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:320px 1fr;gap:80px;margin-bottom:56px}
+.foot-brand .wm{font-family:'Instrument Serif',serif;font-size:28px;letter-spacing:-.01em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.foot-brand p{font-size:13px;color:rgba(239,234,221,.3);line-height:1.65;max-width:260px}
+.foot-nav{display:flex;gap:64px}
+.foot-col h5{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(239,234,221,.2);margin-bottom:20px}
+.foot-col a{display:block;font-size:13px;color:rgba(239,234,221,.4);text-decoration:none;margin-bottom:12px;transition:color .2s}
+.foot-col a:hover{color:var(--paper)}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center}
+.foot-copy{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(239,234,221,.2)}
+.foot-az{font-family:'Instrument Serif',serif;font-size:18px;color:rgba(184,146,86,.3);font-style:italic}
+
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .75s ease,transform .75s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <svg width="22" height="22" viewBox="0 0 22 22">
+      <g transform="rotate(22 11 11)">
+        <polygon points="11,2 12.6,11 11,11.5 9.4,11" fill="#b89256"/>
+        <polygon points="11,20 12.6,11 11,10.5 9.4,11" fill="rgba(239,234,221,.2)"/>
+        <circle cx="11" cy="11" r="1.8" fill="#080e0b"/>
+        <circle cx="11" cy="11" r=".7" fill="rgba(239,234,221,.5)"/>
+      </g>
+      <circle cx="11" cy="11" r="9.5" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".7"/>
+    </svg>
+    <span class="nav-wordmark">Nortevo</span>
+  </a>
+  <div class="nav-links">
+    <a href="#o-problema">O problema</a>
+    <a href="#para-o-investidor">Para o investidor</a>
+    <a href="#para-voce">Para você</a>
+    <a href="#depoimentos">Depoimentos</a>
+    <a href="#contato" class="nav-cta">Quero conhecer</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="position:relative;overflow:hidden">
+  <div class="hero-ambient"><div class="amb-1"></div><div class="amb-2"></div></div>
+  <svg class="hero-grid-bg" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none">
+    <defs><pattern id="g" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0L0 0 0 64" fill="none" stroke="#efeadd" stroke-width=".4"/></pattern></defs>
+    <rect width="100%" height="100%" fill="url(#g)"/>
+  </svg>
+
+  <div class="hero">
+    <div class="hero-content">
+      <div>
+        <div class="hero-eyebrow">Para assessores e gestores financeiros</div>
+        <h1 class="hero-h1">O seu<br/>investidor<br/>vê o futuro.<br/><em>Fica.</em></h1>
+        <p class="hero-desc">O que diferencia um bom assessor de um assessor <strong>indispensável</strong> não é a carteira que ele indica. É o plano que ele constrói — e o investidor consegue ver, entender e segurar.</p>
+        <div class="hero-actions">
+          <a href="#contato" class="btn-primary">Quero transformar meu trabalho</a>
+          <a href="#o-problema" class="btn-ghost">Ver como funciona</a>
+        </div>
+        <div class="hero-proof">
+          <div class="proof-item">
+            <div class="proof-val"><em>92%</em></div>
+            <div class="proof-label">de retenção média</div>
+          </div>
+          <div class="proof-divider"></div>
+          <div class="proof-item">
+            <div class="proof-val">3×</div>
+            <div class="proof-label">mais indicações</div>
+          </div>
+          <div class="proof-divider"></div>
+          <div class="proof-item">
+            <div class="proof-val">47<em>+</em></div>
+            <div class="proof-label">assessorias ativas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Investor plan card -->
+      <div class="hero-visual">
+        <div class="plan-card" style="position:relative">
+          <div class="plan-card-header">
+            <div class="plan-card-logo-row">
+              <div class="plan-logo">
+                <div class="plan-logo-mark">A</div>
+                <span class="plan-logo-name">Avantis Investimentos</span>
+              </div>
+              <span class="plan-card-date">Abr 2026</span>
+            </div>
+            <div class="plan-client">Carlos Eduardo<br/>Mendonça</div>
+            <div class="plan-client-sub" style="margin-top:4px">Plano patrimonial · Revisão trimestral</div>
+          </div>
+          <div class="plan-card-body">
+            <div class="plan-kpi-row">
+              <div class="plan-kpi">
+                <div class="plan-kpi-label">Patrimônio hoje</div>
+                <div class="plan-kpi-val">R$980k</div>
+              </div>
+              <div class="plan-kpi">
+                <div class="plan-kpi-label">Meta 20 anos</div>
+                <div class="plan-kpi-val gold">R$4,2M</div>
+              </div>
+              <div class="plan-kpi">
+                <div class="plan-kpi-label">Retorno real</div>
+                <div class="plan-kpi-val">6,4%</div>
+              </div>
+            </div>
+            <div class="plan-chart-wrap">
+              <div class="plan-chart-label">
+                <span class="plan-chart-title">Projeção patrimonial</span>
+                <div class="plan-chart-legend">
+                  <div class="legend-item"><div class="legend-dot" style="background:#b89256"></div>Base</div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#22a05a"></div>Otimista</div>
+                </div>
+              </div>
+              <svg viewBox="0 0 400 80" style="width:100%;height:70px">
+                <defs>
+                  <linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b89256" stop-opacity=".2"/><stop offset="100%" stop-color="#b89256" stop-opacity="0"/></linearGradient>
+                  <linearGradient id="hcg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22a05a" stop-opacity=".12"/><stop offset="100%" stop-color="#22a05a" stop-opacity="0"/></linearGradient>
+                </defs>
+                <path d="M0,74 C60,68 120,58 180,46 C240,34 300,20 380,8 L400,6 L400,80 L0,80Z" fill="url(#hcg2)"/>
+                <path d="M0,74 C60,68 120,58 180,46 C240,34 300,20 380,8 L400,6" fill="none" stroke="#22a05a" stroke-width="1" stroke-dasharray="3 2" opacity=".6"/>
+                <path d="M0,76 C60,72 120,64 180,55 C240,46 300,34 380,22 L400,18 L400,80 L0,80Z" fill="url(#hcg)"/>
+                <path d="M0,76 C60,72 120,64 180,55 C240,46 300,34 380,22 L400,18" fill="none" stroke="#b89256" stroke-width="1.8"/>
+                <circle cx="400" cy="18" r="3.5" fill="#b89256"/>
+                <text x="390" y="14" text-anchor="end" font-family="Geist Mono,monospace" font-size="9" fill="#b89256" letter-spacing=".06em">R$4,2M</text>
+              </svg>
+            </div>
+            <div class="plan-obj-row">
+              <div class="plan-obj-left">
+                <div class="plan-obj-dot" style="background:#b89256"></div>
+                <div>
+                  <div class="plan-obj-name">Aposentadoria</div>
+                  <div class="plan-obj-meta">18 anos · R$12k/mês real</div>
+                </div>
+              </div>
+              <div class="plan-obj-progress">
+                <div class="plan-progress-bar"><div class="plan-progress-fill" style="width:68%;background:#b89256"></div></div>
+                <span class="plan-obj-pct">68%</span>
+              </div>
+            </div>
+            <div class="plan-obj-row">
+              <div class="plan-obj-left">
+                <div class="plan-obj-dot" style="background:#22a05a"></div>
+                <div>
+                  <div class="plan-obj-name">Educação dos filhos</div>
+                  <div class="plan-obj-meta">8 anos · R$3.500/mês</div>
+                </div>
+              </div>
+              <div class="plan-obj-progress">
+                <div class="plan-progress-bar"><div class="plan-progress-fill" style="width:43%;background:#22a05a"></div></div>
+                <span class="plan-obj-pct" style="color:#22a05a">43%</span>
+              </div>
+            </div>
+          </div>
+          <div class="plan-card-badge">Gerado pelo seu assessor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marquee -->
+    <div class="marquee-strip">
+      <div class="marquee-track">
+        <span>Planejamento com propósito</span><span>O investidor vê o futuro</span><span>Fidelização pela confiança</span><span>Sua marca, sua metodologia</span><span>Do objetivo ao patrimônio</span><span>Visibilidade gera lealdade</span><span>Sofisticação no trabalho do assessor</span><span>Norte intencional</span>
+        <span>Planejamento com propósito</span><span>O investidor vê o futuro</span><span>Fidelização pela confiança</span><span>Sua marca, sua metodologia</span><span>Do objetivo ao patrimônio</span><span>Visibilidade gera lealdade</span><span>Sofisticação no trabalho do assessor</span><span>Norte intencional</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- O PROBLEMA -->
+<div style="border-top:1px solid rgba(255,255,255,.06)" id="o-problema">
+<div class="problem-section">
+  <div class="problem-grid">
+    <div class="problem-left reveal">
+      <div class="eyebrow">O problema real</div>
+      <h2 class="problem-h2">Investidores<br/>saem quando<br/>não <em>enxergam</em><br/>para onde vão.</h2>
+      <p class="problem-body" style="margin-bottom:28px">Não é o rendimento que perde o cliente. É a <strong>ausência de narrativa</strong>. O investidor que não vê o próprio futuro sendo construído sente que poderia fazer isso sozinho — e eventualmente tenta.</p>
+      <p class="problem-body">O assessor que entrega <strong>clareza, não só retorno</strong>, se torna insubstituível. A pergunta é: você entrega essa clareza hoje?</p>
+      <div class="problem-stats">
+        <div class="p-stat reveal d1">
+          <div class="p-stat-num"><em>68%</em></div>
+          <div class="p-stat-text">dos investidores que trocam de assessor relatam que "não sentiam progresso" — não que o retorno era ruim.</div>
+        </div>
+        <div class="p-stat reveal d2">
+          <div class="p-stat-num">4×</div>
+          <div class="p-stat-text">maior chance de o cliente indicar quando ele tem um plano visual que consegue explicar para outras pessoas.</div>
+        </div>
+      </div>
+    </div>
+    <div class="problem-right reveal d2">
+      <div class="tension-card">
+        <div class="tension-icon" style="background:rgba(255,80,80,.06);border-color:rgba(255,80,80,.12)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="rgba(255,100,100,.5)" stroke-width="1.3"/><line x1="10" y1="6" x2="10" y2="11" stroke="rgba(255,100,100,.5)" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="13.5" r="1" fill="rgba(255,100,100,.5)"/></svg>
+        </div>
+        <div class="tension-title">O investidor não vê o plano</div>
+        <div class="tension-body">Ele sabe que tem dinheiro investido. Mas não sabe onde vai chegar, em quanto tempo, e o que acontece no caminho. Isso cria ansiedade — e clientes ansiosos saem.</div>
+      </div>
+      <div class="tension-card">
+        <div class="tension-icon" style="background:rgba(255,80,80,.06);border-color:rgba(255,80,80,.12)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 14l4-5 3 3 4-6" stroke="rgba(255,100,100,.5)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="3" width="16" height="14" rx="2" stroke="rgba(255,100,100,.5)" stroke-width="1.3"/></svg>
+        </div>
+        <div class="tension-title">Planilha não transmite profissionalismo</div>
+        <div class="tension-body">Quando o assessor abre uma planilha na reunião, a percepção de valor cai. O cliente vê esforço manual, não metodologia. A sofisticação do trabalho não aparece.</div>
+      </div>
+      <div class="tension-card">
+        <div class="tension-icon" style="background:rgba(255,80,80,.06);border-color:rgba(255,80,80,.12)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v4M10 13v4M3 10h4M13 10h4" stroke="rgba(255,100,100,.5)" stroke-width="1.3" stroke-linecap="round"/><circle cx="10" cy="10" r="8" stroke="rgba(255,100,100,.5)" stroke-width="1.3"/></svg>
+        </div>
+        <div class="tension-title">Sem diferencial claro na proposta</div>
+        <div class="tension-body">Taxa, produto, retorno — o cliente consegue comparar. O que ele não consegue comparar é a qualidade do plano que você entrega. Mas só se ele existir.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SOLUTION -->
+<div class="solution-wrap" id="solucao">
+<div class="solution-section">
+  <div class="solution-header reveal">
+    <div class="eyebrow">O que o Nortevo faz</div>
+    <h2 class="solution-h2">Transforma seu<br/>trabalho em algo<br/>que o cliente<br/><em>consegue ver.</em></h2>
+    <p class="solution-sub" style="margin-top:20px">Não é sobre automatizar — é sobre elevar. O Nortevo estrutura o planejamento financeiro de forma visual, sofisticada e com a identidade da sua marca.</p>
+  </div>
+  <div class="outcome-grid reveal">
+    <div class="outcome-card">
+      <div class="outcome-num">01</div>
+      <div class="outcome-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M2 20h20M6 20V12M10 20V8M14 20V4M18 20V10" stroke="#b89256" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="outcome-title">O investidor enxerga<br/>o próprio futuro</div>
+      <div class="outcome-body">Ele sai da reunião com um plano visual — gráficos de projeção, objetivos mapeados, datas e valores concretos. Não abstração: <strong>um mapa que ele entende e acredita.</strong></div>
+      <div class="outcome-tag">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/><path d="M3.5 5l1.2 1.2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Fidelização pela confiança
+      </div>
+    </div>
+    <div class="outcome-card">
+      <div class="outcome-num">02</div>
+      <div class="outcome-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 6 6.5 1-4.8 4.5 1.2 6.5L12 17l-5.9 3 1.2-6.5L2.5 9 9 8z" stroke="#b89256" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="outcome-title">Sua marca entrega<br/>sofisticação e seriedade</div>
+      <div class="outcome-body">O cliente recebe um documento com o seu logo, suas cores, o seu nome. A qualidade do material é o espelho da qualidade do seu trabalho — <strong>e cria uma percepção que gera indicações.</strong></div>
+      <div class="outcome-tag">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/><path d="M3.5 5l1.2 1.2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Diferenciação de mercado
+      </div>
+    </div>
+    <div class="outcome-card">
+      <div class="outcome-num">03</div>
+      <div class="outcome-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#b89256" stroke-width="1.5"/><path d="M8 12l3 3 5-5" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="outcome-title">Você conduz reuniões<br/>de outro nível</div>
+      <div class="outcome-body">A reunião deixa de ser sobre produtos e passa a ser sobre objetivos. Você simula cenários em tempo real, ajusta premissas, responde perguntas com <strong>precisão de CFP — não de impressão.</strong></div>
+      <div class="outcome-tag">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/><path d="M3.5 5l1.2 1.2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Autoridade técnica
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- INVESTOR EXPERIENCE -->
+<div class="investor-wrap" id="para-o-investidor">
+<div class="investor-section">
+  <div class="investor-grid">
+    <div>
+      <div class="investor-left reveal">
+        <div class="eyebrow">A experiência do investidor</div>
+        <h2 class="investor-h2">O que o seu<br/>cliente <em>sente</em><br/>em cada etapa</h2>
+        <p class="investor-body">Cada momento da jornada pode gerar confiança — ou dúvida. O Nortevo garante que o investidor sempre tenha clareza sobre onde está e para onde vai.</p>
+      </div>
+      <div class="journey-steps reveal">
+        <div class="journey-step active" onclick="showJourney(0,this)">
+          <div class="j-num">1</div>
+          <div class="j-content">
+            <div class="j-title">Vê o plano completo pela primeira vez</div>
+            <div class="j-desc">Pela primeira vez na vida, o investidor vê todos os seus objetivos financeiros organizados, com datas, valores e projeções. Não uma promessa — um plano com lógica financeira real. A reação típica: "nunca vi isso antes. E você fez para mim."</div>
+          </div>
+        </div>
+        <div class="journey-step" onclick="showJourney(1,this)">
+          <div class="j-num">2</div>
+          <div class="j-content">
+            <div class="j-title">Entende o impacto de cada decisão</div>
+            <div class="j-desc">Quando o assessor simula o que acontece se o aporte aumentar, se a meta mudar, ou se o IPCA subir — o cliente não vê uma tabela. Vê seu futuro se ajustando em tempo real. Isso cria engajamento e compromisso.</div>
+          </div>
+        </div>
+        <div class="journey-step" onclick="showJourney(2,this)">
+          <div class="j-num">3</div>
+          <div class="j-content">
+            <div class="j-title">Leva algo para casa com seu nome</div>
+            <div class="j-desc">O relatório PDF com o logo da sua assessoria vai embora com o cliente. Fica na gaveta, na nuvem, na memória. Toda vez que ele vê, lembra de quem o ajudou a planejar. Isso é presença de marca no cotidiano do investidor.</div>
+          </div>
+        </div>
+        <div class="journey-step" onclick="showJourney(3,this)">
+          <div class="j-num">4</div>
+          <div class="j-content">
+            <div class="j-title">Volta e indica. Sempre.</div>
+            <div class="j-desc">Quem tem um plano não sai. Tem algo a perder — continuidade, contexto, história. E quando alguém da família ou um amigo precisa de assessoria, ele indica com uma frase: "meu assessor me mostrou meu plano. Ele me conhece."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey preview panels -->
+    <div class="investor-right reveal d2">
+      <div class="plan-preview-panels" style="position:relative;min-height:440px">
+
+        <!-- Panel 0 -->
+        <div class="plan-panel visible" id="jp-0">
+          <div class="plan-viz">
+            <div class="pv-header">
+              <div class="pv-brand"><div class="pv-logo">A</div><span class="pv-name">Avantis Investimentos</span></div>
+              <span class="pv-date">Abr 2026</span>
+            </div>
+            <div class="pv-client">Carlos Eduardo, 42 anos</div>
+            <div class="pv-sub" style="margin-bottom:20px">Plano patrimonial completo</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
+              <div style="background:rgba(184,146,86,.08);border:1px solid rgba(184,146,86,.15);border-radius:7px;padding:12px;text-align:center">
+                <div style="font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(239,234,221,.25);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px">Hoje</div>
+                <div style="font-family:'Instrument Serif',serif;font-size:20px;color:var(--paper)">R$980k</div>
+              </div>
+              <div style="background:rgba(184,146,86,.08);border:1px solid rgba(184,146,86,.15);border-radius:7px;padding:12px;text-align:center">
+                <div style="font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(239,234,221,.25);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px">Meta</div>
+                <div style="font-family:'Instrument Serif',serif;font-size:20px;color:var(--brass)">R$4,2M</div>
+              </div>
+              <div style="background:rgba(184,146,86,.08);border:1px solid rgba(184,146,86,.15);border-radius:7px;padding:12px;text-align:center">
+                <div style="font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(239,234,221,.25);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px">Prazo</div>
+                <div style="font-family:'Instrument Serif',serif;font-size:20px;color:var(--paper)">20 anos</div>
+              </div>
+            </div>
+            <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.2);margin-bottom:12px">Objetivos mapeados</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border-radius:6px">
+                <div style="width:6px;height:6px;border-radius:50%;background:#b89256;flex-shrink:0"></div>
+                <span style="font-size:13px;flex:1;color:rgba(239,234,221,.8)">Aposentadoria com R$12k/mês</span>
+                <span style="font-family:'Geist Mono',monospace;font-size:9px;color:var(--brass)">68%</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border-radius:6px">
+                <div style="width:6px;height:6px;border-radius:50%;background:#22a05a;flex-shrink:0"></div>
+                <span style="font-size:13px;flex:1;color:rgba(239,234,221,.8)">Educação universitária dos filhos</span>
+                <span style="font-family:'Geist Mono',monospace;font-size:9px;color:#22a05a">43%</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border-radius:6px">
+                <div style="width:6px;height:6px;border-radius:50%;background:rgba(239,234,221,.3);flex-shrink:0"></div>
+                <span style="font-size:13px;flex:1;color:rgba(239,234,221,.8)">Imóvel de veraneio</span>
+                <span style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.3)">18%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 1 -->
+        <div class="plan-panel" id="jp-1">
+          <div class="plan-viz">
+            <div class="pv-header">
+              <div class="pv-brand"><div class="pv-logo">A</div><span class="pv-name">Avantis Investimentos</span></div>
+              <span class="pv-date" style="color:var(--brass)">Simulação ao vivo</span>
+            </div>
+            <div class="pv-client" style="font-size:20px;margin-bottom:16px">E se o aporte aumentar?</div>
+            <div style="display:flex;gap:12px;margin-bottom:18px">
+              <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:14px">
+                <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Aporte atual</div>
+                <div style="font-family:'Instrument Serif',serif;font-size:26px;color:rgba(239,234,221,.5)">R$3.500<span style="font-size:14px">/mês</span></div>
+              </div>
+              <div style="flex:1;background:rgba(184,146,86,.08);border:1px solid rgba(184,146,86,.2);border-radius:8px;padding:14px">
+                <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(184,146,86,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Novo aporte</div>
+                <div style="font-family:'Instrument Serif',serif;font-size:26px;color:var(--brass)">R$5.000<span style="font-size:14px">/mês</span></div>
+              </div>
+            </div>
+            <div style="background:rgba(34,160,90,.08);border:1px solid rgba(34,160,90,.2);border-radius:8px;padding:16px;text-align:center">
+              <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(34,160,90,.6);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px">Impacto na aposentadoria</div>
+              <div style="font-family:'Instrument Serif',serif;font-size:36px;color:#22a05a">4 anos antes</div>
+              <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25);letter-spacing:.1em;margin-top:4px">aposentadoria aos 60, não 64</div>
+            </div>
+            <svg viewBox="0 0 380 60" style="width:100%;height:54px;margin-top:12px">
+              <path d="M0,55 C60,50 120,42 180,32 C240,22 300,14 380,6" fill="none" stroke="rgba(239,234,221,.1)" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <path d="M0,55 C60,48 120,38 180,26 C240,14 300,6 380,2" fill="none" stroke="#22a05a" stroke-width="2"/>
+              <circle cx="380" cy="2" r="3" fill="#22a05a"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Panel 2 -->
+        <div class="plan-panel" id="jp-2">
+          <div class="plan-viz">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <div class="pv-brand"><div class="pv-logo">A</div><span class="pv-name">Avantis Investimentos</span></div>
+              <div style="display:flex;align-items:center;gap:6px;background:rgba(184,146,86,.1);border:1px solid rgba(184,146,86,.2);padding:5px 10px;border-radius:4px">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9l2.5-2.5 2 2 3-4" stroke="#b89256" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#b89256" stroke-width="1"/></svg>
+                <span style="font-family:'Geist Mono',monospace;font-size:9px;color:var(--brass);letter-spacing:.1em">PDF gerado</span>
+              </div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden">
+              <div style="padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-family:'Instrument Serif',serif;font-size:20px;color:var(--paper)">Plano Patrimonial 2026</div>
+                  <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25);letter-spacing:.12em;text-transform:uppercase;margin-top:3px">Carlos Eduardo Mendonça · Abr 2026</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(184,146,86,.6);letter-spacing:.1em">CONFIDENCIAL</div>
+                  <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.2);margin-top:2px">12 páginas</div>
+                </div>
+              </div>
+              <div style="padding:16px 20px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:rgba(239,234,221,.4)">Diagnóstico patrimonial</span><span style="color:rgba(239,234,221,.25);font-family:'Geist Mono',monospace;font-size:10px">pág. 2</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:rgba(239,234,221,.4)">Objetivos mapeados</span><span style="color:rgba(239,234,221,.25);font-family:'Geist Mono',monospace;font-size:10px">pág. 4</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--paper)">Projeção patrimonial</span><span style="color:var(--brass);font-family:'Geist Mono',monospace;font-size:10px">pág. 6</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:rgba(239,234,221,.4)">Plano de aportes</span><span style="color:rgba(239,234,221,.25);font-family:'Geist Mono',monospace;font-size:10px">pág. 9</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:rgba(239,234,221,.4)">Análise de cenários</span><span style="color:rgba(239,234,221,.25);font-family:'Geist Mono',monospace;font-size:10px">pág. 11</span></div>
+              </div>
+            </div>
+            <div style="margin-top:12px;padding:12px 16px;background:rgba(34,160,90,.06);border:1px solid rgba(34,160,90,.15);border-radius:6px;display:flex;align-items:center;gap:10px">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#22a05a" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#22a05a" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span style="font-size:12px;color:rgba(239,234,221,.6)">Enviado para carlos.mendonca@email.com</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3 -->
+        <div class="plan-panel" id="jp-3">
+          <div class="plan-viz">
+            <div class="pv-header" style="padding-bottom:16px">
+              <div class="pv-brand"><div class="pv-logo">A</div><span class="pv-name">Avantis Investimentos</span></div>
+            </div>
+            <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,234,221,.2);margin-bottom:16px">Carlos Eduardo — histórico</div>
+            <div style="display:flex;flex-direction:column;gap:0">
+              <div style="display:flex;gap:14px;align-items:start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(184,146,86,.15);border:1px solid rgba(184,146,86,.2);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:14px;color:var(--brass);flex-shrink:0">C</div>
+                <div>
+                  <div style="font-size:13px;color:var(--paper);margin-bottom:3px">Indicou <strong>Bruno Vieira</strong></div>
+                  <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25);">2 semanas após receber o plano</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:14px;align-items:start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(34,160,90,.12);border:1px solid rgba(34,160,90,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2l1.4 2.8 3.1.5-2.2 2.2.5 3.1-2.8-1.5-2.8 1.5.5-3.1-2.2-2.2 3.1-.5z" fill="#22a05a"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:var(--paper);margin-bottom:3px">Aumentou aporte em 43%</div>
+                  <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25)">após ver simulação na reunião</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:14px;align-items:start;padding:14px 0">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(184,146,86,.1);border:1px solid rgba(184,146,86,.2);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:14px;color:var(--brass);flex-shrink:0">3</div>
+                <div>
+                  <div style="font-size:13px;color:var(--paper);margin-bottom:3px">Revisão trimestral confirmada</div>
+                  <div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(239,234,221,.25)">24 Abr · 14h00 · sem faltas</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PARA VOCÊ -->
+<div class="professional-wrap" id="para-voce">
+<div class="professional-section">
+  <div class="professional-grid">
+    <div>
+      <div class="reveal" style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:20px;display:flex;align-items:center;gap:10px"><span style="width:20px;height:1px;background:rgba(184,146,86,.5);display:block"></span>Para o profissional</div>
+      <h2 class="professional-h2 reveal">O que você<br/>passa a<br/><em>entregar</em></h2>
+      <p class="professional-body reveal">Não é sobre usar um recurso novo. É sobre o que o cliente percebe quando você senta na frente dele. <strong>Profissionalismo que fecha contratos. Sofisticação que gera indicações.</strong></p>
+      <div class="diff-list reveal">
+        <div class="diff-item">
+          <div class="diff-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 4 4.5.7-3.2 3.2.8 4.6L9 12.5 5.9 14.5l.8-4.6L3.5 6.7 8 6z" stroke="#b89256" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+          <div>
+            <div class="diff-title">Metodologia visível</div>
+            <div class="diff-body">O cliente passa a entender como você pensa. Não só o que você indica — mas por quê, e como isso se conecta com os objetivos dele. Isso é autoridade real.</div>
+          </div>
+        </div>
+        <div class="diff-item">
+          <div class="diff-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1C4.6 1 1 4.6 1 9s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8z" stroke="#b89256" stroke-width="1.2"/><path d="M6 9l2 2 4-4" stroke="#b89256" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div>
+            <div class="diff-title">Reuniões com propósito</div>
+            <div class="diff-body">Cada encontro tem um plano, um ponto de partida e uma progressão. Você não começa do zero — você parte do que foi construído da última vez.</div>
+          </div>
+        </div>
+        <div class="diff-item">
+          <div class="diff-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#b89256" stroke-width="1.2"/><path d="M6 9h6M9 6v6" stroke="#b89256" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+          <div>
+            <div class="diff-title">Identidade que você controla</div>
+            <div class="diff-body">Tudo sai com o seu logo, suas cores, seu nome. O material que o cliente leva para casa é assinado por você — não por um software genérico.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal d2">
+      <div style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(239,234,221,.2);margin-bottom:16px">Com Nortevo vs. sem</div>
+      <div class="compare-table">
+        <div class="compare-head">
+          <div>O que o cliente vê</div>
+          <div class="col-nortevo">Com Nortevo</div>
+          <div>Sem Nortevo</div>
+        </div>
+        <div class="compare-row">
+          <div class="col-item">Plano visual dos objetivos</div>
+          <div class="col-nortevo col-nortevo-bg"><span class="check">✓</span>Completo e personalizado</div>
+          <div class="col-sem"><span class="cross">—</span>Não existe</div>
+        </div>
+        <div class="compare-row">
+          <div class="col-item">Projeção patrimonial</div>
+          <div class="col-nortevo col-nortevo-bg"><span class="check">✓</span>Gráfico interativo ao vivo</div>
+          <div class="col-sem"><span class="cross">—</span>Planilha (se houver)</div>
+        </div>
+        <div class="compare-row">
+          <div class="col-item">Relatório pós-reunião</div>
+          <div class="col-nortevo col-nortevo-bg"><span class="check">✓</span>PDF com sua marca</div>
+          <div class="col-sem"><span class="cross">—</span>E-mail ou nada</div>
+        </div>
+        <div class="compare-row">
+          <div class="col-item">Simulação de cenários</div>
+          <div class="col-nortevo col-nortevo-bg"><span class="check">✓</span>Em tempo real, na tela</div>
+          <div class="col-sem"><span class="cross">—</span>Dias depois, por e-mail</div>
+        </div>
+        <div class="compare-row">
+          <div class="col-item">Percepção do assessor</div>
+          <div class="col-nortevo col-nortevo-bg"><span class="check">✓</span>CFP-level sofisticado</div>
+          <div class="col-sem"><span class="cross">—</span>Bom, mas como os outros</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testi-wrap" id="depoimentos">
+<div class="testi-section">
+  <div class="testi-header">
+    <h2 class="testi-h2 reveal">O que muda<br/>na prática,<br/>na <em>voz de quem usa</em></h2>
+    <p class="reveal d2" style="font-size:15px;color:rgba(239,234,221,.4);line-height:1.7;max-width:360px">Não é sobre funcionalidade. É sobre como o trabalho se transforma quando o investidor passa a ver o que você constrói para ele.</p>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <span class="testi-mark">"</span>
+      <div class="testi-quote">Tive um cliente de 6 anos que estava pensando em sair. Mostrei o plano dele pela primeira vez. Ele ficou em <em>silêncio por uns 40 segundos</em>, olhando. Aí disse: "nunca entendi que era isso que estava construindo."</div>
+      <div class="testi-attr">
+        <div class="testi-av" style="background:rgba(184,146,86,.2);color:var(--brass)">R</div>
+        <div><div class="testi-name">Ricardo Monteiro</div><div class="testi-role">AAI · São Paulo · 9 anos de mercado</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal d1">
+      <span class="testi-mark">"</span>
+      <div class="testi-quote">Minha taxa de indicação triplicou em um ano. Os clientes passaram a <em>mostrar o relatório para a família</em>. "Olha o que meu assessor fez pra mim." Isso não tem preço.</div>
+      <div class="testi-attr">
+        <div class="testi-av" style="background:rgba(34,160,90,.15);color:#22a05a">A</div>
+        <div><div class="testi-name">Ana Paula Silveira</div><div class="testi-role">Gestora de carteiras · Cooperativa Serrana</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal d2">
+      <span class="testi-mark">"</span>
+      <div class="testi-quote">Eu cobrava menos do que deveria porque não sabia mostrar o valor do meu trabalho. Hoje a reunião <em>fala por si mesma</em>. Renegociei fee com 7 dos meus top 10 clientes.</div>
+      <div class="testi-attr">
+        <div class="testi-av" style="background:rgba(90,154,191,.15);color:#5a9abf">F</div>
+        <div><div class="testi-name">Fernando Leal</div><div class="testi-role">CFP independente · Vértice Capital</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CTA FINAL -->
+<div class="cta-wrap" id="contato">
+<div class="cta-section">
+  <div class="cta-inner">
+    <div>
+      <div class="reveal" style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:24px;display:flex;align-items:center;gap:10px"><span style="width:20px;height:1px;background:rgba(184,146,86,.5);display:block"></span>Próximo passo</div>
+      <h2 class="cta-h2 reveal">Veja como seu<br/>trabalho <em>parece</em><br/>com o plano<br/>do seu cliente.</h2>
+      <p class="cta-sub reveal" style="margin-top:24px">Uma conversa de 30 minutos. Montamos um plano de demonstração com o perfil de um cliente real seu — para você sentir como fica antes de qualquer decisão.</p>
+      <div class="cta-trust reveal">
+        <div class="trust-item">
+          <svg class="trust-icon" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#b89256" stroke-width="1.2"/><path d="M6 9l2 2 4-4" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sem compromisso. Sem cartão de crédito.
+        </div>
+        <div class="trust-item">
+          <svg class="trust-icon" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#b89256" stroke-width="1.2"/><path d="M6 9l2 2 4-4" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          A demonstração usa a identidade visual da sua empresa.
+        </div>
+        <div class="trust-item">
+          <svg class="trust-icon" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#b89256" stroke-width="1.2"/><path d="M6 9l2 2 4-4" stroke="#b89256" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Resposta em até 24h úteis.
+        </div>
+      </div>
+    </div>
+    <div class="cta-form-wrap reveal d2">
+      <div class="form-title">Quero transformar minhas reuniões</div>
+      <div class="form-sub" style="margin-bottom:24px">Preencha e entraremos em contato para agendar</div>
+      <div class="form-field">
+        <label class="form-label">Seu nome</label>
+        <input type="text" class="form-input" placeholder="Como prefere ser chamado?">
+      </div>
+      <div class="form-row">
+        <div class="form-field" style="margin-bottom:0">
+          <label class="form-label">Empresa</label>
+          <input type="text" class="form-input" placeholder="Assessoria ou cooperativa">
+        </div>
+        <div class="form-field" style="margin-bottom:0">
+          <label class="form-label">Tipo</label>
+          <select class="form-input" style="cursor:pointer;color:rgba(239,234,221,.5)">
+            <option value="" disabled selected>Selecione</option>
+            <option>Assessor AAI</option>
+            <option>Cooperativa</option>
+            <option>CFP independente</option>
+            <option>Gestora</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field" style="margin-top:14px">
+        <label class="form-label">WhatsApp</label>
+        <input type="tel" class="form-input" placeholder="Para agendar a conversa">
+      </div>
+      <button class="form-submit" id="submitBtn" style="margin-top:16px">Quero conhecer o Nortevo →</button>
+      <p class="form-note">Suas informações são confidenciais e não são compartilhadas.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div style="border-top:1px solid rgba(255,255,255,.06)">
+<footer>
+  <div class="footer-grid">
+    <div class="foot-brand">
+      <div class="wm">
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <g transform="rotate(22 11 11)">
+            <polygon points="11,2 12.4,11 11,11.5 9.6,11" fill="#b89256"/>
+            <polygon points="11,20 12.4,11 11,10.5 9.6,11" fill="rgba(239,234,221,.15)"/>
+          </g>
+          <circle cx="11" cy="11" r="9.5" fill="none" stroke="rgba(255,255,255,.08)" stroke-width=".7"/>
+        </svg>
+        Nortevo
+      </div>
+      <p>O plano que fideliza. A sofisticação que diferencia. Com a sua marca.</p>
+      <p style="margin-top:16px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;color:rgba(239,234,221,.15);text-transform:uppercase">São Paulo · Brasil · 2025</p>
+    </div>
+    <div class="foot-nav">
+      <div class="foot-col">
+        <h5>Para quem</h5>
+        <a href="#">Assessores AAI</a>
+        <a href="#">Cooperativas</a>
+        <a href="#">CFP independentes</a>
+        <a href="#">Gestoras</a>
+      </div>
+      <div class="foot-col">
+        <h5>Produto</h5>
+        <a href="#">Como funciona</a>
+        <a href="#">O plano do investidor</a>
+        <a href="#">Sua marca</a>
+        <a href="#">Segurança</a>
+      </div>
+      <div class="foot-col">
+        <h5>Empresa</h5>
+        <a href="#">Sobre o Nortevo</a>
+        <a href="#">Blog</a>
+        <a href="#">Contato</a>
+        <a href="#">Privacidade</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span class="foot-copy">© 2025 Nortevo · Todos os direitos reservados</span>
+    <span class="foot-az">AZ 022°</span>
+  </div>
+</footer>
+</div>
+
+<script>
+// Reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
+}, { threshold: 0.07 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Journey steps
+function showJourney(idx, el) {
+  document.querySelectorAll('.journey-step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.plan-panel').forEach(p => p.classList.remove('visible'));
+  el.classList.add('active');
+  document.getElementById('jp-'+idx).classList.add('visible');
+}
+
+// Form submit
+document.getElementById('submitBtn').addEventListener('click', function(){
+  this.textContent = '✓ Enviado! Entraremos em contato em breve.';
+  this.style.background = '#1a6b3c';
+  this.style.cursor = 'default';
+  this.disabled = true;
+});
+
+// Counter animation
+function animCount(id, target, suffix='', duration=1600) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  let v = 0;
+  const step = target / (duration / 16);
+  const t = setInterval(() => {
+    v = Math.min(v + step, target);
+    el.textContent = Math.round(v) + suffix;
+    if(v >= target) clearInterval(t);
+  }, 16);
+}
+const heroObs = new IntersectionObserver(entries => {
+  if(entries[0].isIntersecting) { heroObs.disconnect(); }
+}, { threshold: .5 });
+const proofEls = document.querySelector('.hero-proof');
+if(proofEls) heroObs.observe(proofEls);
+</script>
+</body>
+</html>
