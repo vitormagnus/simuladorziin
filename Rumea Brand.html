@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<title>Rumea · Identidade visual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; height:100%; background:#f0eee9; font-family:"DM Sans",system-ui,sans-serif; }
+  #root { height:100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="logos.jsx"></script>
+<script type="text/babel" src="brand-tiles.jsx"></script>
+<script type="text/babel" src="dashboard.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+  const { useState } = React;
+
+  function App() {
+    return (
+      <DesignCanvas>
+        <DCSection id="brand" title="Rumea · Sistema de marca" subtitle="Paleta sóbria, DM Sans, formas orgânicas. Modo claro primário com superfícies floresta para seções de peso.">
+          <DCArtboard id="palette" label="Paleta — Crescimento orgânico" width={640} height={560}>
+            <PaletteTile />
+          </DCArtboard>
+          <DCArtboard id="type" label="Tipografia — DM Sans" width={640} height={560}>
+            <TypeTile />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="logo" title="Logotipo · 3 variações do símbolo" subtitle="Monograma minimalista da letra 'r' minúscula. Linha contínua grossa, pontas arredondadas, curva superior evocando um broto.">
+          <DCArtboard id="a" label="A · Broto" width={480} height={620}>
+            <LogoTile
+              variant="A"
+              title="Broto"
+              subtitle="A curva superior enrosca numa folha nascente. Leitura mais literal da metáfora orgânica — ideal para comunicação de marca e campanhas."
+              bg={BRAND.off} fg={BRAND.forest} accent={BRAND.pistache}
+              Sym={LogoSymbolA}
+            />
+          </DCArtboard>
+          <DCArtboard id="b" label="B · Rumo" width={480} height={620}>
+            <LogoTile
+              variant="B"
+              title="Rumo"
+              subtitle="A curva se estende como uma trajetória, apontando para um ponto-destino (semente). Mais cinético e estruturado — bom para UI e marca-produto."
+              bg={BRAND.snow} fg={BRAND.forest} accent={BRAND.olive}
+              Sym={LogoSymbolB}
+            />
+          </DCArtboard>
+          <DCArtboard id="c" label="C · Circuito" width={480} height={620}>
+            <LogoTile
+              variant="C"
+              title="Circuito"
+              subtitle="O 'r' repousa dentro de um squircle floresta. Formato badge, funciona muito bem como ícone de app e favicon — contida, sóbria, reconhecível em tamanhos pequenos."
+              bg={BRAND.forest} fg={BRAND.off} accent={BRAND.pistache}
+              Sym={LogoSymbolC}
+            />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="dash" title="Dashboard · Aplicação da identidade" subtitle="Mock da tela inicial com o Termômetro de Saúde Financeira e o Fluxo do Mês. Off-white de superfície, sidebar floresta, gráficos em gradientes suaves de pistache.">
+          <DCArtboard id="dashboard" label="Início — Termômetro + Fluxo" width={1280} height={860}>
+            <Dashboard />
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
