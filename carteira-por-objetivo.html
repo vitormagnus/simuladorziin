@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carteira por Objetivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A17;
+  --slate:#5A6763;
+  --mist:#DFE4E1;
+  --line:#E8ECEA;
+  --paper:#F7F8F7;
+  --white:#FFFFFF;
+  --accent:#0F6B5C;
+  --accent-soft:#E6F0ED;
+  --amber:#A2701A;
+  --clay:#96382B;
+  --moss:#3F6B3A;
+  --r:10px;
+  --shadow:0 1px 2px rgba(15,26,23,.05), 0 8px 24px -16px rgba(15,26,23,.22);
+  --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-ui:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;font-weight:400}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:inherit;color:var(--ink)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- chrome ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:18px;
+  padding:12px 22px;
+  background:var(--ink);color:#EDF1EF;
+}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand-mark{
+  font-family:var(--font-display);font-size:19px;letter-spacing:.01em;
+  background:transparent;border:none;color:#fff;padding:0;width:auto;max-width:220px;
+  border-bottom:1px dotted rgba(255,255,255,.28);
+}
+.brand-mark:focus{outline:none;border-bottom-color:var(--accent)}
+.brand-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8FA09B}
+.topbar-spacer{flex:1}
+.tabs{display:flex;gap:2px;background:rgba(255,255,255,.07);padding:3px;border-radius:8px}
+.tab{
+  border:none;background:transparent;color:#B9C6C2;padding:6px 14px;border-radius:6px;
+  font-size:13px;font-weight:500;
+}
+.tab[aria-selected="true"]{background:var(--paper);color:var(--ink)}
+.tools{display:flex;gap:8px;align-items:center}
+.icon-btn{
+  border:1px solid rgba(255,255,255,.18);background:transparent;color:#DCE4E1;
+  border-radius:7px;padding:6px 11px;font-size:12.5px;
+}
+.icon-btn:hover{background:rgba(255,255,255,.09)}
+.swatches{display:flex;gap:5px;align-items:center;padding-left:4px}
+.swatch{width:15px;height:15px;border-radius:50%;border:1px solid rgba(255,255,255,.35);padding:0}
+.swatch[aria-pressed="true"]{outline:2px solid #fff;outline-offset:1px}
+
+.wrap{max-width:1360px;margin:0 auto;padding:26px 22px 90px}
+
+/* ---------- client bar ---------- */
+.clientbar{
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:26px;
+  padding-bottom:18px;margin-bottom:22px;border-bottom:1px solid var(--line);
+}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate)}
+.field input,.field select{
+  border:none;border-bottom:1px solid var(--mist);background:transparent;
+  padding:3px 0;font-size:15px;min-width:120px;
+}
+.field input:focus,.field select:focus{outline:none;border-bottom-color:var(--accent)}
+.client-name input{font-family:var(--font-display);font-size:24px;min-width:280px}
+
+/* ---------- layout ---------- */
+.board{display:grid;grid-template-columns:322px 1fr;gap:22px;align-items:start}
+@media (max-width:960px){.board{grid-template-columns:1fr}}
+
+.panel{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:13px 16px;border-bottom:1px solid var(--line);
+}
+.panel-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--slate)}
+.panel-body{padding:14px 16px}
+
+/* ---------- assets ---------- */
+.wallet-total{padding:14px 16px 4px}
+.wallet-total .v{font-family:var(--font-display);font-size:27px;letter-spacing:-.01em}
+.wallet-total .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate)}
+.meter{height:5px;border-radius:3px;background:var(--mist);margin:11px 0 5px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.meter-note{font-size:11.5px;color:var(--slate)}
+.asset-list{padding:8px 10px 14px;display:flex;flex-direction:column;gap:7px;max-height:60vh;overflow:auto}
+.asset{
+  border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--white);
+  cursor:grab;transition:border-color .12s, box-shadow .12s, transform .12s;
+}
+.asset:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.asset.dragging{opacity:.42;transform:scale(.99)}
+.asset.done{opacity:.5;cursor:default;background:var(--paper)}
+.asset-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.asset-name{font-size:13px;font-weight:500;line-height:1.3}
+.asset-val{font-size:13px;white-space:nowrap}
+.asset-meta{display:flex;align-items:center;gap:7px;margin-top:5px;flex-wrap:wrap}
+.chip{
+  font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;background:var(--paper);color:var(--slate);border:1px solid var(--line);
+}
+.chip.liq{font-family:var(--font-mono);letter-spacing:0;text-transform:none}
+.asset-free{font-size:11.5px;color:var(--accent);margin-left:auto}
+.asset-free.zero{color:var(--slate)}
+.mini-btn{
+  border:1px solid var(--mist);background:var(--white);border-radius:6px;
+  padding:3px 8px;font-size:11.5px;color:var(--slate);
+}
+.mini-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- goals ---------- */
+.goals-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px}
+.goals-head h2{font-family:var(--font-display);font-size:20px}
+.btn{
+  border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:7px;
+  padding:8px 14px;font-size:13px;font-weight:500;
+}
+.btn:hover{background:#1b2b26}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--mist)}
+.btn.ghost:hover{background:var(--white);border-color:var(--ink)}
+.btn.sm{padding:5px 10px;font-size:12px}
+
+.goal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.goal{
+  background:var(--white);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;position:relative;
+}
+.goal::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc,var(--accent))}
+.goal.drop{border-color:var(--gc);box-shadow:0 0 0 3px color-mix(in srgb, var(--gc) 16%, transparent)}
+.goal-head{padding:14px 16px 12px 18px;border-bottom:1px solid var(--line)}
+.goal-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.goal-name{font-family:var(--font-display);font-size:18px;line-height:1.2}
+.goal-sub{font-size:11.5px;color:var(--slate);margin-top:2px}
+.goal-menu{border:none;background:transparent;color:var(--slate);font-size:16px;line-height:1;padding:2px 5px;border-radius:5px}
+.goal-menu:hover{background:var(--paper);color:var(--ink)}
+.goal-figs{display:flex;gap:18px;margin-top:11px;flex-wrap:wrap}
+.fig{display:flex;flex-direction:column}
+.fig .l{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--slate)}
+.fig .v{font-size:15px;font-weight:500}
+.progress{height:6px;border-radius:3px;background:var(--mist);margin-top:12px;overflow:hidden;position:relative}
+.progress i{display:block;height:100%;background:var(--gc,var(--accent))}
+.progress .proj{position:absolute;top:-3px;width:2px;height:12px;background:var(--ink);opacity:.55}
+.progress-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--slate);margin-top:5px}
+.verdict{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;margin-top:10px}
+.verdict.ok{color:var(--moss)}
+.verdict.late{color:var(--clay)}
+.verdict.none{color:var(--slate);font-weight:400}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+
+.alloc-zone{padding:11px 16px 14px 18px;min-height:74px}
+.alloc-empty{
+  border:1px dashed var(--mist);border-radius:8px;padding:15px 12px;text-align:center;
+  font-size:12.5px;color:var(--slate);
+}
+.alloc{
+  display:flex;align-items:center;gap:9px;padding:7px 4px;border-bottom:1px solid var(--line);
+}
+.alloc:last-child{border-bottom:none}
+.alloc-bar{width:3px;height:26px;border-radius:2px;background:var(--gc);opacity:.55;flex:none}
+.alloc-name{font-size:12.5px;flex:1;min-width:0;line-height:1.25}
+.alloc-name span{display:block;font-size:10.5px;color:var(--slate)}
+.alloc-val{font-size:12.5px;text-align:right;white-space:nowrap}
+.alloc-val span{display:block;font-size:10.5px;color:var(--slate)}
+.alloc-edit{border:none;background:transparent;color:var(--slate);padding:3px 5px;border-radius:5px;font-size:12px}
+.alloc-edit:hover{background:var(--paper);color:var(--accent)}
+.goal-foot{padding:10px 16px 13px 18px;background:var(--paper);border-top:1px solid var(--line)}
+.mixbar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--mist)}
+.mixbar i{display:block;height:100%}
+.mixlab{display:flex;flex-wrap:wrap;gap:10px;margin-top:7px;font-size:11px;color:var(--slate)}
+.mixlab b{font-weight:500;color:var(--ink)}
+.flag{display:flex;gap:7px;align-items:flex-start;font-size:11.5px;color:var(--slate);margin-top:9px;line-height:1.35}
+.flag i{flex:none;width:6px;height:6px;border-radius:50%;margin-top:5px;background:var(--amber);font-style:normal}
+.flag.risk i{background:var(--clay)}
+.flag.info i{background:var(--accent)}
+
+.goal.unassigned{border-style:dashed;box-shadow:none;background:transparent}
+.goal.unassigned::before{opacity:.35}
+
+/* ---------- modal ---------- */
+.backdrop{
+  position:fixed;inset:0;background:rgba(15,26,23,.42);z-index:60;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.backdrop[hidden]{display:none}
+.modal{
+  background:var(--white);border-radius:12px;width:min(560px,100%);max-height:88vh;overflow:auto;
+  box-shadow:0 24px 60px -20px rgba(15,26,23,.4);
+}
+.modal.wide{width:min(860px,100%)}
+.modal-head{padding:18px 22px 12px;border-bottom:1px solid var(--line)}
+.modal-head h3{font-family:var(--font-display);font-size:20px}
+.modal-head p{margin:4px 0 0;font-size:12.5px;color:var(--slate)}
+.modal-body{padding:18px 22px}
+.modal-foot{padding:14px 22px 18px;display:flex;gap:9px;justify-content:flex-end;border-top:1px solid var(--line)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid .full{grid-column:1/-1}
+.fl{display:flex;flex-direction:column;gap:5px}
+.fl label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--slate)}
+.fl input,.fl select,.fl textarea{
+  border:1px solid var(--mist);border-radius:7px;padding:9px 11px;background:var(--white);width:100%;
+}
+.fl input:focus,.fl select:focus,.fl textarea:focus{outline:none;border-color:var(--accent)}
+.fl .hint{font-size:11px;color:var(--slate)}
+.templates{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.tpl{border:1px solid var(--mist);background:var(--white);border-radius:20px;padding:5px 11px;font-size:12px;color:var(--slate)}
+.tpl:hover{border-color:var(--accent);color:var(--accent)}
+.slider{width:100%;accent-color:var(--accent)}
+.seg{display:flex;gap:2px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:3px}
+.seg button{flex:1;border:none;background:transparent;color:var(--slate);padding:7px 10px;border-radius:6px;font-size:12.5px;font-weight:500}
+.seg button.on{background:var(--white);color:var(--ink);box-shadow:var(--shadow)}
+.seg-note{font-size:11.5px;color:var(--slate);margin:9px 2px 0;line-height:1.4;min-height:32px}
+.big-num{font-family:var(--font-display);font-size:26px;border:none;border-bottom:1px solid var(--mist);background:transparent;padding:2px 0;width:100%}
+.big-num:focus{outline:none;border-bottom-color:var(--accent)}
+.tag-fix{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);border:1px solid currentColor;border-radius:3px;padding:0 3px;margin-left:4px;vertical-align:1px}
+.pick-list{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
+.pick{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--white);text-align:left;width:100%;
+}
+.pick:hover{border-color:var(--accent)}
+.pick b{font-weight:500}
+.pick small{color:var(--slate)}
+
+table.review{width:100%;border-collapse:collapse;font-size:12.5px}
+table.review th{text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);padding:6px 6px;border-bottom:1px solid var(--line)}
+table.review td{padding:4px 6px;border-bottom:1px solid var(--line)}
+table.review input,table.review select{border:1px solid transparent;border-radius:5px;padding:5px 6px;width:100%;background:transparent}
+table.review input:focus,table.review select:focus{border-color:var(--accent);outline:none;background:var(--white)}
+table.review td.r input{text-align:right}
+.drop-file{
+  border:1px dashed var(--mist);border-radius:10px;padding:26px 18px;text-align:center;color:var(--slate);
+  font-size:13px;background:var(--paper);
+}
+.drop-file.over{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+/* ---------- report ---------- */
+.report{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:38px 42px;box-shadow:var(--shadow)}
+@media (max-width:700px){.report{padding:24px 20px}}
+.rep-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+.rep-title{font-family:var(--font-display);font-size:32px;line-height:1.05}
+.rep-title span{display:block;font-family:var(--font-ui);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:8px}
+.rep-meta{text-align:right;font-size:12px;color:var(--slate);line-height:1.6}
+.rep-meta b{display:block;color:var(--ink);font-size:14px;font-weight:500}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:26px 0 30px}
+.kpi{background:var(--white);padding:15px 17px}
+.kpi .l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate)}
+.kpi .v{font-family:var(--font-display);font-size:25px;margin-top:5px;letter-spacing:-.01em}
+.kpi .n{font-size:11.5px;color:var(--slate);margin-top:2px}
+.sec-title{
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);
+  border-bottom:1px solid var(--line);padding-bottom:7px;margin:34px 0 16px;
+}
+.timeline{width:100%;overflow:visible}
+.rep-goal{padding:20px 0;border-bottom:1px solid var(--line)}
+.rep-goal:last-child{border-bottom:none}
+.rg-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.rg-name{font-family:var(--font-display);font-size:21px;display:flex;align-items:center;gap:9px}
+.rg-name i{width:9px;height:9px;border-radius:2px;background:var(--gc);font-style:normal;flex:none}
+.rg-meta{font-size:12px;color:var(--slate)}
+.rg-cols{display:grid;grid-template-columns:1.15fr 1fr;gap:26px;margin-top:14px}
+@media (max-width:760px){.rg-cols{grid-template-columns:1fr}}
+table.assets{width:100%;border-collapse:collapse;font-size:12.5px}
+table.assets th{text-align:left;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);padding:0 0 6px;font-weight:500;border-bottom:1px solid var(--line)}
+table.assets td{padding:7px 0;border-bottom:1px solid var(--line)}
+table.assets td.r,table.assets th.r{text-align:right}
+table.assets tr:last-child td{border-bottom:none}
+.rg-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+.stat .l{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--slate)}
+.stat .v{font-size:16px;font-weight:500;margin-top:1px}
+.stat .v.pos{color:var(--moss)}
+.stat .v.neg{color:var(--clay)}
+.note{font-size:12px;color:var(--slate);line-height:1.5;margin-top:12px;padding-left:12px;border-left:2px solid var(--mist)}
+.disc{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--slate);line-height:1.55}
+.empty-state{text-align:center;padding:70px 20px;color:var(--slate)}
+.empty-state h3{font-family:var(--font-display);font-size:22px;color:var(--ink);margin-bottom:8px}
+
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:26px;z-index:80;
+  background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;
+  opacity:0;transition:opacity .2s, bottom .2s;pointer-events:none;
+}
+.toast.on{opacity:1;bottom:34px}
+
+@media print{
+  .topbar,.clientbar,.no-print{display:none !important}
+  body{background:#fff}
+  .wrap{padding:0;max-width:none}
+  .report{border:none;box-shadow:none;padding:0}
+  .rep-goal{break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <input class="brand-mark" id="brandMark" value="" placeholder="Sua marca" aria-label="Marca">
+    <span class="brand-sub">Carteira por objetivo</span>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tabPlan" role="tab" aria-selected="true">Planejar</button>
+    <button class="tab" id="tabRep" role="tab" aria-selected="false">Visão do investidor</button>
+  </div>
+  <div class="tools">
+    <button class="icon-btn" id="btnImport">Importar carteira</button>
+    <button class="icon-btn" id="btnPrem">Premissas</button>
+    <button class="icon-btn" id="btnSave">Salvar</button>
+    <button class="icon-btn" id="btnMenu">Arquivo</button>
+    <span class="swatches" id="swatches"></span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="clientbar no-print">
+    <div class="field client-name">
+      <label for="fCliente">Cliente</label>
+      <input id="fCliente" value="">
+    </div>
+    <div class="field">
+      <label for="fConta">Conta</label>
+      <input id="fConta" value="" style="min-width:110px">
+    </div>
+    <div class="field">
+      <label for="fData">Data-base</label>
+      <input id="fData" type="date">
+    </div>
+    <div class="field">
+      <label for="fPlanejador">Planejador</label>
+      <input id="fPlanejador" value="">
+    </div>
+  </div>
+
+  <section id="viewPlan">
+    <div class="board">
+      <aside class="panel" id="walletPanel">
+        <div class="panel-head">
+          <span class="panel-title">Carteira atual</span>
+          <button class="mini-btn" id="btnAddAsset">+ ativo</button>
+        </div>
+        <div class="wallet-total">
+          <div class="l">Patrimônio</div>
+          <div class="v mono" id="walletTotal">R$ 0,00</div>
+          <div class="meter"><i id="walletMeter" style="width:0%"></i></div>
+          <div class="meter-note" id="walletNote">Nada alocado ainda.</div>
+        </div>
+        <div class="asset-list" id="assetList"></div>
+      </aside>
+
+      <div>
+        <div class="goals-head">
+          <h2>Objetivos</h2>
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost sm" id="btnAuto">Sugerir divisão</button>
+            <button class="btn sm" id="btnNewGoal">Criar objetivo</button>
+          </div>
+        </div>
+        <div class="goal-grid" id="goalGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="viewRep" hidden>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:14px" class="no-print">
+      <button class="btn ghost sm" id="btnPrint">Imprimir / PDF</button>
+    </div>
+    <div class="report" id="report"></div>
+  </section>
+</main>
+
+<div class="backdrop" id="backdrop" hidden><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   Estado
+   ========================================================= */
+const CLASSES = {
+  'Pós-fixado':        {ret:0.130, risco:1, cor:'#0F6B5C'},
+  'Inflação':          {ret:0.113, risco:2, cor:'#3F6B3A'},
+  'Prefixado':         {ret:0.125, risco:2, cor:'#5E7A4F'},
+  'Retorno Absoluto':  {ret:0.150, risco:3, cor:'#A2701A'},
+  'Renda Variável':    {ret:0.150, risco:4, cor:'#96382B'},
+  'Internacional':     {ret:0.120, risco:4, cor:'#3B5A7A'},
+  'Imobiliário':       {ret:0.125, risco:3, cor:'#7A5C3B'},
+  'Previdência':       {ret:0.120, risco:2, cor:'#4B4F7A'},
+  'Caixa':             {ret:0.125, risco:0, cor:'#6E7A76'},
+  'Outros':            {ret:0.110, risco:2, cor:'#8A8A8A'}
+};
+const GOAL_COLORS = ['#0F6B5C','#3B5A7A','#A2701A','#96382B','#4B4F7A','#3F6B3A','#7A5C3B','#6E4A6E'];
+const ACCENTS = ['#0F6B5C','#1F4E79','#7A5C3B','#4B4F7A','#96382B','#26302D'];
+
+const TEMPLATES = [
+  {nome:'Reserva de emergência', anos:1,  alvo:60000,   aporte:0},
+  {nome:'Aposentadoria',         anos:19, alvo:4000000, aporte:3000},
+  {nome:'Faculdade dos filhos',  anos:8,  alvo:900000,  aporte:1200},
+  {nome:'Casa na praia',         anos:5,  alvo:1500000, aporte:2000},
+  {nome:'Troca de carro',        anos:3,  alvo:180000,  aporte:800},
+  {nome:'Viagem',                anos:2,  alvo:60000,   aporte:500},
+  {nome:'Abrir um negócio',      anos:4,  alvo:400000,  aporte:1500},
+  {nome:'Liberdade financeira',  anos:12, alvo:2500000, aporte:5000}
+];
+
+let S = {
+  cliente:'', conta:'', planejador:'', dataBase: hoje().toISOString().slice(0,10),
+  marca:'', accent:'#0F6B5C', modoPadrao:'pct',
+  premissas:{ipca:0.045, cdi:0.130, classes:Object.fromEntries(Object.entries(CLASSES).map(([k,v])=>[k,v.ret]))},
+  ativos:[], objetivos:[], alocacoes:[]  // {ativoId, objetivoId, pct}
+};
+
+function hoje(){const d=new Date();d.setHours(0,0,0,0);return d}
+function uid(){return Math.random().toString(36).slice(2,9)}
+const BRL = n => (isFinite(n)?n:0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const BRL0 = n => (isFinite(n)?n:0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const PCT = (n,d=1) => (isFinite(n)?n*100:0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* =========================================================
+   Cálculo
+   ========================================================= */
+function taxaReal(nominal){ return (1+nominal)/(1+S.premissas.ipca)-1 }
+function mensal(anual){ return Math.pow(1+anual,1/12)-1 }
+function mesesEntre(a,b){ return (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth()) + (b.getDate()-a.getDate())/30.4375 }
+function addMeses(d,m){ const r=new Date(d); r.setDate(r.getDate()+Math.round(m*30.4375)); return r }
+function parseData(s){ const [y,m,d]=String(s).split('-').map(Number); return new Date(y,(m||1)-1,d||1) }
+
+function retornoAtivo(a){ return a.ret != null ? a.ret : (S.premissas.classes[a.classe] ?? 0.11) }
+function ativoDe(id){ return S.ativos.find(t=>t.id===id) }
+function pctDe(x){
+  const a=ativoDe(x.ativoId); if(!a||!a.valor) return 0;
+  return x.modo==='valor' ? Math.min(1,(x.valor||0)/a.valor) : (x.pct||0);
+}
+function valorDe(x){
+  const a=ativoDe(x.ativoId); if(!a) return 0;
+  return x.modo==='valor' ? Math.min(a.valor,(x.valor||0)) : a.valor*(x.pct||0);
+}
+function pctAlocado(id){ return S.alocacoes.filter(x=>x.ativoId===id).reduce((s,x)=>s+pctDe(x),0) }
+function alocDoObjetivo(id){
+  return S.alocacoes.filter(x=>x.objetivoId===id).map(x=>{
+    const a = ativoDe(x.ativoId);
+    return a ? {...x, ativo:a, valor:valorDe(x), pct:pctDe(x)} : null;
+  }).filter(Boolean).sort((p,q)=>q.valor-p.valor);
+}
+const patrimonio = () => S.ativos.reduce((s,a)=>s+a.valor,0);
+const alocadoTotal = () => S.alocacoes.reduce((s,x)=>s+valorDe(x),0);
+
+function calcObjetivo(o){
+  const itens = alocDoObjetivo(o.id);
+  const V = itens.reduce((s,i)=>s+i.valor,0);
+  const retNominal = V>0 ? itens.reduce((s,i)=>s+i.valor*retornoAtivo(i.ativo),0)/V : (S.premissas.classes['Pós-fixado']);
+  const rAnual = taxaReal(retNominal);
+  const r = mensal(rAnual);
+  const alvo = o.alvo||0;
+  const dMeta = parseData(o.data);
+  const n = Math.max(0, mesesEntre(hoje(), dMeta));
+  const A = o.aporte||0;
+  const f = Math.pow(1+r,n);
+  const projetado = V*f + (r>1e-9 ? A*(f-1)/r : A*n);
+  const cobertura = alvo>0 ? projetado/alvo : null;
+
+  // meses até atingir o alvo
+  let meses=null, saldo=V;
+  if(alvo>0){
+    if(saldo>=alvo){ meses=0 }
+    else if(A>0 || r>0){
+      for(let m=1;m<=960;m++){ saldo = saldo*(1+r)+A; if(saldo>=alvo){ meses=m; break } }
+    }
+  }
+  const dataProj = meses!=null ? addMeses(hoje(),meses) : null;
+  const diasDelta = dataProj ? Math.round((dataProj - dMeta)/86400000) : null;
+
+  // aporte necessário para chegar na data
+  let aporteNec = 0;
+  if(alvo>0 && n>0){
+    const falta = alvo - V*f;
+    aporteNec = falta<=0 ? 0 : (r>1e-9 ? falta*r/(f-1) : falta/n);
+  }
+  const prazoDias = Math.max(0, Math.round((dMeta-hoje())/86400000));
+  return {itens,V,retNominal,rAnual,n,projetado,cobertura,meses,dataProj,diasDelta,aporteNec,prazoDias,progresso:alvo>0?V/alvo:0};
+}
+
+function mixClasses(itens){
+  const m={}; itens.forEach(i=>{ m[i.ativo.classe]=(m[i.ativo.classe]||0)+i.valor });
+  const t=Object.values(m).reduce((s,v)=>s+v,0)||1;
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({classe:k,valor:v,pct:v/t,cor:(CLASSES[k]||CLASSES['Outros']).cor}));
+}
+
+function diagnosticos(o,c){
+  const out=[];
+  if(c.V===0){ out.push({t:'info',txt:'Nenhum investimento vinculado. Este objetivo depende só de aportes futuros.'}); return out }
+  const anos = c.prazoDias/365;
+  const liqLenta = c.itens.filter(i=>(i.ativo.liq??0) > c.prazoDias).reduce((s,i)=>s+i.valor,0);
+  if(liqLenta>0) out.push({t:'risk',txt:`${BRL0(liqLenta)} têm prazo de resgate maior que o prazo do objetivo.`});
+  const risco = c.itens.filter(i=>(CLASSES[i.ativo.classe]||CLASSES['Outros']).risco>=3).reduce((s,i)=>s+i.valor,0)/c.V;
+  if(anos<2 && risco>0.15) out.push({t:'risk',txt:`${PCT(risco,0)} em ativos de maior oscilação para um objetivo de ${anos<1?'menos de 1 ano':'até 2 anos'}.`});
+  if(anos>8 && risco<0.10) out.push({t:'flag',txt:`Horizonte de ${Math.round(anos)} anos com ${PCT(1-risco,0)} em pós-fixado e inflação. Vale revisar o potencial de retorno.`});
+  if(c.itens.length===1 && c.V>0.15*patrimonio()) out.push({t:'flag',txt:'Objetivo concentrado em um único ativo.'});
+  if(c.cobertura!=null && c.cobertura<1 && c.aporteNec>0) out.push({t:'flag',txt:`Para chegar na data, o aporte mensal precisa ser de ${BRL0(c.aporteNec)} (hoje: ${BRL0(o.aporte||0)}).`});
+  return out;
+}
+
+/* =========================================================
+   Render — planejar
+   ========================================================= */
+function render(){
+  document.documentElement.style.setProperty('--accent',S.accent);
+  renderWallet(); renderGoals();
+  if(!document.getElementById('viewRep').hidden) renderReport();
+}
+
+function renderWallet(){
+  const tot = patrimonio(), alc = alocadoTotal();
+  document.getElementById('walletTotal').textContent = BRL(tot);
+  document.getElementById('walletMeter').style.width = (tot?alc/tot*100:0)+'%';
+  document.getElementById('walletNote').textContent = tot
+    ? `${PCT(tot?alc/tot:0,0)} vinculado a objetivos · ${BRL0(tot-alc)} sem destino`
+    : 'Importe o relatório da corretora ou adicione ativos.';
+
+  const list = document.getElementById('assetList');
+  if(!S.ativos.length){
+    list.innerHTML = `<div class="alloc-empty" style="margin:6px 0">Nenhum ativo ainda.<br><button class="mini-btn" style="margin-top:9px" onclick="openImport()">Importar relatório</button></div>`;
+    return;
+  }
+  list.innerHTML = S.ativos.map(a=>{
+    const used = pctAlocado(a.id), free = Math.max(0, 1-used);
+    const livre = a.valor*free, excede = used > 1.0005;
+    return `<div class="asset ${free<=0.0001?'done':''}" draggable="${free>0.0001}" data-id="${a.id}">
+      <div class="asset-top">
+        <div class="asset-name">${esc(a.nome)}</div>
+        <div class="asset-val mono">${BRL0(a.valor)}</div>
+      </div>
+      <div class="asset-meta">
+        <span class="chip" style="border-color:${(CLASSES[a.classe]||CLASSES['Outros']).cor}33;color:${(CLASSES[a.classe]||CLASSES['Outros']).cor}">${esc(a.classe)}</span>
+        ${a.liq!=null?`<span class="chip liq">D+${a.liq}</span>`:''}
+        <span class="asset-free ${free<=0.0001?'zero':''}" ${excede?'style="color:var(--clay)"':''}>${excede?'excede a posição':(free<=0.0001?'alocado':'livre '+BRL0(livre))}</span>
+      </div>
+      <div class="asset-meta" style="margin-top:7px">
+        <button class="mini-btn" data-act="assign" data-id="${a.id}" ${free<=0.0001?'disabled':''}>Vincular</button>
+        <button class="mini-btn" data-act="editAsset" data-id="${a.id}">Editar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderGoals(){
+  const grid = document.getElementById('goalGrid');
+  const cards = S.objetivos.map(o=>goalCard(o)).join('');
+  const semDestino = patrimonio()-alocadoTotal();
+  const rest = semDestino>0.5 ? `<div class="goal unassigned" style="--gc:#8A8A8A">
+      <div class="goal-head">
+        <div class="goal-title-row"><div>
+          <div class="goal-name">Sem objetivo definido</div>
+          <div class="goal-sub">Dinheiro investido que ainda não tem propósito atribuído</div>
+        </div></div>
+        <div class="goal-figs"><div class="fig"><span class="l">Valor</span><span class="v mono">${BRL0(semDestino)}</span></div>
+        <div class="fig"><span class="l">Da carteira</span><span class="v">${PCT(patrimonio()?semDestino/patrimonio():0,0)}</span></div></div>
+      </div>
+      <div class="alloc-zone"><div class="alloc-empty">Arraste os ativos daqui para um objetivo. Esta caixa desaparece quando tudo tiver destino.</div></div>
+    </div>` : '';
+  grid.innerHTML = (cards||'') + rest || `<div class="alloc-empty" style="padding:44px">Crie o primeiro objetivo para começar a organizar a carteira.</div>`;
+  bindGoalDnD();
+}
+
+function goalCard(o){
+  const c = calcObjetivo(o);
+  const cor = o.cor;
+  const mix = mixClasses(c.itens);
+  const dMeta = parseData(o.data);
+  const prazoTxt = dMeta.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}).replace('.','');
+  let verdict;
+  if(!o.alvo) verdict = `<div class="verdict none">Defina a meta para acompanhar o prazo</div>`;
+  else if(c.meses==null) verdict = `<div class="verdict late"><i class="dot"></i>Sem aporte e sem alocação, a meta não é atingida</div>`;
+  else if(c.diasDelta<=0) verdict = `<div class="verdict ok"><i class="dot"></i>${c.diasDelta===0?'No prazo':'Antecipa '+diasTxt(-c.diasDelta)}</div>`;
+  else verdict = `<div class="verdict late"><i class="dot"></i>Atrasa ${diasTxt(c.diasDelta)}</div>`;
+
+  const flags = diagnosticos(o,c).map(f=>`<div class="flag ${f.t}"><i></i><span>${esc(f.txt)}</span></div>`).join('');
+
+  return `<article class="goal" style="--gc:${cor}" data-goal="${o.id}">
+    <div class="goal-head">
+      <div class="goal-title-row">
+        <div>
+          <div class="goal-name">${esc(o.nome)}</div>
+          <div class="goal-sub">Meta ${o.alvo?BRL0(o.alvo):'—'} · ${prazoTxt}${o.aporte?' · aporte '+BRL0(o.aporte)+'/mês':''}</div>
+        </div>
+        <button class="goal-menu" data-act="editGoal" data-id="${o.id}" title="Editar objetivo">⋯</button>
+      </div>
+      <div class="goal-figs">
+        <div class="fig"><span class="l">Alocado</span><span class="v mono">${BRL0(c.V)}</span></div>
+        <div class="fig"><span class="l">Projetado na data</span><span class="v mono">${o.alvo?BRL0(c.projetado):'—'}</span></div>
+        <div class="fig"><span class="l">Retorno esperado</span><span class="v">${PCT(c.retNominal,1)} a.a.</span></div>
+      </div>
+      <div class="progress">
+        <i style="width:${Math.min(100,(c.progresso||0)*100)}%"></i>
+        ${o.alvo?`<span class="proj" style="left:${Math.min(100,(c.cobertura||0)*100)}%" title="Projeção na data-alvo"></span>`:''}
+      </div>
+      <div class="progress-legend"><span>${PCT(c.progresso||0,1)} da meta hoje</span><span>${o.alvo?PCT(c.cobertura||0,0)+' na data':''}</span></div>
+      ${verdict}
+    </div>
+    <div class="alloc-zone" data-drop="${o.id}">
+      ${c.itens.length ? c.itens.map(i=>`
+        <div class="alloc">
+          <span class="alloc-bar"></span>
+          <span class="alloc-name">${esc(i.ativo.nome)}<span>${esc(i.ativo.classe)}${i.ativo.liq!=null?' · D+'+i.ativo.liq:''}${i.pct<0.999?' · '+PCT(i.pct,0)+' do ativo':''}${i.modo==='valor'?' · valor fixo':''}</span></span>
+          <span class="alloc-val mono">${BRL0(i.valor)}<span>${PCT(c.V?i.valor/c.V:0,0)}</span></span>
+          <button class="alloc-edit" data-act="editAloc" data-a="${i.ativoId}" data-o="${o.id}" title="Ajustar">✎</button>
+        </div>`).join('')
+        : `<div class="alloc-empty">Arraste um ativo para cá</div>`}
+    </div>
+    ${c.itens.length?`<div class="goal-foot">
+      <div class="mixbar">${mix.map(m=>`<i style="width:${m.pct*100}%;background:${m.cor}"></i>`).join('')}</div>
+      <div class="mixlab">${mix.map(m=>`<span><b>${PCT(m.pct,0)}</b> ${esc(m.classe)}</span>`).join('')}</div>
+      ${flags}
+    </div>`:(flags?`<div class="goal-foot">${flags}</div>`:'')}
+  </article>`;
+}
+
+function diasTxt(d){
+  d=Math.abs(Math.round(d));
+  if(d<45) return d+' dia'+(d===1?'':'s');
+  const m=Math.round(d/30.4375);
+  if(m<24) return m+' mês'+(m===1?'':'es');
+  const a=(d/365);
+  return a.toFixed(1).replace('.',',')+' anos';
+}
+
+/* =========================================================
+   Drag and drop + cliques
+   ========================================================= */
+let dragId=null;
+document.addEventListener('dragstart',e=>{
+  const el=e.target.closest('.asset'); if(!el||el.getAttribute('draggable')!=='true') return;
+  dragId=el.dataset.id; el.classList.add('dragging'); e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',dragId);
+});
+document.addEventListener('dragend',e=>{ document.querySelectorAll('.dragging').forEach(x=>x.classList.remove('dragging')); dragId=null });
+
+function bindGoalDnD(){
+  document.querySelectorAll('[data-drop]').forEach(z=>{
+    const card=z.closest('.goal');
+    z.addEventListener('dragover',e=>{e.preventDefault();card.classList.add('drop')});
+    z.addEventListener('dragleave',()=>card.classList.remove('drop'));
+    z.addEventListener('drop',e=>{
+      e.preventDefault(); card.classList.remove('drop');
+      const id = e.dataTransfer.getData('text/plain')||dragId;
+      if(id) alocar(id, z.dataset.drop, {modo:S.modoPadrao||'pct', pct:1-pctAlocado(id), valor:(ativoDe(id)?.valor||0)*(1-pctAlocado(id))});
+    });
+  });
+}
+
+function alocar(ativoId, objetivoId, opt){
+  const a = ativoDe(ativoId); if(!a) return;
+  if(typeof opt === 'number') opt = {modo:'pct', pct:opt};
+  const ex = S.alocacoes.find(x=>x.ativoId===ativoId&&x.objetivoId===objetivoId);
+  const livrePct = 1 - pctAlocado(ativoId) + (ex?pctDe(ex):0);
+  const modo = opt.modo==='valor' ? 'valor' : 'pct';
+  let pct=null, valor=null, vazio;
+  if(modo==='valor'){
+    valor = Math.max(0, Math.min(a.valor*livrePct, opt.valor||0));
+    vazio = valor < 0.5;
+  } else {
+    pct = Math.max(0, Math.min(livrePct, opt.pct||0));
+    vazio = pct < 0.0005;
+  }
+  if(vazio){ S.alocacoes = S.alocacoes.filter(x=>!(x.ativoId===ativoId&&x.objetivoId===objetivoId)) }
+  else if(ex){ ex.modo=modo; ex.pct=pct; ex.valor=valor }
+  else { S.alocacoes.push({ativoId,objetivoId,modo,pct,valor}) }
+  render(); autosave();
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act;
+  if(act==='assign') pickGoal(b.dataset.id);
+  if(act==='editAsset') assetModal(b.dataset.id);
+  if(act==='editGoal') goalModal(b.dataset.id);
+  if(act==='editAloc') allocModal(b.dataset.a,b.dataset.o);
+});
+
+/* =========================================================
+   Modais
+   ========================================================= */
+const bd=document.getElementById('backdrop'), md=document.getElementById('modal');
+function openModal(html,wide){ md.className='modal'+(wide?' wide':''); md.innerHTML=html; bd.hidden=false;
+  const f=md.querySelector('input,select,textarea,button'); if(f)f.focus(); }
+function closeModal(){ bd.hidden=true; md.innerHTML='' }
+bd.addEventListener('click',e=>{ if(e.target===bd) closeModal() });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!bd.hidden) closeModal() });
+window.closeModal=closeModal;
+
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2200) }
+
+/* --- objetivo --- */
+function goalModal(id){
+  const o = id ? S.objetivos.find(x=>x.id===id) : null;
+  const d = o ? o.data : new Date(hoje().getFullYear()+5,hoje().getMonth(),1).toISOString().slice(0,10);
+  openModal(`
+    <div class="modal-head"><h3>${o?'Editar objetivo':'Novo objetivo'}</h3>
+      <p>${o?'Ajuste meta, prazo e aporte.':'Nomeie do jeito que o cliente fala. "Casa na praia" funciona melhor que "imóvel".'}</p></div>
+    <div class="modal-body">
+      ${o?'':`<div class="templates">${TEMPLATES.map((t,i)=>`<button class="tpl" data-tpl="${i}">${t.nome}</button>`).join('')}</div>`}
+      <div class="form-grid">
+        <div class="fl full"><label>Nome do objetivo</label><input id="gNome" value="${o?esc(o.nome):''}" placeholder="Aposentadoria"></div>
+        <div class="fl"><label>Meta (R$ de hoje)</label><input id="gAlvo" type="number" step="1000" value="${o?o.alvo:''}" placeholder="1000000"></div>
+        <div class="fl"><label>Data-alvo</label><input id="gData" type="date" value="${d}"></div>
+        <div class="fl"><label>Aporte mensal (R$)</label><input id="gAporte" type="number" step="100" value="${o?o.aporte:0}"></div>
+        <div class="fl"><label>Cor</label><select id="gCor">${GOAL_COLORS.map(c=>`<option value="${c}" ${o&&o.cor===c?'selected':''}>${nomeCor(c)}</option>`).join('')}</select></div>
+        <div class="fl full"><label>Observação para o cliente</label><textarea id="gObs" rows="2" placeholder="Opcional. Aparece na visão do investidor.">${o?esc(o.obs||''):''}</textarea></div>
+      </div>
+      <p class="hint" style="font-size:11.5px;color:var(--slate);margin:12px 0 0">Metas e aportes em moeda de hoje. A projeção usa taxa real (desconta a inflação de ${PCT(S.premissas.ipca,1)} a.a.).</p>
+    </div>
+    <div class="modal-foot">
+      ${o?`<button class="btn ghost sm" id="gDel" style="margin-right:auto;color:var(--clay);border-color:var(--mist)">Excluir</button>`:''}
+      <button class="btn ghost sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn sm" id="gSave">${o?'Salvar':'Criar objetivo'}</button>
+    </div>`);
+  md.querySelectorAll('[data-tpl]').forEach(b=>b.addEventListener('click',()=>{
+    const t=TEMPLATES[+b.dataset.tpl];
+    md.querySelector('#gNome').value=t.nome;
+    md.querySelector('#gAlvo').value=t.alvo;
+    md.querySelector('#gAporte').value=t.aporte;
+    md.querySelector('#gData').value=new Date(hoje().getFullYear()+t.anos,hoje().getMonth(),1).toISOString().slice(0,10);
+  }));
+  md.querySelector('#gSave').addEventListener('click',()=>{
+    const nome=md.querySelector('#gNome').value.trim()||'Objetivo';
+    const dados={nome, alvo:+md.querySelector('#gAlvo').value||0, data:md.querySelector('#gData').value,
+      aporte:+md.querySelector('#gAporte').value||0, cor:md.querySelector('#gCor').value, obs:md.querySelector('#gObs').value.trim()};
+    if(o) Object.assign(o,dados);
+    else S.objetivos.push({id:uid(),...dados, cor:dados.cor||GOAL_COLORS[S.objetivos.length%GOAL_COLORS.length]});
+    closeModal(); render(); autosave();
+  });
+  const del=md.querySelector('#gDel');
+  if(del) del.addEventListener('click',()=>{
+    S.objetivos=S.objetivos.filter(x=>x.id!==id);
+    S.alocacoes=S.alocacoes.filter(x=>x.objetivoId!==id);
+    closeModal(); render(); autosave();
+  });
+}
+function nomeCor(c){return {'#0F6B5C':'Verde','#3B5A7A':'Azul','#A2701A':'Âmbar','#96382B':'Terracota','#4B4F7A':'Índigo','#3F6B3A':'Musgo','#7A5C3B':'Tabaco','#6E4A6E':'Ameixa'}[c]||c}
+
+/* --- ativo --- */
+function assetModal(id){
+  const a = id ? S.ativos.find(x=>x.id===id) : null;
+  openModal(`
+    <div class="modal-head"><h3>${a?'Editar ativo':'Adicionar ativo'}</h3></div>
+    <div class="modal-body"><div class="form-grid">
+      <div class="fl full"><label>Nome</label><input id="aNome" value="${a?esc(a.nome):''}"></div>
+      <div class="fl"><label>Valor (R$)</label><input id="aVal" type="number" step="0.01" value="${a?a.valor:''}"></div>
+      <div class="fl"><label>Classe</label><select id="aCls">${Object.keys(CLASSES).map(k=>`<option ${a&&a.classe===k?'selected':''}>${k}</option>`).join('')}</select></div>
+      <div class="fl"><label>Liquidez (D+)</label><input id="aLiq" type="number" min="0" value="${a&&a.liq!=null?a.liq:0}"></div>
+      <div class="fl"><label>Retorno esperado (% a.a.)</label><input id="aRet" type="number" step="0.1" value="${a&&a.ret!=null?(a.ret*100).toFixed(1):''}" placeholder="usar padrão da classe"></div>
+    </div></div>
+    <div class="modal-foot">
+      ${a?`<button class="btn ghost sm" id="aDel" style="margin-right:auto;color:var(--clay)">Excluir</button>`:''}
+      <button class="btn ghost sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn sm" id="aSave">Salvar</button>
+    </div>`);
+  md.querySelector('#aSave').addEventListener('click',()=>{
+    const retV=md.querySelector('#aRet').value;
+    const dados={nome:md.querySelector('#aNome').value.trim()||'Ativo', valor:+md.querySelector('#aVal').value||0,
+      classe:md.querySelector('#aCls').value, liq:+md.querySelector('#aLiq').value||0, ret:retV===''?null:+retV/100};
+    if(a) Object.assign(a,dados); else S.ativos.push({id:uid(),...dados});
+    closeModal(); render(); autosave();
+  });
+  const del=md.querySelector('#aDel');
+  if(del) del.addEventListener('click',()=>{ S.ativos=S.ativos.filter(x=>x.id!==id); S.alocacoes=S.alocacoes.filter(x=>x.ativoId!==id); closeModal(); render(); autosave() });
+}
+
+/* --- escolher objetivo (toque) --- */
+function pickGoal(ativoId){
+  const a=S.ativos.find(x=>x.id===ativoId);
+  const livre=(1-pctAlocado(ativoId))*a.valor;
+  if(!S.objetivos.length){ toast('Crie um objetivo primeiro'); return goalModal(null) }
+  openModal(`
+    <div class="modal-head"><h3>Vincular ${esc(a.nome)}</h3><p>${BRL(livre)} livres. Escolha o objetivo.</p></div>
+    <div class="modal-body"><div class="pick-list">
+      ${S.objetivos.map(o=>{const c=calcObjetivo(o);return `<button class="pick" data-o="${o.id}">
+        <span><b>${esc(o.nome)}</b><br><small>${BRL0(c.V)} alocados · meta ${o.alvo?BRL0(o.alvo):'—'}</small></span>
+        <span style="width:9px;height:26px;border-radius:3px;background:${o.cor}"></span></button>`}).join('')}
+    </div></div>
+    <div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Fechar</button></div>`);
+  md.querySelectorAll('[data-o]').forEach(b=>b.addEventListener('click',()=>{ closeModal(); allocModal(ativoId,b.dataset.o,true) }));
+}
+
+/* --- ajustar alocação: percentual ou valor fixo --- */
+function allocModal(ativoId,objetivoId,novo){
+  const a=ativoDe(ativoId), o=S.objetivos.find(x=>x.id===objetivoId);
+  const ex=S.alocacoes.find(x=>x.ativoId===ativoId&&x.objetivoId===objetivoId);
+  const atualPct = ex?pctDe(ex):0;
+  const maxPct = Math.max(0, 1-pctAlocado(ativoId)+atualPct);
+  const maxVal = a.valor*maxPct;
+  let modo = ex? (ex.modo==='valor'?'valor':'pct') : (S.modoPadrao||'pct');
+  const iniVal = novo ? maxVal : a.valor*atualPct;
+  openModal(`
+    <div class="modal-head"><h3>${esc(a.nome)}</h3><p>Quanto desta posição pertence a <b>${esc(o.nome)}</b>?</p></div>
+    <div class="modal-body">
+      <div class="seg" id="alModo">
+        <button data-m="pct" ${modo==='pct'?'class="on"':''}>Percentual do ativo</button>
+        <button data-m="valor" ${modo==='valor'?'class="on"':''}>Valor em reais</button>
+      </div>
+      <p class="seg-note" id="alNote"></p>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:16px 0 6px">
+        <input id="alNum" class="big-num mono" type="number" step="0.01" min="0" max="${maxVal.toFixed(2)}" value="${iniVal.toFixed(2)}">
+        <span class="mono" id="alP" style="color:var(--slate);white-space:nowrap"></span>
+      </div>
+      <input class="slider" id="alS" type="range" min="0" max="1000" value="${maxVal>0?Math.round(iniVal/maxVal*1000):0}">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--slate);margin-top:4px">
+        <span>R$ 0</span><span>livre: ${BRL0(maxVal)} · ${PCT(maxPct,0)} do ativo</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:14px;flex-wrap:wrap">
+        ${[0.25,0.5,0.75].map(p=>p<=maxPct+1e-6?`<button class="tpl" data-p="${p}">${p*100}% do ativo</button>`:'').join('')}
+        <button class="tpl" data-p="${maxPct}">Tudo que está livre</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${ex?`<button class="btn ghost sm" id="alRm" style="margin-right:auto;color:var(--clay)">Desvincular</button>`:''}
+      <button class="btn ghost sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn sm" id="alOk">Aplicar</button>
+    </div>`);
+  const sl=md.querySelector('#alS'), nu=md.querySelector('#alNum');
+  const nota={pct:'O vínculo acompanha o ativo: se a posição render ou oscilar, o valor deste objetivo muda junto.',
+              valor:'O vínculo fica travado neste montante. O que a posição render acima disso volta para o saldo livre.'};
+  const val=()=>Math.max(0,Math.min(maxVal,+nu.value||0));
+  function paint(from){
+    const v=val();
+    if(from!=='num') nu.value=v.toFixed(2);
+    if(from!=='slider') sl.value=maxVal>0?Math.round(v/maxVal*1000):0;
+    md.querySelector('#alP').textContent=PCT(a.valor?v/a.valor:0,1)+' de '+BRL0(a.valor);
+    md.querySelector('#alNote').textContent=nota[modo];
+  }
+  sl.addEventListener('input',()=>{ nu.value=(maxVal*(+sl.value/1000)).toFixed(2); paint('slider') });
+  nu.addEventListener('input',()=>paint('num'));
+  md.querySelectorAll('#alModo button').forEach(b=>b.addEventListener('click',()=>{
+    modo=b.dataset.m; md.querySelectorAll('#alModo button').forEach(x=>x.classList.toggle('on',x===b)); paint();
+  }));
+  md.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{ nu.value=(a.valor*Math.min(maxPct,+b.dataset.p)).toFixed(2); paint('num') }));
+  paint();
+  md.querySelector('#alOk').addEventListener('click',()=>{
+    const v=val(); S.modoPadrao=modo;
+    alocar(ativoId,objetivoId, modo==='valor' ? {modo:'valor', valor:v} : {modo:'pct', pct:a.valor?v/a.valor:0});
+    closeModal();
+  });
+  const rm=md.querySelector('#alRm');
+  if(rm) rm.addEventListener('click',()=>{ alocar(ativoId,objetivoId,{modo:'pct',pct:0}); closeModal() });
+}
+
+/* --- premissas --- */
+function premModal(){
+  openModal(`
+    <div class="modal-head"><h3>Premissas de projeção</h3><p>Retornos nominais esperados. A projeção converte para taxa real pela equação de Fisher.</p></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fl"><label>Inflação (IPCA) % a.a.</label><input id="pIpca" type="number" step="0.1" value="${(S.premissas.ipca*100).toFixed(1)}"></div>
+        <div class="fl"><label>CDI % a.a.</label><input id="pCdi" type="number" step="0.1" value="${(S.premissas.cdi*100).toFixed(1)}"></div>
+      </div>
+      <div class="sec-title" style="margin:22px 0 12px">Retorno por classe (% a.a.)</div>
+      <div class="form-grid">
+        ${Object.keys(CLASSES).map(k=>`<div class="fl"><label>${k}</label><input data-cls="${k}" type="number" step="0.1" value="${(S.premissas.classes[k]*100).toFixed(1)}"></div>`).join('')}
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancelar</button><button class="btn sm" id="pSave">Salvar premissas</button></div>`);
+  md.querySelector('#pSave').addEventListener('click',()=>{
+    S.premissas.ipca=+md.querySelector('#pIpca').value/100;
+    S.premissas.cdi=+md.querySelector('#pCdi').value/100;
+    md.querySelectorAll('[data-cls]').forEach(i=>S.premissas.classes[i.dataset.cls]=+i.value/100);
+    closeModal(); render(); autosave(); toast('Premissas atualizadas');
+  });
+}
+
+/* =========================================================
+   Importação
+   ========================================================= */
+function openImport(){
+  openModal(`
+    <div class="modal-head"><h3>Importar carteira</h3><p>Envie o relatório de performance em PDF (BTG, XP, entre outros) ou cole as posições.</p></div>
+    <div class="modal-body">
+      <div class="drop-file" id="dropFile">
+        Solte o PDF aqui ou <label style="color:var(--accent);text-decoration:underline;cursor:pointer">selecione o arquivo<input type="file" id="fileIn" accept="application/pdf" hidden></label>
+        <div style="font-size:11.5px;margin-top:7px">A leitura é feita no seu navegador. Nada é enviado para fora.</div>
+      </div>
+      <div class="sec-title" style="margin:24px 0 10px">Ou cole as posições</div>
+      <textarea id="pasteIn" rows="6" style="width:100%;border:1px solid var(--mist);border-radius:8px;padding:10px;font-family:var(--font-mono);font-size:12px"
+        placeholder="Porto DI CrPr FIRef; Pós-fixado; 6804,77; 0&#10;BTG Tesouro IPCA Curto; Inflação; 3331,21; 1"></textarea>
+      <div class="hint" style="font-size:11.5px;color:var(--slate);margin-top:6px">Um ativo por linha: nome; classe; valor; D+</div>
+      <div id="impStatus" style="font-size:12.5px;color:var(--slate);margin-top:12px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost sm" id="btnDemo" style="margin-right:auto">Carregar exemplo do PDF anexo</button>
+      <button class="btn ghost sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn sm" id="btnPaste">Ler texto colado</button>
+    </div>`);
+  const dz=md.querySelector('#dropFile'), fi=md.querySelector('#fileIn');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])lerPDF(e.dataTransfer.files[0])});
+  fi.addEventListener('change',()=>{ if(fi.files[0]) lerPDF(fi.files[0]) });
+  md.querySelector('#btnPaste').addEventListener('click',()=>{
+    const linhas=md.querySelector('#pasteIn').value.split('\n').map(l=>l.trim()).filter(Boolean);
+    const itens=linhas.map(l=>{
+      const p=l.split(/[;\t]/).map(x=>x.trim());
+      return {nome:p[0]||'Ativo', classe:normClasse(p[1]||''), valor:num(p[2]||'0'), liq:+(p[3]||0)||0};
+    }).filter(i=>i.valor>0);
+    if(!itens.length) return md.querySelector('#impStatus').textContent='Nenhuma linha reconhecida. Confira o formato: nome; classe; valor; D+';
+    reviewModal(itens);
+  });
+  md.querySelector('#btnDemo').addEventListener('click',()=>reviewModal(DEMO.ativos.map(a=>({...a}))));
+}
+window.openImport=openImport;
+
+function num(s){ return parseFloat(String(s).replace(/[R$\s.]/g,'').replace(',','.'))||0 }
+function semAcento(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase() }
+function normClasse(s){
+  const t=semAcento(s);
+  if(/pos.?fixado|pos fixado|di\b|cdi/.test(t)) return 'Pós-fixado';
+  if(/inflacao|ipca/.test(t)) return 'Inflação';
+  if(/pre.?fixado/.test(t)) return 'Prefixado';
+  if(/retorno absoluto|multimercado|\bmm\b|macro/.test(t)) return 'Retorno Absoluto';
+  if(/renda variavel|acoes|equity|long only|long bias/.test(t)) return 'Renda Variável';
+  if(/internacional|global|offshore|exterior/.test(t)) return 'Internacional';
+  if(/imobiliar|fii|fundo imob/.test(t)) return 'Imobiliário';
+  if(/previd|vgbl|pgbl/.test(t)) return 'Previdência';
+  if(/caixa|liquidez diaria/.test(t)) return 'Caixa';
+  if(/renda fixa/.test(t)) return 'Pós-fixado';
+  return 'Outros';
+}
+
+async function lerPDF(file){
+  const st=document.getElementById('impStatus'); if(st) st.textContent='Lendo o PDF…';
+  try{
+    await carregarPdfJs();
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let linhas=[];
+    for(let p=1;p<=pdf.numPages;p++){
+      const page=await pdf.getPage(p);
+      const tc=await page.getTextContent();
+      const rows={};
+      tc.items.forEach(it=>{
+        const y=Math.round(it.transform[5]);
+        const k=Object.keys(rows).find(r=>Math.abs(r-y)<3) ?? y;
+        (rows[k]=rows[k]||[]).push({x:it.transform[4],s:it.str});
+      });
+      Object.keys(rows).sort((a,b)=>b-a).forEach(k=>{
+        const s=rows[k].sort((a,b)=>a.x-b.x).map(i=>i.s).join(' ').replace(/\s+/g,' ').trim();
+        if(s) linhas.push(s);
+      });
+    }
+    const itens=extrairAtivos(linhas);
+    if(!itens.length){ if(st) st.textContent='Não consegui identificar as posições nesse PDF. Cole as linhas no campo abaixo.'; return }
+    reviewModal(itens);
+  }catch(err){
+    console.error(err);
+    const s=document.getElementById('impStatus'); if(s) s.textContent='Falha ao ler o arquivo. Use o campo de texto abaixo.';
+  }
+}
+function carregarPdfJs(){
+  if(window.pdfjsLib) return Promise.resolve();
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload=()=>{ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res() };
+    s.onerror=rej; document.head.appendChild(s);
+  });
+}
+function extrairAtivos(linhas){
+  const nomesClasse=['Pós-fixado','Inflação','Prefixado','Retorno Absoluto','Renda Variável','Multimercado','Internacional','Imobiliário','Previdência','Caixa','Renda Fixa'];
+  let classeAtual='Outros', out=[], vistos=new Set();
+  linhas.forEach(l=>{
+    const semVal=l.replace(/R\$\s?[\d.]+,\d{2}/g,'').replace(/[\d.,%]/g,'').trim();
+    const hitClasse=nomesClasse.find(c=>semAcento(semVal).startsWith(semAcento(c)) && semVal.length<28);
+    if(hitClasse){ classeAtual=normClasse(hitClasse) }
+    const liq=l.match(/\bD\+\s?(\d+)\b/);
+    const vals=[...l.matchAll(/R\$\s?([\d.]+,\d{2})/g)].map(m=>num(m[1]));
+    if(!liq||vals.length<2) return;
+    let nome=l.split(/\d{2}\/\d{2}\/\d{4}/)[0].trim();
+    nome=nome.replace(/R\$.*$/,'').replace(/\s+[\d.,]+$/,'').trim();
+    if(nome.length<3||nome.length>70) return;
+    const key=semAcento(nome);
+    if(vistos.has(key)) return; vistos.add(key);
+    out.push({nome, classe:classeAtual!=='Outros'?classeAtual:normClasse(nome), valor:vals[0], liq:+liq[1]});
+  });
+  return out;
+}
+
+function reviewModal(itens){
+  openModal(`
+    <div class="modal-head"><h3>Confira antes de importar</h3><p>${itens.length} posições encontradas. Ajuste nome, classe e valor se precisar.</p></div>
+    <div class="modal-body">
+      <table class="review"><thead><tr><th>Ativo</th><th>Classe</th><th class="r" style="width:120px">Valor</th><th style="width:70px">D+</th><th style="width:34px"></th></tr></thead>
+      <tbody id="revBody">${itens.map((i,ix)=>`<tr data-i="${ix}">
+        <td><input value="${esc(i.nome)}" data-f="nome"></td>
+        <td><select data-f="classe">${Object.keys(CLASSES).map(k=>`<option ${i.classe===k?'selected':''}>${k}</option>`).join('')}</select></td>
+        <td class="r"><input type="number" step="0.01" value="${i.valor}" data-f="valor"></td>
+        <td><input type="number" min="0" value="${i.liq??0}" data-f="liq"></td>
+        <td><button class="alloc-edit" data-rm="${ix}" title="Remover">×</button></td>
+      </tr>`).join('')}</tbody></table>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:13px">
+        <span style="color:var(--slate)">Total</span><b class="mono" id="revTot"></b>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <label style="margin-right:auto;font-size:12.5px;color:var(--slate);display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="revSub" checked> Substituir a carteira atual</label>
+      <button class="btn ghost sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn sm" id="revOk">Importar</button>
+    </div>`,true);
+  const body=md.querySelector('#revBody');
+  const total=()=>{ const t=[...body.querySelectorAll('[data-f="valor"]')].reduce((s,i)=>s+(+i.value||0),0); md.querySelector('#revTot').textContent=BRL(t) };
+  total();
+  body.addEventListener('input',total);
+  body.addEventListener('click',e=>{ const b=e.target.closest('[data-rm]'); if(b){ b.closest('tr').remove(); total() } });
+  md.querySelector('#revOk').addEventListener('click',()=>{
+    const novos=[...body.querySelectorAll('tr')].map(tr=>({
+      id:uid(), nome:tr.querySelector('[data-f="nome"]').value.trim(),
+      classe:tr.querySelector('[data-f="classe"]').value,
+      valor:+tr.querySelector('[data-f="valor"]').value||0,
+      liq:+tr.querySelector('[data-f="liq"]').value||0, ret:null
+    })).filter(a=>a.valor>0);
+    if(md.querySelector('#revSub').checked){ S.ativos=novos; S.alocacoes=[] } else { S.ativos=S.ativos.concat(novos) }
+    closeModal(); render(); autosave(); toast(`${novos.length} ativos importados`);
+  });
+}
+
+/* =========================================================
+   Sugerir divisão
+   ========================================================= */
+function sugerirDivisao(){
+  if(!S.objetivos.length) return toast('Crie objetivos antes');
+  if(!S.ativos.length) return toast('Importe a carteira antes');
+  const objs=[...S.objetivos].sort((a,b)=>parseData(a.data)-parseData(b.data));
+  const ativos=[...S.ativos].sort((a,b)=>(a.liq??0)-(b.liq??0) || (CLASSES[a.classe]||CLASSES['Outros']).risco-(CLASSES[b.classe]||CLASSES['Outros']).risco);
+  S.alocacoes=[];
+  const livre=Object.fromEntries(ativos.map(a=>[a.id,a.valor]));
+  objs.forEach(o=>{
+    let falta=o.alvo||0;
+    if(!falta) return;
+    for(const a of ativos){
+      if(falta<=0.5) break;
+      if(livre[a.id]<=0.5) continue;
+      const usa=Math.min(livre[a.id],falta);
+      livre[a.id]-=usa; falta-=usa;
+      const pct=usa/a.valor;
+      const ex=S.alocacoes.find(x=>x.ativoId===a.id&&x.objetivoId===o.id);
+      if(ex) ex.pct+=pct; else S.alocacoes.push({ativoId:a.id,objetivoId:o.id,modo:'pct',pct,valor:null});
+    }
+  });
+  render(); autosave();
+  toast('Divisão sugerida por prazo e liquidez. Ajuste como quiser.');
+}
+
+/* =========================================================
+   Visão do investidor
+   ========================================================= */
+function renderReport(){
+  const el=document.getElementById('report');
+  const tot=patrimonio(), alc=alocadoTotal();
+  const dados=S.objetivos.map(o=>({o,c:calcObjetivo(o)}));
+  const noPrazo=dados.filter(d=>d.o.alvo&&d.c.diasDelta!=null&&d.c.diasDelta<=0).length;
+  const comMeta=dados.filter(d=>d.o.alvo).length;
+  const dataRef=parseData(S.dataBase).toLocaleDateString('pt-BR');
+
+  if(!S.ativos.length && !S.objetivos.length){
+    el.innerHTML=`<div class="empty-state"><h3>Nada para mostrar ainda</h3><p>Importe a carteira e crie os objetivos na aba Planejar.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="rep-head">
+      <div class="rep-title">${S.marca?`<span>${esc(S.marca)}</span>`:''}Seu patrimônio,<br>organizado por objetivo</div>
+      <div class="rep-meta"><b>${esc(S.cliente||'Cliente')}</b>${S.conta?'Conta '+esc(S.conta)+'<br>':''}Posição em ${dataRef}${S.planejador?'<br>Planejamento: '+esc(S.planejador):''}</div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="l">Patrimônio</div><div class="v mono">${BRL0(tot)}</div><div class="n">${S.ativos.length} posições</div></div>
+      <div class="kpi"><div class="l">Com objetivo</div><div class="v mono">${PCT(tot?alc/tot:0,0)}</div><div class="n">${BRL0(alc)} vinculados</div></div>
+      <div class="kpi"><div class="l">Objetivos</div><div class="v mono">${S.objetivos.length}</div><div class="n">${comMeta?noPrazo+' de '+comMeta+' no prazo':'sem meta definida'}</div></div>
+      <div class="kpi"><div class="l">Sem destino</div><div class="v mono">${BRL0(tot-alc)}</div><div class="n">${tot-alc>0.5?'a definir com o planejador':'tudo direcionado'}</div></div>
+    </div>
+
+    ${dados.length?`<div class="sec-title">Linha do tempo</div>${timelineSVG(dados)}`:''}
+
+    <div class="sec-title">Cada objetivo, em detalhe</div>
+    ${dados.map(d=>repGoal(d.o,d.c)).join('') || '<p class="note">Nenhum objetivo criado.</p>'}
+
+    ${tot-alc>0.5?`<div class="sec-title">Sem objetivo definido</div>
+      <p class="note" style="border-color:var(--amber)">${BRL0(tot-alc)} da carteira, ou ${PCT((tot-alc)/tot,0)} do total, ainda não estão ligados a nenhum objetivo. Não é um problema, mas é a próxima conversa: todo dinheiro investido rende melhor quando sabe para que serve.</p>
+      <table class="assets" style="margin-top:14px"><thead><tr><th>Ativo</th><th>Classe</th><th class="r">Valor livre</th></tr></thead><tbody>
+      ${S.ativos.filter(a=>1-pctAlocado(a.id)>0.001).map(a=>`<tr><td>${esc(a.nome)}</td><td>${esc(a.classe)}</td><td class="r mono">${BRL0(a.valor*(1-pctAlocado(a.id)))}</td></tr>`).join('')}
+      </tbody></table>`:''}
+
+    <div class="disc">
+      Valores em moeda de hoje. As projeções usam taxa real, descontando inflação estimada de ${PCT(S.premissas.ipca,1)} ao ano, e consideram os aportes mensais informados para cada objetivo.
+      Retornos passados não garantem resultados futuros; as estimativas de rentabilidade são premissas de planejamento e não promessa de rendimento.
+      Este material é informativo e não constitui recomendação de investimento nos termos da Resolução CVM nº 20/2021.
+      Posições marcadas como fixo representam um valor travado dentro de uma aplicação maior; as demais acompanham a variação do ativo. Documento gerado em ${new Date().toLocaleDateString('pt-BR')}.
+    </div>`;
+}
+
+function repGoal(o,c){
+  const mix=mixClasses(c.itens);
+  const dMeta=parseData(o.data);
+  const prazo=dMeta.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  let status='<div class="stat"><div class="l">Prazo</div><div class="v">—</div></div>';
+  if(o.alvo&&c.meses!=null) status=`<div class="stat"><div class="l">Prazo</div><div class="v ${c.diasDelta<=0?'pos':'neg'}">${c.diasDelta<=0?(c.diasDelta===0?'No prazo':'Antecipa '+diasTxt(c.diasDelta)):'Atrasa '+diasTxt(c.diasDelta)}</div></div>`;
+  else if(o.alvo) status=`<div class="stat"><div class="l">Prazo</div><div class="v neg">Meta não alcançada</div></div>`;
+  return `<div class="rep-goal" style="--gc:${o.cor}">
+    <div class="rg-head">
+      <div class="rg-name"><i></i>${esc(o.nome)}</div>
+      <div class="rg-meta">Meta ${o.alvo?BRL0(o.alvo):'—'} · ${prazo}${o.aporte?' · aporte de '+BRL0(o.aporte)+' por mês':''}</div>
+    </div>
+    <div class="rg-cols">
+      <div>
+        ${c.itens.length?`<table class="assets"><thead><tr><th>Investimento</th><th>Classe</th><th class="r">Valor</th><th class="r">Peso</th></tr></thead><tbody>
+          ${c.itens.map(i=>`<tr><td>${esc(i.ativo.nome)}${i.pct<0.999?` <small style="color:var(--slate)">(${PCT(i.pct,0)} da posição)</small>`:''}${i.modo==='valor'?' <span class="tag-fix">fixo</span>':''}</td><td>${esc(i.ativo.classe)}</td><td class="r mono">${BRL0(i.valor)}</td><td class="r mono">${PCT(i.valor/c.V,0)}</td></tr>`).join('')}
+          <tr><td colspan="2"><b>Total</b></td><td class="r mono"><b>${BRL0(c.V)}</b></td><td class="r mono">100%</td></tr>
+        </tbody></table>
+        <div class="mixbar" style="margin-top:12px">${mix.map(m=>`<i style="width:${m.pct*100}%;background:${m.cor}"></i>`).join('')}</div>
+        <div class="mixlab">${mix.map(m=>`<span><b>${PCT(m.pct,0)}</b> ${esc(m.classe)}</span>`).join('')}</div>`
+        :`<p class="note">Ainda sem investimentos vinculados. A construção começa pelos aportes mensais.</p>`}
+      </div>
+      <div>
+        <div class="rg-stats">
+          <div class="stat"><div class="l">Hoje</div><div class="v mono">${BRL0(c.V)}</div></div>
+          <div class="stat"><div class="l">Da meta</div><div class="v mono">${PCT(c.progresso||0,1)}</div></div>
+          <div class="stat"><div class="l">Projetado em ${dMeta.getFullYear()}</div><div class="v mono">${o.alvo?BRL0(c.projetado):'—'}</div></div>
+          ${status}
+          <div class="stat"><div class="l">Retorno esperado</div><div class="v">${PCT(c.retNominal,1)} a.a.</div></div>
+          <div class="stat"><div class="l">${c.aporteNec>(o.aporte||0)?'Aporte necessário':'Aporte atual'}</div><div class="v mono">${BRL0(c.aporteNec>(o.aporte||0)?c.aporteNec:(o.aporte||0))}/mês</div></div>
+        </div>
+        ${o.obs?`<p class="note">${esc(o.obs)}</p>`:''}
+        ${o.alvo&&c.cobertura!=null?`<p class="note" style="border-color:${c.cobertura>=1?'var(--moss)':'var(--amber)'}">${
+          c.cobertura>=1
+            ? `No ritmo atual, este objetivo chega a ${PCT(c.cobertura,0)} da meta na data combinada.`
+            : `No ritmo atual, chega a ${PCT(c.cobertura,0)} da meta. Faltam ${BRL0(Math.max(0,o.alvo-c.projetado))}, o equivalente a ${BRL0(c.aporteNec-(o.aporte||0))} a mais por mês.`}</p>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function timelineSVG(dados){
+  const validos=dados.filter(d=>d.o.data);
+  if(!validos.length) return '';
+  const t0=hoje();
+  const datas=validos.flatMap(d=>[parseData(d.o.data), d.c.dataProj||parseData(d.o.data)]);
+  const tMax=new Date(Math.max(...datas.map(d=>+d)));
+  const span=Math.max(1,(tMax-t0)/86400000)*1.06;
+  const W=1000, L=190, R=90, w=W-L-R;
+  const rowH=34, H=validos.length*rowH+56;
+  const x=d=>L+Math.max(0,Math.min(1,(d-t0)/86400000/span))*w;
+  const anos=[]; for(let y=t0.getFullYear(); y<=tMax.getFullYear()+1; y++) anos.push(y);
+  const step=Math.ceil(anos.length/9);
+  return `<svg class="timeline" viewBox="0 0 ${W} ${H}" role="img" aria-label="Linha do tempo dos objetivos">
+    ${anos.filter((y,i)=>i%step===0).map(y=>{
+      const px=x(new Date(y,0,1));
+      return `<line x1="${px}" y1="26" x2="${px}" y2="${H-24}" stroke="#E8ECEA"/>
+              <text x="${px}" y="18" font-size="10.5" fill="#5A6763" font-family="Inter,sans-serif" text-anchor="middle">${y}</text>`;
+    }).join('')}
+    <line x1="${L}" y1="26" x2="${L}" y2="${H-24}" stroke="#0F1A17" stroke-width="1.4"/>
+    <text x="${L}" y="${H-9}" font-size="10" fill="#5A6763" font-family="Inter,sans-serif">hoje</text>
+    ${validos.map((d,i)=>{
+      const y=44+i*rowH, xm=x(parseData(d.o.data));
+      const xp=d.c.dataProj?x(d.c.dataProj):null;
+      const late=xp!=null&&d.c.diasDelta>0;
+      const seg = xp!=null ? `<line x1="${Math.min(xm,xp)}" y1="${y}" x2="${Math.max(xm,xp)}" y2="${y}" stroke="${late?'#96382B':'#3F6B3A'}" stroke-width="4" stroke-linecap="round" opacity=".85"/>`:'';
+      return `<g>
+        <text x="${L-14}" y="${y+4}" font-size="12.5" fill="#0F1A17" font-family="Fraunces,Georgia,serif" text-anchor="end">${esc(d.o.nome)}</text>
+        <line x1="${L}" y1="${y}" x2="${xm}" y2="${y}" stroke="${d.o.cor}" stroke-width="1.5" opacity=".45"/>
+        ${seg}
+        <path d="M${xm} ${y-6} L${xm+6} ${y} L${xm} ${y+6} L${xm-6} ${y} Z" fill="${d.o.cor}"/>
+        ${xp!=null?`<circle cx="${xp}" cy="${y}" r="4.5" fill="${late?'#96382B':'#3F6B3A'}"/>`:''}
+        <text x="${W-R+12}" y="${y+4}" font-size="11" fill="${xp==null?'#5A6763':(late?'#96382B':'#3F6B3A')}" font-family="Inter,sans-serif">${
+          !d.o.alvo?'sem meta': d.c.meses==null?'não atinge': d.c.diasDelta<=0?'−'+diasTxt(d.c.diasDelta):'+'+diasTxt(d.c.diasDelta)}</text>
+      </g>`;
+    }).join('')}
+    <g font-family="Inter,sans-serif" font-size="10.5" fill="#5A6763">
+      <path d="M${L} ${H-16} L${L+6} ${H-10} L${L} ${H-4} L${L-6} ${H-10} Z" fill="#5A6763" opacity=".01"/>
+      <circle cx="${L+180}" cy="${H-10}" r="4" fill="#3F6B3A"/><text x="${L+192}" y="${H-6}">projeção</text>
+      <path d="M${L+120} ${H-16} L${L+126} ${H-10} L${L+120} ${H-4} L${L+114} ${H-10} Z" fill="#0F1A17"/><text x="${L+132}" y="${H-6}">data-alvo</text>
+    </g>
+  </svg>`;
+}
+
+/* =========================================================
+   Persistência e arquivo
+   ========================================================= */
+async function autosave(){
+  try{ await window.storage.set('carteira-objetivo:atual', JSON.stringify(S)) }catch(e){}
+}
+async function carregar(){
+  try{
+    const r=await window.storage.get('carteira-objetivo:atual');
+    if(r&&r.value){ S=Object.assign(S,JSON.parse(r.value)); return true }
+  }catch(e){}
+  return false;
+}
+function fileMenu(){
+  openModal(`
+    <div class="modal-head"><h3>Arquivo</h3><p>O trabalho fica salvo neste navegador. Exporte para levar para outro lugar.</p></div>
+    <div class="modal-body"><div class="pick-list">
+      <button class="pick" id="fExp"><span><b>Exportar plano (.json)</b><br><small>Backup completo: carteira, objetivos e premissas</small></span>→</button>
+      <button class="pick" id="fImp"><span><b>Abrir plano (.json)</b><br><small>Substitui o que está na tela</small></span>→</button>
+      <button class="pick" id="fNew"><span><b>Começar do zero</b><br><small>Limpa cliente, ativos e objetivos</small></span>→</button>
+      <button class="pick" id="fDemo"><span><b>Carregar exemplo</b><br><small>Carteira do relatório BTG com três objetivos montados</small></span>→</button>
+    </div><input type="file" id="fFile" accept="application/json" hidden></div>
+    <div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Fechar</button></div>`);
+  md.querySelector('#fExp').addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download=`plano-${(S.cliente||'cliente').toLowerCase().replace(/\s+/g,'-')}.json`; a.click();
+    closeModal(); toast('Plano exportado');
+  });
+  md.querySelector('#fImp').addEventListener('click',()=>md.querySelector('#fFile').click());
+  md.querySelector('#fFile').addEventListener('change',async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{ S=Object.assign(S,JSON.parse(await f.text())); syncFields(); render(); autosave(); closeModal(); toast('Plano carregado') }
+    catch(err){ toast('Arquivo inválido') }
+  });
+  md.querySelector('#fNew').addEventListener('click',()=>{
+    S.cliente='';S.conta='';S.ativos=[];S.objetivos=[];S.alocacoes=[];
+    syncFields(); render(); autosave(); closeModal();
+  });
+  md.querySelector('#fDemo').addEventListener('click',()=>{ carregarDemo(); closeModal() });
+}
+
+/* =========================================================
+   Exemplo (relatório anexo)
+   ========================================================= */
+const DEMO={
+  cliente:'Igor Santos Rocha', conta:'009021657',
+  ativos:[
+    {nome:'Porto DI CrPr FIRef',            classe:'Pós-fixado',       valor:6804.77, liq:0},
+    {nome:'BRADESCO ZUPO FICFIRF LP CrPr',  classe:'Pós-fixado',       valor:5677.85, liq:6},
+    {nome:'SPARTA TOP FIC RF CrPr LP',      classe:'Pós-fixado',       valor:4528.30, liq:31},
+    {nome:'BTG Tesouro IPCA Curto FIRFRef', classe:'Inflação',         valor:3331.21, liq:1},
+    {nome:'Artesanal Multimercado FICFIM',  classe:'Retorno Absoluto', valor:2297.02, liq:2}
+  ]
+};
+function carregarDemo(){
+  S.cliente=DEMO.cliente; S.conta=DEMO.conta; S.planejador='';
+  S.ativos=DEMO.ativos.map(a=>({id:uid(),ret:null,...a}));
+  const y=hoje().getFullYear();
+  S.objetivos=[
+    {id:uid(), nome:'Reserva de emergência', alvo:36000,  data:`${y+2}-01-01`, aporte:1100,  cor:GOAL_COLORS[0], obs:'Seis meses de custo de vida, sempre disponível.'},
+    {id:uid(), nome:'Entrada do apartamento', alvo:180000, data:`${y+6}-06-01`, aporte:1500, cor:GOAL_COLORS[1], obs:''},
+    {id:uid(), nome:'Aposentadoria',          alvo:2500000,data:`${y+25}-01-01`,aporte:2700, cor:GOAL_COLORS[2], obs:'Meta de renda de R$ 12 mil por mês em moeda de hoje.'}
+  ];
+  const [r,e,a]=S.objetivos;
+  const at=S.ativos;
+  S.alocacoes=[
+    {ativoId:at[0].id,objetivoId:r.id,modo:'valor',valor:6000,pct:null},
+    {ativoId:at[1].id,objetivoId:r.id,modo:'pct',pct:0.4,valor:null},
+    {ativoId:at[1].id,objetivoId:e.id,modo:'pct',pct:0.6,valor:null},
+    {ativoId:at[2].id,objetivoId:e.id,modo:'pct',pct:1,valor:null},
+    {ativoId:at[3].id,objetivoId:a.id,modo:'pct',pct:1,valor:null},
+    {ativoId:at[4].id,objetivoId:a.id,modo:'pct',pct:1,valor:null}
+  ];
+  syncFields(); render(); autosave(); toast('Exemplo carregado');
+}
+
+/* =========================================================
+   Bootstrap
+   ========================================================= */
+function syncFields(){
+  document.getElementById('fCliente').value=S.cliente||'';
+  document.getElementById('fConta').value=S.conta||'';
+  document.getElementById('fData').value=S.dataBase;
+  document.getElementById('fPlanejador').value=S.planejador||'';
+  document.getElementById('brandMark').value=S.marca||'';
+  renderSwatches();
+}
+function renderSwatches(){
+  document.getElementById('swatches').innerHTML=ACCENTS.map(c=>
+    `<button class="swatch" style="background:${c}" data-acc="${c}" aria-pressed="${S.accent===c}" title="Cor da marca"></button>`).join('');
+  document.querySelectorAll('[data-acc]').forEach(b=>b.addEventListener('click',()=>{S.accent=b.dataset.acc;renderSwatches();render();autosave()}));
+}
+['fCliente','fConta','fData','fPlanejador','brandMark'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    const map={fCliente:'cliente',fConta:'conta',fData:'dataBase',fPlanejador:'planejador',brandMark:'marca'};
+    S[map[id]]=e.target.value; autosave();
+    if(!document.getElementById('viewRep').hidden) renderReport();
+  });
+});
+document.getElementById('btnNewGoal').addEventListener('click',()=>goalModal(null));
+document.getElementById('btnAddAsset').addEventListener('click',()=>assetModal(null));
+document.getElementById('btnImport').addEventListener('click',openImport);
+document.getElementById('btnPrem').addEventListener('click',premModal);
+document.getElementById('btnMenu').addEventListener('click',fileMenu);
+document.getElementById('btnAuto').addEventListener('click',sugerirDivisao);
+document.getElementById('btnSave').addEventListener('click',()=>{autosave();toast('Salvo neste navegador')});
+document.getElementById('btnPrint').addEventListener('click',()=>window.print());
+const tabP=document.getElementById('tabPlan'), tabR=document.getElementById('tabRep');
+function setTab(rep){
+  tabP.setAttribute('aria-selected',!rep); tabR.setAttribute('aria-selected',rep);
+  document.getElementById('viewPlan').hidden=rep; document.getElementById('viewRep').hidden=!rep;
+  if(rep) renderReport();
+}
+tabP.addEventListener('click',()=>setTab(false));
+tabR.addEventListener('click',()=>setTab(true));
+
+(async()=>{
+  const ok=await carregar();
+  if(!ok || !S.ativos.length) carregarDemo(); else { syncFields(); render() }
+})();
+</script>
+</body>
+</html>
